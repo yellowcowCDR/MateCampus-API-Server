@@ -33,6 +33,9 @@ dependencies {
 	implementation group: 'software.amazon.awssdk', name: 'dynamodb', version: '2.17.93'
 	implementation group: 'software.amazon.awssdk', name: 'dynamodb-enhanced', version: '2.17.93'
 
+	// firebase
+	implementation 'com.google.firebase:firebase-admin:7.0.0'
+
 }
 
 tasks.named('test') {

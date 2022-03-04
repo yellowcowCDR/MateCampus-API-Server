@@ -1,11 +1,11 @@
 cloud:
   aws:
     credentials:
-      accessKey: ## 값 넣기
-      secretKey: ## 값 넣기
+      accessKey: ### key
+      secretKey: ### key
     s3:
-      bucket: ## 값 넣기
+      bucket: ### bucket url
     region:
-      static: ## 값 넣기
+      static: ap-northeast-2
     stack:
       auto: false

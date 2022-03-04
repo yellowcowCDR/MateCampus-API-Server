@@ -49,25 +49,22 @@ public class Post extends BaseEntity {
     @NotNull
     private boolean deleted = Boolean.FALSE;
 
-    public void updateMyPost(PostDtoReq.Update postDto) {
-        this.body = postDto.getBody();
-    }
-
     public static Post createPost(User user, PostDtoReq.Create postDto) {
         //빌더 객체를 사용할 경우
         final Post post = Post.builder()
                 .user(user)
                 .body(postDto.getBody())
                 .build();
-
         return post;
+    }
+
+    public void updateMyPost(PostDtoReq.Update postDto) {
+        this.body = postDto.getBody();
     }
 
     public void setPictures(List<PostPicture> pictureBeans){
         this.pictures = pictureBeans;
     }
-
-
 
 }
 

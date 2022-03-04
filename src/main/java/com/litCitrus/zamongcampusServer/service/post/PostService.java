@@ -42,7 +42,7 @@ public class PostService {
             return postRepository.save(post);
         }
         else{
-            List<String> uploadImageUrls = s3Uploader.upload(postDto.getFiles(), "2021/post");
+            List<String> uploadImageUrls = s3Uploader.upload(postDto.getFiles(), "2022/post");
             List<PostPicture> postPictures = uploadImageUrls.stream().map(url -> PostPicture.createPostPicture(post, url)).collect(Collectors.toList());
             postPictureRepository.saveAll(postPictures);
 
