@@ -1,0 +1,11 @@
+cloud:
+  aws:
+    credentials:
+      accessKey: ## 값 넣기
+      secretKey: ## 값 넣기
+    s3:
+      bucket: ## 값 넣기
+    region:
+      static: ## 값 넣기
+    stack:
+      auto: false
