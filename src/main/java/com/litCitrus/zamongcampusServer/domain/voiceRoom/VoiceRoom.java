@@ -1,11 +1,11 @@
 package com.litCitrus.zamongcampusServer.domain.voiceRoom;
 
+import com.litCitrus.zamongcampusServer.domain.chat.Participant;
 import com.litCitrus.zamongcampusServer.domain.user.User;
 import com.litCitrus.zamongcampusServer.dto.voiceRoom.VoiceRoomDtoReq;
 import lombok.*;
 
 import javax.persistence.*;
-import java.util.Arrays;
 import java.util.UUID;
 
 @Entity

@@ -67,8 +67,8 @@ public class User {
     @OneToMany(mappedBy = "owner")
     private Set<VoiceRoom> voiceRooms;
 
-//    @OneToMany(mappedBy = "user")
-//    private List<ModifiedChatInfo> modifiedChatInfos;
+    @OneToMany(mappedBy = "user")
+    private List<ModifiedChatInfo> modifiedChatInfos;
 
     @Builder.Default
     @NotNull

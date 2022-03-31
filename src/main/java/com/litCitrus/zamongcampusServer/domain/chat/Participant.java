@@ -1,4 +1,4 @@
-package com.litCitrus.zamongcampusServer.domain.voiceRoom;
+package com.litCitrus.zamongcampusServer.domain.chat;
 
 import com.litCitrus.zamongcampusServer.domain.user.User;
 import lombok.*;

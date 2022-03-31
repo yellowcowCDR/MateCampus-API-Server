@@ -4,7 +4,9 @@ import com.litCitrus.zamongcampusServer.domain.interest.Interest;
 import com.litCitrus.zamongcampusServer.domain.user.User;
 import com.litCitrus.zamongcampusServer.domain.user.UserInterest;
 import com.litCitrus.zamongcampusServer.domain.user.UserPicture;
+import com.litCitrus.zamongcampusServer.dto.chat.ChatMessageDtoReq;
 import com.litCitrus.zamongcampusServer.dto.user.UserDtoReq;
+import com.litCitrus.zamongcampusServer.io.dynamodb.service.DynamoDBHandler;
 import com.litCitrus.zamongcampusServer.repository.interest.InterestRepository;
 import com.litCitrus.zamongcampusServer.repository.user.UserInterestRepository;
 import com.litCitrus.zamongcampusServer.repository.user.UserPictureRepository;
@@ -28,6 +30,7 @@ class AaSampleDataConfig {
     private final UserPictureRepository userPictureRepository;
     private final InterestRepository interestRepository;
     private final UserInterestRepository userInterestRepository;
+    private final DynamoDBHandler dynamoDBHandler;
 
     User user1 = User.createUser(new UserDtoReq.Create
             ("zm1", "1234", "devicetoken1", "mmong1@naver.com",
@@ -132,6 +135,37 @@ class AaSampleDataConfig {
             user4.addUserPictures(pictures4);
             userPictureRepository.saveAll(pictures4);
             userRepository.save(user4);
+        };
+    }
+
+    @Bean
+    @Order(5)
+    /**
+     * dynamodb sample message 저장
+     */
+    CommandLineRunner commandLineRunnerForDynamodbChatMessage() {
+        return args -> {
+            /* enter message */
+            ChatMessageDtoReq chatMessageDtoReq1 = new ChatMessageDtoReq();
+            chatMessageDtoReq1.setRoomId("room001");
+            chatMessageDtoReq1.setText("홍길동님이 입장하셨습니다!");
+            chatMessageDtoReq1.setType("enter");
+            dynamoDBHandler.putMessage(chatMessageDtoReq1);
+            /* talk message */
+            ChatMessageDtoReq chatMessageDtoReq2 = new ChatMessageDtoReq();
+            chatMessageDtoReq2.setLoginId("zm1");
+            chatMessageDtoReq2.setRoomId("room001");
+            chatMessageDtoReq2.setText("hi~ 자몽캠퍼스");
+            chatMessageDtoReq2.setType("talk");
+            chatMessageDtoReq2.setChatRoomType("single");
+            dynamoDBHandler.putMessage(chatMessageDtoReq2);
+            /* exit message */
+            ChatMessageDtoReq chatMessageDtoReq3 = new ChatMessageDtoReq();
+            chatMessageDtoReq3.setRoomId("room001");
+            chatMessageDtoReq3.setText("홍길동님이 퇴장하셨습니다!");
+            chatMessageDtoReq3.setType("exit");
+            dynamoDBHandler.putMessage(chatMessageDtoReq3);
+
         };
     }
 

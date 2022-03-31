@@ -1,11 +1,8 @@
 package com.litCitrus.zamongcampusServer.service.voiceRoom;
 
-import com.litCitrus.zamongcampusServer.domain.post.Post;
 import com.litCitrus.zamongcampusServer.domain.user.User;
-import com.litCitrus.zamongcampusServer.domain.voiceRoom.Participant;
+import com.litCitrus.zamongcampusServer.domain.chat.Participant;
 import com.litCitrus.zamongcampusServer.domain.voiceRoom.VoiceRoom;
-import com.litCitrus.zamongcampusServer.dto.post.PostDtoReq;
-import com.litCitrus.zamongcampusServer.dto.post.PostDtoRes;
 import com.litCitrus.zamongcampusServer.dto.voiceRoom.VoiceRoomDtoReq;
 import com.litCitrus.zamongcampusServer.dto.voiceRoom.VoiceRoomDtoRes;
 import com.litCitrus.zamongcampusServer.exception.user.UserNotFoundException;
@@ -15,16 +12,10 @@ import com.litCitrus.zamongcampusServer.repository.user.UserRepository;
 import com.litCitrus.zamongcampusServer.repository.voiceRoom.ParticipantRepository;
 import com.litCitrus.zamongcampusServer.repository.voiceRoom.VoiceRoomRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.*;
 
 import javax.transaction.Transactional;
-import javax.validation.Valid;
 import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -65,11 +56,5 @@ public class VoiceRoomService {
 
         return new VoiceRoomDtoRes.Res(voiceRoom, token);
     }
-//
-//    // DELETE
-//    public ResponseEntity<?> deletePost(Long voiceRoomId, String loginId){
-//        postService.deletePost(voiceRoomId, loginId);
-//        ResponseEntity<?> response = new ResponseEntity<>("정상적인 접근: 게시물 삭제", HttpStatus.OK);
-//        return response;
-//    }
+
 }

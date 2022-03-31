@@ -1,6 +1,7 @@
 package com.litCitrus.zamongcampusServer.dto.post;
 
 import lombok.Getter;
+import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
@@ -8,6 +9,7 @@ import javax.validation.constraints.Size;
 public class PostCommentDtoReq {
 
     @Getter
+    @Setter
     public static class CreateRequest {
 
         @NotBlank(message = "로그인 ID는 Null 일 수 없습니다")
