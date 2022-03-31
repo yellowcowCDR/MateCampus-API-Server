@@ -2,6 +2,7 @@ package com.litCitrus.zamongcampusServer.domain.user;
 
 import com.litCitrus.zamongcampusServer.domain.post.Post;
 import com.litCitrus.zamongcampusServer.domain.post.PostLike;
+import com.litCitrus.zamongcampusServer.domain.voiceRoom.VoiceRoom;
 import com.litCitrus.zamongcampusServer.dto.post.PostDtoReq;
 import com.litCitrus.zamongcampusServer.dto.user.UserDtoReq;
 import lombok.*;
@@ -62,6 +63,9 @@ public class User {
     @OneToMany(mappedBy = "user")
     @Builder.Default
     private List<UserPicture> pictures = new ArrayList<UserPicture>();
+
+    @OneToMany(mappedBy = "owner")
+    private Set<VoiceRoom> voiceRooms;
 
 //    @OneToMany(mappedBy = "user")
 //    private List<ModifiedChatInfo> modifiedChatInfos;

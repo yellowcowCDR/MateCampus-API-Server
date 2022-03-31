@@ -1,4 +1,4 @@
-package com.litCitrus.zamongcampusServer.domain.voiceroom;
+package com.litCitrus.zamongcampusServer.domain.voiceRoom;
 
 import com.litCitrus.zamongcampusServer.domain.user.User;
 import lombok.*;
@@ -24,7 +24,6 @@ public class Participant {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @NonNull
     @ManyToMany
     private List<User> users;
 
