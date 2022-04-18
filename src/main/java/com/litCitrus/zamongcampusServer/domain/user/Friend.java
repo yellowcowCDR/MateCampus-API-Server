@@ -23,13 +23,12 @@ public class Friend extends BaseEntity {
     private User recipient;
 
     @Builder.Default
-    private Status status = Status.UNAPPROVED;
+    private Status status = Status.UNACCEPTED;
 
     @Getter
     public enum Status {
-        UNAPPROVED,
-        APPROVED,
-        REFUSED,
+        UNACCEPTED,
+        ACCEPTED
     }
 
     public static Friend createFriend(User requestor, User recipient){
