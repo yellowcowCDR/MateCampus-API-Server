@@ -1,6 +1,7 @@
 package com.litCitrus.zamongcampusServer.repository.user;
 
 import com.litCitrus.zamongcampusServer.domain.user.User;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
@@ -13,6 +14,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Boolean existsUserByNickname(String nickname);
 
     Optional<User> findByLoginId(String loginId);
+
+    @EntityGraph(attributePaths = "authorities")
+    Optional<User> findOneWithAuthoritiesByLoginId(String loginId);
 
 
 }

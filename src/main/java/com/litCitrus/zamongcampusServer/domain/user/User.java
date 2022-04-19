@@ -31,20 +31,25 @@ public class User {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @Column(unique = true)
+    @Column(unique = true, length = 50)
     private String loginId;
 
+    @Column(length = 100)
     private String password;
 
-    // TODO : 반드시 unique로 변경해야함
-    //	@Column(unique = true)
+    @Column(unique = true)
     private String deviceToken;
 
     @Column(unique = true)
     private String email;
 
-    @Column(unique = true)
+    @Column(unique = true, length = 50)
     private String nickname;
+
+    @ManyToMany
+    private Set<Authority> authorities;
+
+    private boolean activated;
 
     private String name;
     private String collegeCode;
@@ -74,11 +79,12 @@ public class User {
     @NotNull
     private boolean deleted = Boolean.FALSE;
 
-    public static User createUser(UserDtoReq.Create userDto) {
+    public static User createUser(UserDtoReq.Create userDto, String encodedPassword, Authority authority) {
         //빌더 객체를 사용할 경우
         final User user = User.builder()
                 .loginId(userDto.getLoginId())
-                .password(sha256(userDto.getPassword()))
+                .password(encodedPassword)
+                .authorities(Collections.singleton(authority))
                 .deviceToken(userDto.getDeviceToken())
                 .email(userDto.getEmail())
                 .nickname(userDto.getNickname())

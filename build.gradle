@@ -14,18 +14,20 @@ repositories {
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'mysql:mysql-connector-java'
-	implementation 'org.webjars:stomp-websocket:2.3.3'
-	implementation 'org.webjars:sockjs-client:1.0.2'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	implementation 'org.springframework.boot:spring-boot-starter-web' // 필요?
+	implementation 'org.springframework.boot:spring-boot-starter-validation' // 필요?
+
+	implementation 'mysql:mysql-connector-java'
 
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
 
+	// jwt, security
 	implementation 'io.jsonwebtoken:jjwt-api:0.11.2'
-
-	implementation 'org.springframework.boot:spring-boot-starter-web'
-	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	implementation 'io.jsonwebtoken:jjwt-impl:0.11.2'
+	implementation 'io.jsonwebtoken:jjwt-jackson:0.11.2'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
 
 	// aws: s3
 	implementation 'com.amazonaws:aws-java-sdk-s3:1.12.99'
@@ -38,7 +40,8 @@ dependencies {
 
 	// websocket(stomp)
 	implementation 'org.webjars:stomp-websocket:2.3.3'
-	implementation 'org.springframework.boot:spring-boot-starter-websocket'
+	implementation 'org.webjars:sockjs-client:1.0.2'
+	implementation 'org.springframework.boot:spring-boot-starter-websocket' // 필요?
 
 
 }

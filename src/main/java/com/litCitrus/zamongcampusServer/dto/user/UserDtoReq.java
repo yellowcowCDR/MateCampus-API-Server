@@ -41,14 +41,5 @@ public class UserDtoReq {
         @NotBlank(message = "학번(studentNum)가 비워있습니다.")
         private int studentNum;
 
-//        @Builder.Default
-//        private boolean emailAuthentication = Boolean.FALSE;
-        // signUpToken: 메일인증을 위한 토큰
-//        @NotBlank(message = "token(signUpToken)가 비워있습니다.")
-//        private SignUpToken signUpToken;
-//        private Set<UserInterest> userInterests;
-//        private Set<PostLike> likedPosts;
-//        private List<UserPicture> pictures;
-
     }
 }
