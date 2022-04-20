@@ -7,11 +7,12 @@ import javax.persistence.*;
 @Getter
 @Setter
 @Builder
+@Table(name = "authority")
 @AllArgsConstructor
 @NoArgsConstructor
 public class Authority {
 
     @Id
-    @Column(length = 50)
+    @Column(name = "authority_name", length = 50)
     private String authorityName;
 }

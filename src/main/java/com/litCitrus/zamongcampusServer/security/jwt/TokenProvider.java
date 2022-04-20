@@ -42,12 +42,14 @@ public class TokenProvider implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() {
+        // 여기 key를 그냥 base64로 decode한 값 자체를 주기엔 너무 리스크가 크지 않을까?
         byte[] keyBytes = Decoders.BASE64.decode(secret);
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }
 
     /**
-     * validty와 키로 token를 만든다. */
+     * 만료시간과 키로 token를 만든다.
+     */
     public String createToken(Authentication authentication) {
         String authorities = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
@@ -64,6 +66,10 @@ public class TokenProvider implements InitializingBean {
                 .compact();
     }
 
+    /**
+     * token를 받아 authentication 정보를 리턴하는 함수
+     * 자동로그인할 때 사용할 함수
+     */
     public Authentication getAuthentication(String token) {
         Claims claims = Jwts
                 .parserBuilder()
@@ -82,6 +88,11 @@ public class TokenProvider implements InitializingBean {
         return new UsernamePasswordAuthenticationToken(principal, token, authorities);
     }
 
+    /**
+     * 토큰의 유효성 검증하는 함수
+     * api 호출 시 header 값에 반드시 추가해서 보내도록.
+     * 그리고 토큰을 검증하도록 한다
+     */
     public boolean validateToken(String token) {
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);

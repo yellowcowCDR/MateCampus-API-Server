@@ -28,7 +28,7 @@ import java.util.Set;
 public class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(unique = true, length = 50)
@@ -37,19 +37,16 @@ public class User {
     @Column(length = 100)
     private String password;
 
+    @Column(unique = true, length = 50)
+    private String nickname;
+
+    private boolean activated;
+
     @Column(unique = true)
     private String deviceToken;
 
     @Column(unique = true)
     private String email;
-
-    @Column(unique = true, length = 50)
-    private String nickname;
-
-    @ManyToMany
-    private Set<Authority> authorities;
-
-    private boolean activated;
 
     private String name;
     private String collegeCode;
@@ -58,6 +55,17 @@ public class User {
 
     @Builder.Default
     private boolean emailAuthentication = Boolean.FALSE;
+
+    @Builder.Default
+    @NotNull
+    private boolean deleted = Boolean.FALSE;
+
+    @ManyToMany
+    @JoinTable(
+            name = "user_authority",
+            joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")},
+            inverseJoinColumns = {@JoinColumn(name = "authority_name", referencedColumnName = "authority_name")})
+    private Set<Authority> authorities;
 
     @OneToMany(mappedBy = "user")
     private Set<UserInterest> userInterests;
@@ -75,9 +83,6 @@ public class User {
     @OneToMany(mappedBy = "user")
     private List<ModifiedChatInfo> modifiedChatInfos;
 
-    @Builder.Default
-    @NotNull
-    private boolean deleted = Boolean.FALSE;
 
     public static User createUser(UserDtoReq.Create userDto, String encodedPassword, Authority authority) {
         //빌더 객체를 사용할 경우

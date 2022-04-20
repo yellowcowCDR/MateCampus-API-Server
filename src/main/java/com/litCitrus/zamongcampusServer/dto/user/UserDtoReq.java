@@ -3,6 +3,7 @@ package com.litCitrus.zamongcampusServer.dto.user;
 import lombok.*;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 
@@ -38,7 +39,7 @@ public class UserDtoReq {
         @NotBlank(message = "학과(department)이 비워있습니다.")
         private String department;
 
-        @NotBlank(message = "학번(studentNum)가 비워있습니다.")
+        @NotNull(message = "학번(studentNum)가 비워있습니다.")
         private int studentNum;
 
     }

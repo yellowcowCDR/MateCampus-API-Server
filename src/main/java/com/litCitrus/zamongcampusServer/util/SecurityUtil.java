@@ -15,6 +15,9 @@ public class SecurityUtil {
     private SecurityUtil() {
     }
 
+    /**
+     *  securityContext에 저장된 User(domain 아님)의 username를 리턴한다
+     * */
     public static Optional<String> getCurrentUsername() {
         final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 

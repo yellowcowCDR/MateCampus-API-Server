@@ -16,10 +16,14 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class UserService {
+
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-
+    /** 회원가입
+     * 자동으로 ROLE_USER의 권한을 가진다.
+     * ROLE_ADMIN는 data.sql에서 서버 실행과 함께 하나만 생성한다. (따로 메소드로 두진 않는다 위험해서)
+     * */
     @Transactional
     public User signup(UserDtoReq.Create userDto) {
         if (userRepository.findOneWithAuthoritiesByLoginId(userDto.getLoginId()).orElse(null) != null) {
@@ -33,11 +37,13 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    /* 관리자(ADMIN)만 사용 */
     @Transactional(readOnly = true)
     public Optional<User> getUserWithAuthorities(String loginId) {
         return userRepository.findOneWithAuthoritiesByLoginId(loginId);
     }
 
+    /* 일반 User들이 사용 */
     @Transactional(readOnly = true)
     public Optional<User> getMyUserWithAuthorities() {
         return SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId);

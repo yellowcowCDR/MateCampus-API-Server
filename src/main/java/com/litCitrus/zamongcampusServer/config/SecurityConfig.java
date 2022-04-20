@@ -18,6 +18,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
  * web 보안 활성화: HttpServletRequest를 사용하는 요청들에 대한 접근제한 설정
  * antMatchers(path).permitAll()는 해당 path로 들어오는 요청은 인증 없이 접근 허용
  * anyRequest().authenticated는 나머지 요청들은 모두 인증되어야 한다는 의미
+ * EnableGloblaMethodSecurity는 @PreAuthorize 어노테이션을 메소드단위로 추가하기 위해서 사
  */
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
@@ -72,9 +73,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
                 .and()
                 .authorizeRequests()
-                .antMatchers("/api/hello").permitAll()
-                .antMatchers("/api/authenticate").permitAll()
-                .antMatchers("/api/signup").permitAll()
+                .antMatchers("/api/authenticate").permitAll() // 로그인 API
+                .antMatchers("/api/signup").permitAll() // 회원가입 API
                 .anyRequest().authenticated()
 
                 .and()

@@ -14,6 +14,13 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * db의 user,authority의 정보를 가지고
+ * userdetails의 객체를 만들어서 리턴한다.
+ * 이때 createUser 함수가 작동되는데,
+ * isActivated인지 검사한다 => 여기서 false면 유저 정보를 만들지 못하려나?
+ *
+ * */
 @Component("userDetailsService")
 @RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {

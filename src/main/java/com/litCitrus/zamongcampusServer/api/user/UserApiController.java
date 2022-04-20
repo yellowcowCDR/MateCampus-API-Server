@@ -30,6 +30,9 @@ public class UserApiController {
         return ResponseEntity.ok(userService.getMyUserWithAuthorities().get());
     }
 
+    /** 어드민만 가능한 함수
+     * PreAuthorize로 어드민만 접근 가능하도록 함
+     * */
     @GetMapping("/user/{username}")
     @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<User> getUserInfo(@PathVariable String username) {

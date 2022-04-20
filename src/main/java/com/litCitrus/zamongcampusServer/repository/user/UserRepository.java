@@ -15,8 +15,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByLoginId(String loginId);
 
+    /* 쿼리 진행 시 Eager 조회로 authorities의 정보를 같이 가져온다 */
     @EntityGraph(attributePaths = "authorities")
     Optional<User> findOneWithAuthoritiesByLoginId(String loginId);
-
 
 }
