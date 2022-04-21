@@ -1,5 +1,7 @@
 package com.litCitrus.zamongcampusServer.util;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
@@ -8,12 +10,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Optional;
 
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class SecurityUtil {
 
     private static final Logger logger = LoggerFactory.getLogger(SecurityUtil.class);
-
-    private SecurityUtil() {
-    }
 
     /**
      *  securityContext에 저장된 User(domain 아님)의 username를 리턴한다

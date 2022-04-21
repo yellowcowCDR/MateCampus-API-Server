@@ -15,10 +15,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * db의 user,authority의 정보를 가지고
- * userdetails의 객체를 만들어서 리턴한다.
- * 이때 createUser 함수가 작동되는데,
- * isActivated인지 검사한다 => 여기서 false면 유저 정보를 만들지 못하려나?
+ * authController의 authorize 함수의 authenticationManagerBuilder의 authenticate 실행 시 아래 코드도 실행된다.
+ * loginID로 db의 user의 정보 뺴낸다(findOneWith...)
+ * 그 다음 해당 user 정보를 통해 userdetails의 user를 만드는 createUser 함수가 작동되는데,
+ * 이때 isActivated인지 검사한다
+ * => 여기서 false면 db에는 회원정보가 있으나, token 값 발행은 되지 않는다!!
+ * => 즉, activated 컬럼이 false면 token이 발행되지 않아 우리 서비스를 활용할 수 없다.
  *
  * */
 @Component("userDetailsService")
