@@ -127,4 +127,8 @@ public class User {
         Collections.addAll(this.pictures, userPictures.toArray(new UserPicture[0]));
         return this;
     }
+
+    public void setActivated(){
+        this.activated = true;
+    }
 }

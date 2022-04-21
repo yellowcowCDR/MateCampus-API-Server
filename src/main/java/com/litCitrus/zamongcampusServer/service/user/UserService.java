@@ -3,6 +3,7 @@ package com.litCitrus.zamongcampusServer.service.user;
 import com.litCitrus.zamongcampusServer.domain.user.Authority;
 import com.litCitrus.zamongcampusServer.domain.user.User;
 import com.litCitrus.zamongcampusServer.dto.user.UserDtoReq;
+import com.litCitrus.zamongcampusServer.exception.user.UserNotFoundException;
 import com.litCitrus.zamongcampusServer.repository.user.UserRepository;
 import com.litCitrus.zamongcampusServer.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
@@ -47,5 +48,12 @@ public class UserService {
     @Transactional(readOnly = true)
     public Optional<User> getMyUserWithAuthorities() {
         return SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId);
+    }
+
+    @Transactional
+    public User activateUser(String loginId){
+        User user = userRepository.findOneWithAuthoritiesByLoginId(loginId).orElseThrow(UserNotFoundException::new);
+        user.setActivated();
+        return user;
     }
 }

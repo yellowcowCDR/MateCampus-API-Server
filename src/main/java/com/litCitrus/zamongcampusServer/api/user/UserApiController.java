@@ -38,4 +38,10 @@ public class UserApiController {
     public ResponseEntity<User> getUserInfo(@PathVariable String username) {
         return ResponseEntity.ok(userService.getUserWithAuthorities(username).get());
     }
+
+    @PostMapping("/user/activate")
+    @PreAuthorize("hasAnyRole('ADMIN')")
+    public ResponseEntity<User> activateUser(@RequestParam("loginId") String loginId) {
+        return ResponseEntity.ok(userService.activateUser(loginId));
+    }
 }
