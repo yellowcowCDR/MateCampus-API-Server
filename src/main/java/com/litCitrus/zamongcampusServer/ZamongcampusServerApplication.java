@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 
 @SpringBootApplication
@@ -20,7 +21,7 @@ public class ZamongcampusServerApplication {
 	@Bean
 	FirebaseMessaging firebaseMessaging() throws IOException {
 		GoogleCredentials googleCredentials = GoogleCredentials
-				.fromStream(new ClassPathResource("firebase-service-account.json").getInputStream());
+				.fromStream(new FileInputStream("/app/config/zamongcampus-server/firebase-service-account.json"));
 		FirebaseOptions firebaseOptions = FirebaseOptions
 				.builder()
 				.setCredentials(googleCredentials)
@@ -35,8 +36,10 @@ public class ZamongcampusServerApplication {
 
 
 	public static final String APPLICATION_LOCATIONS = "spring.config.location="
-			+ "classpath:application.properties,"
-			+ "classpath:aws.yml";
+			+ "classpath:application.yml,"
+			+ "/app/config/zamongcampus-server/application-dev.yml,"
+			+ "/app/config/zamongcampus-server/application-prod.yml,"
+			+ "/app/config/zamongcampus-server/aws.yml";
 
 	public static void main(String[] args) {
 		new SpringApplicationBuilder(ZamongcampusServerApplication.class)

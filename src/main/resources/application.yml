@@ -1,0 +1,44 @@
+spring:
+  profiles:
+    group:
+      "dev": "dev-db"
+      "prod": "prod-db"
+  jpa:
+    # 서버 작동 시, table 계속 create 하도록 설정
+    hibernate:
+      ddl-auto: create
+    # sql 관련 log
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: true
+        use_sql_comments: true
+
+  # .sql 파일 실행하도록 하는 설정.
+  datasource:
+    initialization-mode: always
+
+# 나중에 값 바꾸고, 외부로 옮길 것.
+jwt:
+  header: Authorization
+  token-validity-in-seconds: '86400'
+  secret: emFtb25nLWFuZC1vcmFuZ2UtY29sbGFib3JhdGlvbi1ieS1vdXItbmV3LXVuaXZlcnNpdHktYXBwbGljYXRpb24tem1jYW1wdXMtYnktc2VpbHBhcmstUy15dW4tcHJvamVjdC1ieS1saXRjaXRydXMK
+
+
+logging:
+  level:
+    org:
+      hibernate:
+        type:
+          descriptor:
+            sql: trace
+---
+spring:
+  config:
+    activate:
+      on-profile: "dev"
+---
+spring:
+  config:
+    activate:
+      on-profile: "prod"
