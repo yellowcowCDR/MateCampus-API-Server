@@ -31,29 +31,28 @@ public class PostApiController {
     // READ : 전체 게시글 최신순
     @GetMapping("/recent")
     @ResponseStatus(HttpStatus.OK)
-    public List<PostDtoRes.Res> getAllPostOrderByRecent(@RequestParam("loginId") String loginId, @RequestParam("nextPageToken") String nextPageToken){
-        List<Post> posts = postService.getAllPostOrderbyRecent(loginId, nextPageToken);
-        return posts.stream().map(post -> new PostDtoRes.Res(post)).collect(Collectors.toList());
+    public List<PostDtoRes.Res> getAllPostOrderByRecent(@RequestParam("nextPageToken") String nextPageToken){
+        return postService.getAllPostOrderbyRecent(nextPageToken);
     }
 
     // READ : 전체 게시글 인기순
     @GetMapping("/mostLike")
-    public ResponseEntity<?> getAllPostOrderByMostLike(@RequestParam("loginId") String loginId, @RequestParam("nextPageToken") String nextPageToken){
-        ResponseEntity<?> response = new ResponseEntity<>(postService.getAllPostOrderbyMostLike(loginId, nextPageToken), HttpStatus.OK);
+    public ResponseEntity<?> getAllPostOrderByMostLike(@RequestParam("nextPageToken") String nextPageToken){
+        ResponseEntity<?> response = new ResponseEntity<>(postService.getAllPostOrderbyMostLike(nextPageToken), HttpStatus.OK);
         return response;
     }
 
     // READ : 자신이 쓴 게시글 최신순
     @GetMapping("/my")
-    public ResponseEntity<?> getMyPostOrderByRecent(@RequestParam("loginId") String loginId, @RequestParam("nextPageToken") String nextPageToken){
+    public ResponseEntity<?> getMyPostOrderByRecent(@RequestParam("nextPageToken") String nextPageToken){
         // TODO: 반드시 인증절차 넣어야함(token 담아서 보내고 해당 token의 진위여부 판단) => 모든 곳에서
-        ResponseEntity<?> response = new ResponseEntity<>(postService.getMyPostOrderbyRecent(loginId, nextPageToken), HttpStatus.OK);
+        ResponseEntity<?> response = new ResponseEntity<>(postService.getMyPostOrderbyRecent(nextPageToken), HttpStatus.OK);
         return response;
     }
 
     @GetMapping("{postId}")
-    public ResponseEntity<?> getPost(@Valid @PathVariable("postId") Long postId, @RequestParam("loginId") String loginId){
-        ResponseEntity<?> response = new ResponseEntity<>(postService.getPost(postId, loginId), HttpStatus.OK);
+    public ResponseEntity<?> getPost(@Valid @PathVariable("postId") Long postId){
+        ResponseEntity<?> response = new ResponseEntity<>(postService.getPost(postId), HttpStatus.OK);
         return response;
     }
 
@@ -67,8 +66,8 @@ public class PostApiController {
 
     // DELETE
     @DeleteMapping("{postId}")
-    public ResponseEntity<?> deletePost(@Valid @PathVariable("postId") Long postId, @RequestParam("loginId") String loginId){
-        postService.deletePost(postId, loginId);
+    public ResponseEntity<?> deletePost(@Valid @PathVariable("postId") Long postId){
+        postService.deletePost(postId);
         ResponseEntity<?> response = new ResponseEntity<>("정상적인 접근: 게시물 삭제", HttpStatus.OK);
         return response;
     }
