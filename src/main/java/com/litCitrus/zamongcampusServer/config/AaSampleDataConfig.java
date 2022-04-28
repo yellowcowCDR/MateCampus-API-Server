@@ -30,7 +30,7 @@
 ////    private final UserPictureRepository userPictureRepository;
 ////    private final InterestRepository interestRepository;
 ////    private final UserInterestRepository userInterestRepository;
-////    private final DynamoDBHandler dynamoDBHandler;
+//    private final DynamoDBHandler dynamoDBHandler;
 ////
 ////    User user1 = User.createUser(new UserDtoReq.Create
 ////            ("zm1", "1234", "devicetoken1", "mmong1@naver.com",
@@ -47,7 +47,7 @@
 ////    User user4 = User.createUser(new UserDtoReq.Create
 ////            ("zm4", "1234", "devicetoken4", "mmong4@naver.com",
 ////                    "라디오꾼", "최기신", "college0004", "성악과", 32220004));
-////
+////    User admin = userRepository.findOneWithAuthoritiesByLoginId("admin").get();
 ////    @Bean
 ////    @Order(1)
 ////    /**
@@ -145,26 +145,26 @@
 //     */
 //    CommandLineRunner commandLineRunnerForDynamodbChatMessage() {
 //        return args -> {
-////            /* enter message */
-////            ChatMessageDtoReq chatMessageDtoReq1 = new ChatMessageDtoReq();
-////            chatMessageDtoReq1.setRoomId("room001");
-////            chatMessageDtoReq1.setText("홍길동님이 입장하셨습니다!");
-////            chatMessageDtoReq1.setType("enter");
-////            dynamoDBHandler.putMessage(chatMessageDtoReq1);
-////            /* talk message */
-////            ChatMessageDtoReq chatMessageDtoReq2 = new ChatMessageDtoReq();
-////            chatMessageDtoReq2.setLoginId("zm1");
-////            chatMessageDtoReq2.setRoomId("room001");
-////            chatMessageDtoReq2.setText("hi~ 자몽캠퍼스");
-////            chatMessageDtoReq2.setType("talk");
-////            chatMessageDtoReq2.setChatRoomType("single");
-////            dynamoDBHandler.putMessage(chatMessageDtoReq2);
-////            /* exit message */
-////            ChatMessageDtoReq chatMessageDtoReq3 = new ChatMessageDtoReq();
-////            chatMessageDtoReq3.setRoomId("room001");
-////            chatMessageDtoReq3.setText("홍길동님이 퇴장하셨습니다!");
-////            chatMessageDtoReq3.setType("exit");
-////            dynamoDBHandler.putMessage(chatMessageDtoReq3);
+//            /* enter message */
+//            ChatMessageDtoReq chatMessageDtoReq1 = new ChatMessageDtoReq();
+//            chatMessageDtoReq1.setRoomId("room001");
+//            chatMessageDtoReq1.setText("홍길동님이 입장하셨습니다!");
+//            chatMessageDtoReq1.setType("enter");
+//            dynamoDBHandler.putMessage(chatMessageDtoReq1);
+//            /* talk message */
+//            ChatMessageDtoReq chatMessageDtoReq2 = new ChatMessageDtoReq();
+//            chatMessageDtoReq2.setLoginId("zm1");
+//            chatMessageDtoReq2.setRoomId("room001");
+//            chatMessageDtoReq2.setText("hi~ 자몽캠퍼스");
+//            chatMessageDtoReq2.setType("talk");
+//            chatMessageDtoReq2.setChatRoomType("single");
+//            dynamoDBHandler.putMessage(chatMessageDtoReq2);
+//            /* exit message */
+//            ChatMessageDtoReq chatMessageDtoReq3 = new ChatMessageDtoReq();
+//            chatMessageDtoReq3.setRoomId("room001");
+//            chatMessageDtoReq3.setText("홍길동님이 퇴장하셨습니다!");
+//            chatMessageDtoReq3.setType("exit");
+//            dynamoDBHandler.putMessage(chatMessageDtoReq3);
 //
 //        };
 //    }
