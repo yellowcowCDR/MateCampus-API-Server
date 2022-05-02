@@ -25,19 +25,23 @@ public class PostDtoRes {
         final private long id;
         final private String loginId;
         final private String userNickname;
+        final private String title;
         final private String body;
         final private LocalDateTime createdAt;
         final private int likedCount;
         final private List<String> imageUrls;
+        final private int viewCount;
 
         public Res(Post post){
             this.id = post.getId();
             this.loginId = post.getUser().getLoginId();
             this.userNickname = post.getUser().getNickname();
+            this.title = post.getTitle();
             this.body = post.getBody();
             this.createdAt = post.getCreatedAt();
             this.likedCount = post.getLikedUsers().size();
             this.imageUrls = post.getPictures().stream().map(postPicture -> postPicture.getStored_file_path()).collect(Collectors.toList());
+            this.viewCount = 53;
 
         }
     }

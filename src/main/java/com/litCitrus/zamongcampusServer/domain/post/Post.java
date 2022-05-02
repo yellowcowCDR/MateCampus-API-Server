@@ -31,6 +31,8 @@ public class Post extends BaseEntity {
     @ManyToOne
     private User user;
 
+    private String title;
+
     private String body;
 
     @OneToMany(mappedBy = "post")
@@ -53,6 +55,7 @@ public class Post extends BaseEntity {
         //빌더 객체를 사용할 경우
         final Post post = Post.builder()
                 .user(user)
+                .title(postDto.getTitle())
                 .body(postDto.getBody())
                 .build();
         return post;

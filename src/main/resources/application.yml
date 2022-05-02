@@ -17,6 +17,12 @@ spring:
   # .sql 파일 실행하도록 하는 설정.
   datasource:
     initialization-mode: always
+  # image size 최대 크기 조정
+  servlet:
+    multipart:
+      max-file-size: 128MB
+      max-request-size: 128MB
+      enabled: true
 
 # 나중에 값 바꾸고, 외부로 옮길 것.
 jwt:
@@ -32,6 +38,7 @@ logging:
         type:
           descriptor:
             sql: trace
+
 ---
 spring:
   config:

@@ -36,8 +36,15 @@ public class PostApiController {
     }
 
     // READ : 전체 게시글 인기순
-    @GetMapping("/mostLike")
+    @GetMapping("/popular")
     public ResponseEntity<?> getAllPostOrderByMostLike(@RequestParam("nextPageToken") String nextPageToken){
+        ResponseEntity<?> response = new ResponseEntity<>(postService.getAllPostOrderbyMostLike(nextPageToken), HttpStatus.OK);
+        return response;
+    }
+
+    // READ : 전체 게시글 추천순 (변경 필요)
+    @GetMapping("/recommend")
+    public ResponseEntity<?> getAllPostOrderByRecommend(@RequestParam("nextPageToken") String nextPageToken){
         ResponseEntity<?> response = new ResponseEntity<>(postService.getAllPostOrderbyMostLike(nextPageToken), HttpStatus.OK);
         return response;
     }

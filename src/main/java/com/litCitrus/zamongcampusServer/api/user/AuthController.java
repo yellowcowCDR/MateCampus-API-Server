@@ -21,14 +21,14 @@ import javax.validation.Valid;
 
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/authenticate")
 @RequiredArgsConstructor
 public class AuthController {
     private final TokenProvider tokenProvider;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
 
     /* 로그인 API */
-    @PostMapping("/authenticate")
+    @PostMapping
     public ResponseEntity<TokenDto> authorize(@Valid @RequestBody LoginDtoReq loginDto) {
 
         UsernamePasswordAuthenticationToken authenticationToken =
@@ -47,5 +47,15 @@ public class AuthController {
         httpHeaders.add(JwtFilter.AUTHORIZATION_HEADER, "Bearer " + jwt);
 
         return new ResponseEntity<>(new TokenDto(jwt), httpHeaders, HttpStatus.OK);
+    }
+
+    /**
+     * token 유효한지 확인하고 맞으면 true, 아니면 false로 반환.
+     * client에서 token를 담아보내면 알아서 유효성 검사 하니까, 현재는 따로 로직 존재 안함.
+     * 나중에 반드시 refreshToken 로직으로 변경할 것.
+     * */
+    @PostMapping("/checkTokenValidation")
+    public ResponseEntity<?> checkTokenValidation(){
+        return new ResponseEntity<>(true, HttpStatus.OK);
     }
 }
