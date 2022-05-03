@@ -31,6 +31,7 @@ public class FriendService {
     // ** 친구목록 불러오기
     public List<FriendDtoRes> getFriends(){
         User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
+        // TODO: querydsl 필요 (accepted 된 것들만 가져오는..?)
         return friendRepository.findByRequestorOrRecipient(user, user).stream()
                 .map(friend -> new FriendDtoRes(friend.getRequestor().equals(user) ? friend.getRecipient() : friend.getRequestor(), friend))
                 .collect(Collectors.toList());

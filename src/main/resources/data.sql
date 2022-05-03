@@ -15,6 +15,7 @@ INSERT INTO user_authority (USER_ID, AUTHORITY_NAME) values (1, 'ROLE_ADMIN');
 INSERT INTO user_authority (USER_ID, AUTHORITY_NAME) values (2, 'ROLE_USER');
 INSERT INTO user_authority (USER_ID, AUTHORITY_NAME) values (3, 'ROLE_USER');
 
--- INSERT INTO friend (ID, STATUS, RECIPIENT_ID, REQUESTRO_ID) values (1, )
-
+-- friend 신청(user1이 user2에게 신청)
+INSERT INTO friend (ID, STATUS, RECIPIENT_ID, REQUESTOR_ID) values (1, 1, 3, 2);
+-- 2022-05-03 20:40:15.943059
 
