@@ -1,5 +1,6 @@
 package com.litCitrus.zamongcampusServer.domain.user;
 
+import com.litCitrus.zamongcampusServer.domain.BaseEntity;
 import com.litCitrus.zamongcampusServer.domain.post.Post;
 import com.litCitrus.zamongcampusServer.domain.post.PostLike;
 import com.litCitrus.zamongcampusServer.domain.voiceRoom.VoiceRoom;
@@ -25,7 +26,7 @@ import java.util.Set;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SQLDelete(sql = "UPDATE user SET deleted = true WHERE id=?")
-public class User {
+public class User extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

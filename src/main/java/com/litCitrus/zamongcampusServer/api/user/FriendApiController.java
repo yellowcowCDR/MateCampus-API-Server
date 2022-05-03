@@ -13,39 +13,39 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/follow")
+@RequestMapping("/api/friend")
 public class FriendApiController {
 
     private final FriendService friendService;
 
     // ** 친구신청
-    @PostMapping("{loginId}/request")
-    public ResponseEntity<?> requestFriend(@Valid @PathVariable("loginId") String loginId, @Valid @RequestBody FriendDtoReq.Create dto){
-        friendService.requestFriend(loginId, dto);
+    @PostMapping()
+    public ResponseEntity<?> requestFriend(@Valid @RequestBody FriendDtoReq.Create dto){
+        friendService.requestFriend(dto);
         return new ResponseEntity<>("정상적인 접근: 팔로우 생성 ", HttpStatus.OK);
     }
     // ** 친구목록 불러오기
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<FriendDtoRes> getFriends(@RequestParam("loginId") String loginId){
-        return friendService.getFriends(loginId);
+    public List<FriendDtoRes> getFriends(){
+        return friendService.getFriends();
     }
     // *** 친구수락, 거절도 followId 받아서도 진행가능할 듯. => 추후 변경 필요할지도.
     // ** 친구수락
-    @PutMapping("{loginId}/approve")
-    public ResponseEntity<?> approveFriend(@Valid @PathVariable("loginId") String loginId, @Valid @RequestBody FriendDtoReq.Update dto){
-        return new ResponseEntity<>("정상적인 접근: 팔로우 status 변경" + friendService.approveFriend(loginId, dto).getStatus(), HttpStatus.OK);
+    @PutMapping("/approve")
+    public ResponseEntity<?> approveFriend(@Valid @RequestBody FriendDtoReq.Update dto){
+        return new ResponseEntity<>("정상적인 접근: 팔로우 status 변경" + friendService.approveFriend(dto).getStatus(), HttpStatus.OK);
     }
     // ** 친구거절
-    @PutMapping("{loginId}/refuse")
-    public ResponseEntity<?> refuseFriend(@Valid @PathVariable("loginId") String loginId, @Valid @RequestBody FriendDtoReq.Update dto){
-        return new ResponseEntity<>("정상적인 접근: 팔로우 status 변경" + friendService.refuseFriend(loginId, dto).getStatus(), HttpStatus.OK);
+    @PutMapping("/refuse")
+    public ResponseEntity<?> refuseFriend(@Valid @RequestBody FriendDtoReq.Update dto){
+        return new ResponseEntity<>("정상적인 접근: 팔로우 status 변경" + friendService.refuseFriend(dto).getStatus(), HttpStatus.OK);
     }
     // ** 친구삭제 => 양쪽 다 삭제할건지. 아니면 한쪽만 삭제할건지 고민. (이 부분이 가능할지 모르곘네)
     // 이미 반대쪽도 삭제한거면 삭제하도록. => (만약 한쪽에서 삭제한상태면 메세지가 가능하도록 해야하나.?)
-    @PutMapping("{followId}/delete")
-    public ResponseEntity<?> deleteFriend(@Valid @PathVariable("followId") Long followId, @Valid @RequestBody FriendDtoReq.Update dto){
-        friendService.deleteFriend(followId, dto);
+    @DeleteMapping("{friendId}")
+    public ResponseEntity<?> deleteFriend(@Valid @PathVariable("friendId") Long friendId){
+        friendService.deleteFriend(friendId);
         return new ResponseEntity<>("정상적인 접근: 팔로우 삭제 ", HttpStatus.OK);
     }
 }
