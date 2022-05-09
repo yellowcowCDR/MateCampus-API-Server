@@ -51,8 +51,9 @@ public class User extends BaseEntity {
 
     private String name;
     private String collegeCode;
-    private String department;
+    private String majorCode;
     private int studentNum;
+    private String introduction;
 
     @Builder.Default
     private boolean emailAuthentication = Boolean.FALSE;
@@ -96,7 +97,7 @@ public class User extends BaseEntity {
                 .nickname(userDto.getNickname())
                 .name(userDto.getName())
                 .collegeCode(userDto.getCollegeCode())
-                .department(userDto.getDepartment())
+                .majorCode(userDto.getMajorCode())
                 .studentNum(userDto.getStudentNum())
 //                .activated(true)  // 이거 활성화시키면 회원가입만 하면 우리 서비스 바로 사용 가능.
                 .build();

@@ -27,8 +27,14 @@ public class FriendApiController {
     // ** 친구목록 불러오기
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<FriendDtoRes> getFriends(){
+    public List<FriendDtoRes.Res> getFriends(){
         return friendService.getFriends();
+    }
+
+    @GetMapping("{friendId}")
+    @ResponseStatus(HttpStatus.OK)
+    public FriendDtoRes.ResWithDetail getFriend(@Valid @PathVariable("friendId") String friendId){
+        return friendService.getFriend(friendId);
     }
     // *** 친구수락, 거절도 followId 받아서도 진행가능할 듯. => 추후 변경 필요할지도.
     // ** 친구수락

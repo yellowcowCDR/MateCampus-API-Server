@@ -26,10 +26,9 @@ public class ChatMessageController {
 
     @ResponseBody
     @GetMapping("/api/chat/message")
-    public ChatMessageDtoRes.ChatBundle getChatMessageDynamo(@Valid @RequestParam("loginId") String loginId,
-                                                             @Valid @RequestParam("totalLastMsgCreatedAt") String createdAt){
+    public ChatMessageDtoRes.ChatBundle getChatMessageDynamo(@Valid @RequestParam("totalLastMsgCreatedAt") String createdAt){
         // 메시지 가져오는 부분
-        return chatMessageService.getChatMessageDynamo(loginId, createdAt);
+        return chatMessageService.getChatMessageDynamo(createdAt);
     }
 
 }

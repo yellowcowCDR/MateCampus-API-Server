@@ -11,6 +11,7 @@ import com.litCitrus.zamongcampusServer.io.dynamodb.service.DynamoDBHandler;
 import com.litCitrus.zamongcampusServer.repository.chat.ChatRoomRepository;
 import com.litCitrus.zamongcampusServer.repository.user.ModifiedChatInfoRepository;
 import com.litCitrus.zamongcampusServer.repository.user.UserRepository;
+import com.litCitrus.zamongcampusServer.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
@@ -50,9 +51,9 @@ public class ChatMessageService {
     }
 
     // READ: GET MESSAGE
-    public ChatMessageDtoRes.ChatBundle getChatMessageDynamo(String loginId, String createdAfter){
+    public ChatMessageDtoRes.ChatBundle getChatMessageDynamo(String createdAfter){
         /* 참여한 모든 방 찾기 */
-        User user = userRepository.findByLoginId(loginId).orElseThrow(UserNotFoundException::new);
+        User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
         List<ChatRoom> chatRooms = chatRoomRepository.findAllByParticipant_Users(user);
 
         /* 각 채팅 roomId 기준으로 DynamoDB에서 메시지 가져오고 dto로 변환 */

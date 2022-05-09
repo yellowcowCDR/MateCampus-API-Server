@@ -29,12 +29,18 @@ public class FriendService {
         friendRepository.save(Friend.createFriend(actor, target));
     }
     // ** 친구목록 불러오기
-    public List<FriendDtoRes> getFriends(){
+    public List<FriendDtoRes.Res> getFriends(){
         User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
         // TODO: querydsl 필요 (accepted 된 것들만 가져오는..?)
         return friendRepository.findByRequestorOrRecipient(user, user).stream()
-                .map(friend -> new FriendDtoRes(friend.getRequestor().equals(user) ? friend.getRecipient() : friend.getRequestor(), friend))
+                .map(friend -> new FriendDtoRes.Res(friend.getRequestor().equals(user) ? friend.getRecipient() : friend.getRequestor(), friend))
                 .collect(Collectors.toList());
+    }
+
+    public FriendDtoRes.ResWithDetail getFriend(String friendId){
+        User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
+        Friend friend = friendRepository.findById(Long.parseLong(friendId)).get();
+        return new FriendDtoRes.ResWithDetail(friend.getRequestor().equals(user) ? friend.getRecipient() : friend.getRequestor(), friend);
     }
     // ** 친구수락
     @Transactional

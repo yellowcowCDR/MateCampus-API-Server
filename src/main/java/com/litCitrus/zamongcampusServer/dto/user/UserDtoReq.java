@@ -36,8 +36,8 @@ public class UserDtoReq {
         @NotBlank(message = "학교(collegeCode)가 비워있습니다.")
         private String collegeCode;
 
-        @NotBlank(message = "학과(department)이 비워있습니다.")
-        private String department;
+        @NotBlank(message = "학과(majorCode)이 비워있습니다.")
+        private String majorCode;
 
         @NotNull(message = "학번(studentNum)가 비워있습니다.")
         private int studentNum;
