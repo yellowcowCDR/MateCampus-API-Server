@@ -1,5 +1,6 @@
 package com.litCitrus.zamongcampusServer.io.dynamodb.service;
 
+import com.litCitrus.zamongcampusServer.domain.user.User;
 import com.litCitrus.zamongcampusServer.dto.chat.ChatMessageDtoReq;
 import com.litCitrus.zamongcampusServer.io.dynamodb.model.ChatMessage;
 import lombok.RequiredArgsConstructor;
@@ -21,13 +22,13 @@ public class DynamoDBHandler {
     private final DynamoDbEnhancedClient enhancedClient;
 
     /** 메세지 넣기 */
-    public boolean putMessage(ChatMessageDtoReq dtoReq){
+    public boolean putMessage(ChatMessageDtoReq dtoReq, String senderLoginId){
         try {
             // 1. 테이블 세팅
             DynamoDbTable<ChatMessage> chatMessageTable = enhancedClient.table("ChatMessage", TableSchema.fromBean(ChatMessage.class));
             // 2. 데이터 세팅
             final String currentTime = LocalDateTime.now().toString();
-            ChatMessage chatMessage = ChatMessage.createChatMessage(dtoReq, currentTime);
+            ChatMessage chatMessage = ChatMessage.createChatMessage(dtoReq, currentTime, senderLoginId);
             // 3. 데이터 넣기
             chatMessageTable.putItem(chatMessage);
             return true;

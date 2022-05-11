@@ -12,6 +12,8 @@ import java.util.List;
 /**
  * SystemMessage DTO
  * - type column의 중복을 없애기 위해 JsonSubTypes, JsonTypeInfo로 SuperBuilder 활용
+ * - 의미: 일반메세지(enter,exit,talk)과 시스템메시지(enter,exit,update,create)이 섞인 존재
+ * - 역할:
  */
 @Getter
 public class SystemMessageDto {
@@ -22,8 +24,8 @@ public class SystemMessageDto {
             @JsonSubTypes.Type(value = EnterDto.class, name = "enter"),
             @JsonSubTypes.Type(value = ExitDto.class, name = "exit"),
             @JsonSubTypes.Type(value = UpdateDto.class, name = "update"),
-            @JsonSubTypes.Type(value = MatchDto.class, name = "match"),
-            @JsonSubTypes.Type(value = ChatMessageDtoRes.RoomIdMessageBundleDto.class, name = "talk")
+            @JsonSubTypes.Type(value = CreateDto.class, name = "create"),
+            @JsonSubTypes.Type(value = ChatMessageDtoRes.RealTimeMessageBundle.class, name = "talk")
     })
     public static class SystemMessage{
         private ModifiedChatInfo.MemberStatus type;
@@ -38,7 +40,9 @@ public class SystemMessageDto {
         private String nickname;
         private String imageUrl;
         private String createdAt;
+        private String body;
     }
+
     @Getter
     @SuperBuilder
     public static class ExitDto extends SystemMessage{
@@ -46,6 +50,7 @@ public class SystemMessageDto {
         private String loginId;
         private String nickname;
         private String createdAt;
+        private String body;
     }
     @Getter
     @SuperBuilder
@@ -57,7 +62,7 @@ public class SystemMessageDto {
 
     @Getter
     @SuperBuilder
-    public static class MatchDto extends SystemMessage{
+    public static class CreateDto extends SystemMessage{
         final private RoomInfo roomInfo;
         final private List<MemberInfo> memberInfos;
     }

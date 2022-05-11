@@ -30,14 +30,14 @@ public class ChatMessage {
         return this.createdAt;
     }
 
-    public static ChatMessage createChatMessage(ChatMessageDtoReq dtoReq, String currentTime){
-        // loginId가 없어서 오류가 있을 수도 있음.
+    public static ChatMessage createChatMessage(ChatMessageDtoReq dtoReq, String currentTime, String senderLoginId){
+        // loginId를 enter, exit의 경우 null
         return ChatMessage.builder()
                 .roomId(dtoReq.getRoomId())
                 .createdAt(currentTime)
                 .type(dtoReq.getType())
                 .text(dtoReq.getText())
-                .loginId(dtoReq.getLoginId())
+                .loginId(senderLoginId)
                 .build();
     }
 

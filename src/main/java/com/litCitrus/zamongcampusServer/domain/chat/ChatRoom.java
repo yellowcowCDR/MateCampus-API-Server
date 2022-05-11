@@ -73,4 +73,12 @@ public class ChatRoom extends BaseEntity {
         return new ArrayList<>(Arrays.asList(title, imageUrl));
     }
 
+    public void deleteUser(User user){
+        this.getUsers().remove(user);
+    }
+
+    public void addUser(User user){
+        this.getUsers().add(user);
+    }
+
 }

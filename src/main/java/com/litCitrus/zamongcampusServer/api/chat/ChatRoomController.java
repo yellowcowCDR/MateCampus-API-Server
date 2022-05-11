@@ -1,13 +1,12 @@
 package com.litCitrus.zamongcampusServer.api.chat;
 
 import com.litCitrus.zamongcampusServer.dto.chat.ChatRoomDtoReq;
+import com.litCitrus.zamongcampusServer.dto.chat.ChatRoomDtoRes;
 import com.litCitrus.zamongcampusServer.service.chat.ChatRoomService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
@@ -19,7 +18,21 @@ public class ChatRoomController {
     final private ChatRoomService chatRoomService;
 
     @PostMapping
-    ResponseEntity<?> createChatRoom(@Valid @RequestBody ChatRoomDtoReq chatRoomDto){
-        chatRoomService.createChatRoom(chatRoomDto);
+    @ResponseStatus(HttpStatus.CREATED)
+    ChatRoomDtoRes createChatRoom(@Valid @RequestBody ChatRoomDtoReq.Create chatRoomDto){
+        return chatRoomService.createChatRoom(chatRoomDto);
     }
+
+    @PutMapping("{chatRoomId}/enter")
+    @ResponseStatus(HttpStatus.OK)
+    void enterChatRoom(@Valid @PathVariable("chatRoomId") Long chatRoomId){
+        chatRoomService.enterChatRoom(chatRoomId);
+    }
+
+    @PutMapping("{chatRoomId}/exit")
+    @ResponseStatus(HttpStatus.OK)
+    void exitChatRoom(@Valid @PathVariable("chatRoomId") Long chatRoomId){
+        chatRoomService.exitChatRoom(chatRoomId);
+    }
+
 }

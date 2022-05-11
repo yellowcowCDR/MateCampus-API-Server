@@ -1,18 +1,22 @@
 package com.litCitrus.zamongcampusServer.service.user;
 
+import com.litCitrus.zamongcampusServer.domain.chat.Participant;
 import com.litCitrus.zamongcampusServer.domain.user.Authority;
 import com.litCitrus.zamongcampusServer.domain.user.User;
+import com.litCitrus.zamongcampusServer.domain.user.UserPicture;
 import com.litCitrus.zamongcampusServer.dto.user.UserDtoReq;
 import com.litCitrus.zamongcampusServer.exception.user.UserNotFoundException;
 import com.litCitrus.zamongcampusServer.repository.user.UserRepository;
+import com.litCitrus.zamongcampusServer.repository.voiceRoom.ParticipantRepository;
+import com.litCitrus.zamongcampusServer.service.chat.SystemMessageComponent;
 import com.litCitrus.zamongcampusServer.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -20,6 +24,8 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final ParticipantRepository participantRepository;
+    private final SystemMessageComponent systemMessageComponent;
 
     /** 회원가입
      * 자동으로 ROLE_USER의 권한을 가진다.
@@ -48,6 +54,33 @@ public class UserService {
     @Transactional(readOnly = true)
     public Optional<User> getMyUserWithAuthorities() {
         return SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId);
+    }
+
+    @Transactional
+    public void updateUserInfo(UserDtoReq.Update userUpdateDto) {
+
+        /* 1. 변경 정보를 MySQL에 저장 */
+        User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
+        /// TODO: user image 내용
+//        if(userUpdateDto.getProfileImage() != null){
+//            List<String> uploadImageUrl = s3Uploader.upload(Arrays.asList(userProfileDtoReq.getProfileImage()), "2021/user");
+//            UserPicture userProfilePicture = uploadImageUrl.stream().map(url -> UserPicture.createUserPicture(modifiedUser, url)).collect(Collectors.toList()).get(0);
+//            userPictureRepository.save(userProfilePicture);
+//
+//            user.updatePicture(userProfilePicture);
+//        }
+        if(userUpdateDto.getNickname() != null){
+            user.updateUserNickname(userUpdateDto.getNickname());
+        }
+        /* 해당 유저와 같은 방에 있는 멤버 찾기 */
+        List<Participant> participants = participantRepository.findByUsers_loginId(user.getLoginId());
+        Set<User> recipients =
+                participants.stream()
+                        .flatMap(participant -> participant.getUsers().stream())
+                        .collect(Collectors.toSet());
+        System.out.println(recipients.size());
+        /* 멤버들에게 실시간으로 정보제공 */
+        systemMessageComponent.sendSaveUpdateSystemMessage(user, recipients);
     }
 
     @Transactional

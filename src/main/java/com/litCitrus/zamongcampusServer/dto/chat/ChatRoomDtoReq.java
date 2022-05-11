@@ -5,10 +5,23 @@ import lombok.Setter;
 
 import javax.validation.constraints.NotNull;
 
-@Getter
-@Setter
+
 public class ChatRoomDtoReq {
 
-    @NotNull
-    private String otherLoginId;
+    @Getter
+    @Setter
+    public static class Create {
+        @NotNull
+        private String otherLoginId;
+    }
+
+
+    // 안 사용할 수 있음 (22.05.11)
+    @Getter
+    @Setter
+    public static class UPDATE {
+        @NotNull
+        private String memberLoginId;
+
+    }
 }
