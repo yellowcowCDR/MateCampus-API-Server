@@ -15,7 +15,6 @@ import com.litCitrus.zamongcampusServer.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,15 +52,15 @@ public class PostService {
     }
 
     // READ : 전체 게시글 최신순
-    public List<PostDtoRes.Res> getAllPostOrderbyRecent(String nextPageToken){
+    public List<PostDtoRes.Res> getAllPostOrderByRecent(String nextPageToken){
         User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
         Pageable page = PageRequest.of(Integer.parseInt(nextPageToken), 7); // 0번째부터 7개의 게시글
         return postRepository.findAllByOrderByCreatedAtDesc(page)
-                .stream().map(post -> new PostDtoRes.Res(post)).collect(Collectors.toList());
+                .stream().map(PostDtoRes.Res::new).collect(Collectors.toList());
     }
 
     // READ : 전체 게시글 인기순 (좋아요순)
-    public List<PostDtoRes.Res> getAllPostOrderbyMostLike(String nextPageToken){
+    public List<PostDtoRes.Res> getAllPostOrderByMostLike(String nextPageToken){
 //        User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
 //        Pageable paging = PageRequest.of(Integer.parseInt(nextPageToken), 7, Sort.by("likedUsers").descending());
 //        return postRepository.findAll(paging).stream().map(PostDtoRes.Res::new)
@@ -70,15 +69,15 @@ public class PostService {
         User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
         Pageable page = PageRequest.of(Integer.parseInt(nextPageToken), 7); // 0번째부터 7개의 게시글
         return postRepository.findAllByOrderByCreatedAtDesc(page)
-                .stream().map(post -> new PostDtoRes.Res(post)).collect(Collectors.toList());
+                .stream().map(PostDtoRes.Res::new).collect(Collectors.toList());
     }
 
     // READ 1개 : 자신이 쓴 게시글 최신순 dsl 적용까지.
-    public List<PostDtoRes.Res> getMyPostOrderbyRecent(String nextPageToken){
+    public List<PostDtoRes.Res> getMyPostOrderByRecent(String nextPageToken){
         User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
         Pageable page = PageRequest.of(Integer.parseInt(nextPageToken), 7); // 0번째부터 7개의 게시글
         List<Post> posts =  postRepository.findByUser(user, page);
-        return posts.stream().map(post -> new PostDtoRes.Res(post)).collect(Collectors.toList());
+        return posts.stream().map(PostDtoRes.Res::new).collect(Collectors.toList());
     }
 
     public PostDtoRes.ResWithComment getPost(Long postId){
@@ -86,7 +85,7 @@ public class PostService {
         User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
         Post post = postRepository.findById(postId).orElseThrow(PostNotFoundException::new);
 
-        return new PostDtoRes.ResWithComment(post, user);
+        return new PostDtoRes.ResWithComment(post);
     }
 
     // UPDATE
@@ -108,7 +107,7 @@ public class PostService {
     // DELETE
     public void deletePost(Long postId){
         User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
-        Post post = postRepository.findById(postId).get();
+        Post post = postRepository.findById(postId).orElseThrow(PostNotFoundException::new);
 
         if(post == null && post.getUser() != user){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "비정상접근");

@@ -32,20 +32,20 @@ public class PostApiController {
     @GetMapping("/recent")
     @ResponseStatus(HttpStatus.OK)
     public List<PostDtoRes.Res> getAllPostOrderByRecent(@RequestParam("nextPageToken") String nextPageToken){
-        return postService.getAllPostOrderbyRecent(nextPageToken);
+        return postService.getAllPostOrderByRecent(nextPageToken);
     }
 
     // READ : 전체 게시글 인기순
     @GetMapping("/popular")
     public ResponseEntity<?> getAllPostOrderByMostLike(@RequestParam("nextPageToken") String nextPageToken){
-        ResponseEntity<?> response = new ResponseEntity<>(postService.getAllPostOrderbyMostLike(nextPageToken), HttpStatus.OK);
+        ResponseEntity<?> response = new ResponseEntity<>(postService.getAllPostOrderByMostLike(nextPageToken), HttpStatus.OK);
         return response;
     }
 
     // READ : 전체 게시글 추천순 (변경 필요)
     @GetMapping("/recommend")
     public ResponseEntity<?> getAllPostOrderByRecommend(@RequestParam("nextPageToken") String nextPageToken){
-        ResponseEntity<?> response = new ResponseEntity<>(postService.getAllPostOrderbyMostLike(nextPageToken), HttpStatus.OK);
+        ResponseEntity<?> response = new ResponseEntity<>(postService.getAllPostOrderByMostLike(nextPageToken), HttpStatus.OK);
         return response;
     }
 
@@ -53,7 +53,7 @@ public class PostApiController {
     @GetMapping("/my")
     public ResponseEntity<?> getMyPostOrderByRecent(@RequestParam("nextPageToken") String nextPageToken){
         // TODO: 반드시 인증절차 넣어야함(token 담아서 보내고 해당 token의 진위여부 판단) => 모든 곳에서
-        ResponseEntity<?> response = new ResponseEntity<>(postService.getMyPostOrderbyRecent(nextPageToken), HttpStatus.OK);
+        ResponseEntity<?> response = new ResponseEntity<>(postService.getMyPostOrderByRecent(nextPageToken), HttpStatus.OK);
         return response;
     }
 

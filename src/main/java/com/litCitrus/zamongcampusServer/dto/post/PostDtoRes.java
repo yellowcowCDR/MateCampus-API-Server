@@ -18,12 +18,12 @@ public class PostDtoRes {
         /// 만약 부모댓글이 삭제되었는데, 자식댓글이 남았을 때는?
         /// 일단 삭제된 댓글이라도 들고 간다.
         /// 근데 만약 삭제된 댓글 + (자식도 없거나 || 자식들이 다 삭제된거면)
-        /// 안 들고 가도록 (isDeleted인 값이 true 아닌 것들의 len, 즉 삭제되지 않은 것의 len가 0일 때)
-        public ResWithComment(Post post, User user){
+        /// 안 들고 가도록 (isDeleted인 값이 true 아닌 것들의, 즉 존재하는 값이 없을때(noneMatch))
+        public ResWithComment(Post post){
             super(post);
             this.comments = post.getComments().stream()
                     .filter(postComment -> postComment.getParent() == null)
-                    .filter(postComment -> !((postComment.isDeleted() && (postComment.getChildren().isEmpty() || postComment.getChildren().stream().filter(child -> child.isDeleted() != true).count() == 0))))
+                    .filter(postComment -> !((postComment.isDeleted() && (postComment.getChildren().isEmpty() || postComment.getChildren().stream().noneMatch(child -> child.isDeleted() != true)))))
                     .map(PostCommentDtoRes.Res::new).collect(Collectors.toList());
 
         }
