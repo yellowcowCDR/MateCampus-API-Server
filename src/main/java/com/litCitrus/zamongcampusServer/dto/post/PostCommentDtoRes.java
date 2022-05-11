@@ -14,6 +14,7 @@ public class PostCommentDtoRes {
         final private String loginId;
         final private String userNickname;
         final private String body;
+        final private boolean deleted;
         final private long parentId;
         final private List<Res> children;
 
@@ -22,8 +23,11 @@ public class PostCommentDtoRes {
             this.id = postComment.getId();
             this.userNickname = postComment.getUser().getNickname();
             this.body = postComment.getBody();
+            this.deleted = postComment.isDeleted();
             this.parentId = postComment.getParent() == null ? 0 : postComment.getParent().getId();
-            this.children = postComment.getChildren() == null ? null : postComment.getChildren().stream().map(Res::new).collect(Collectors.toList());
+            this.children = postComment.getChildren() == null ? null : postComment.getChildren().stream()
+                    .filter(child -> !child.isDeleted())
+                    .map(Res::new).collect(Collectors.toList());
 
         }
 
