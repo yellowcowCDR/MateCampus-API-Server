@@ -45,7 +45,7 @@ public class SystemMessageComponent {
 
         /* 2. 입장메세지(일반) dynamodb에 message 저장 */
         ChatMessageDtoReq messageDto = new ChatMessageDtoReq(chatRoom.getRoomId(), newMember.getNickname()+"님이 입장하셨습니다.", "ENTER", chatRoom.getType());
-        dynamoDBHandler.putMessage(messageDto, null);
+        dynamoDBHandler.putMessage(messageDto, null, currentTime);
 
         /* 3. 각 유저의 modifiedChatInfos에 저장 */
         for(User member: chatRoom.getUsers()){
@@ -57,11 +57,13 @@ public class SystemMessageComponent {
     /* EXIT */
     @Transactional
     public void sendSaveExitSystemMessage(User exitMember, ChatRoom chatRoom){
+        final String currentTime = LocalDateTime.now().toString();
         SystemMessageDto.ExitDto exitDto = SystemMessageDto.ExitDto.builder()
                 .type(ModifiedChatInfo.MemberStatus.EXIT)
                 .roomId(chatRoom.getRoomId())
                 .loginId(exitMember.getLoginId())
                 .nickname(exitMember.getNickname())
+                .createdAt(currentTime)
                 .body(exitMember.getNickname()+"님이 퇴장하셨습니다.")
                 .build();
         /* 1. stomp 실시간 전달 (exitDto: roomId,loginId,nickname,createdAt,body)*/
@@ -69,7 +71,7 @@ public class SystemMessageComponent {
 
         /* 2. 퇴장메세지(일반) dynamodb에 message 저장 */
         ChatMessageDtoReq messageDto = new ChatMessageDtoReq(chatRoom.getRoomId(), exitMember.getNickname()+"님이 퇴장하셨습니다.", "EXIT", chatRoom.getType());
-        dynamoDBHandler.putMessage(messageDto, null);
+        dynamoDBHandler.putMessage(messageDto, null, currentTime);
 
         /* 3. 각 유저의 modifiedChatInfos에 저장 */
         for(User member: chatRoom.getUsers()){

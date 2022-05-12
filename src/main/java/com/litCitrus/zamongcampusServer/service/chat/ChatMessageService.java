@@ -11,9 +11,12 @@ import com.litCitrus.zamongcampusServer.io.dynamodb.service.DynamoDBHandler;
 import com.litCitrus.zamongcampusServer.repository.chat.ChatRoomRepository;
 import com.litCitrus.zamongcampusServer.repository.user.ModifiedChatInfoRepository;
 import com.litCitrus.zamongcampusServer.repository.user.UserRepository;
+import com.litCitrus.zamongcampusServer.security.jwt.TokenProvider;
 import com.litCitrus.zamongcampusServer.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.enhanced.dynamodb.model.PageIterable;
 
@@ -30,10 +33,12 @@ public class ChatMessageService {
     private final UserRepository userRepository;
     private final SimpMessageSendingOperations messagingTemplate;
     private final ModifiedChatInfoRepository modifiedChatInfoRepository;
+    private final TokenProvider tokenProvider;
 
-    public void sendMessage(ChatMessageDtoReq messageDto){
+    public void sendMessage(ChatMessageDtoReq messageDto, String token){
         /* Dynamo Db에 저장 + 메시지를 채팅방(roomId)에게 Stomp으로 전송한다 */
-        User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
+        Authentication authentication = tokenProvider.getAuthentication(token.substring(7));
+        User user = SecurityUtil.getCurrentUsername(authentication).flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
         final String currentTime = LocalDateTime.now().toString();
         ChatMessageDtoRes.MessageDto messageDtoRes = new ChatMessageDtoRes.MessageDto(messageDto.getType(), user.getLoginId(), messageDto.getText(), currentTime);
         ChatMessageDtoRes.RealTimeMessageBundle roomIdMessageBundleDto = ChatMessageDtoRes.RealTimeMessageBundle.builder()
@@ -45,7 +50,7 @@ public class ChatMessageService {
         messagingTemplate.convertAndSend("/sub/chat/room/" + messageDto.getRoomId(), roomIdMessageBundleDto);
 
         /* 2. 채팅 메시지 디비에 저장 */
-        dynamoDBHandler.putMessage(messageDto, user.getLoginId());
+        dynamoDBHandler.putMessage(messageDto, user.getLoginId(), currentTime);
     }
 
     // READ: GET MESSAGE

@@ -4,6 +4,7 @@ import com.litCitrus.zamongcampusServer.dto.chat.ChatMessageDtoReq;
 import com.litCitrus.zamongcampusServer.dto.chat.ChatMessageDtoRes;
 import com.litCitrus.zamongcampusServer.service.chat.ChatMessageService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,8 +21,8 @@ public class ChatMessageController {
 
     // ** client에서 /pub/chat/message로 메세지 전송하면, 오는 곳
     @MessageMapping("/chat/message")
-    public void sendMessage(@Valid ChatMessageDtoReq messageDto) {
-        chatMessageService.sendMessage(messageDto);
+    public void sendMessage(@Valid ChatMessageDtoReq messageDto, @Header("Authorization") String token) {
+        chatMessageService.sendMessage(messageDto, token);
     }
 
     @ResponseBody

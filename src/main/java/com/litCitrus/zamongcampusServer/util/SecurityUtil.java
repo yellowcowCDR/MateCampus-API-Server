@@ -36,4 +36,17 @@ public class SecurityUtil {
 
         return Optional.ofNullable(username);
     }
+
+    public static Optional<String> getCurrentUsername(Authentication authentication) {
+
+        String username = null;
+        if (authentication.getPrincipal() instanceof UserDetails) {
+            UserDetails springSecurityUser = (UserDetails) authentication.getPrincipal();
+            username = springSecurityUser.getUsername();
+        } else if (authentication.getPrincipal() instanceof String) {
+            username = (String) authentication.getPrincipal();
+        }
+
+        return Optional.ofNullable(username);
+    }
 }

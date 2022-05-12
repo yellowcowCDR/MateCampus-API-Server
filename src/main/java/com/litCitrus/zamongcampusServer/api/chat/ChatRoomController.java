@@ -19,8 +19,8 @@ public class ChatRoomController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    ChatRoomDtoRes createChatRoom(@Valid @RequestBody ChatRoomDtoReq.Create chatRoomDto){
-        return chatRoomService.createChatRoom(chatRoomDto);
+    ChatRoomDtoRes createOrGetChatRoom(@Valid @RequestBody ChatRoomDtoReq.Create chatRoomDto){
+        return chatRoomService.createOrGetChatRoom(chatRoomDto);
     }
 
     @PutMapping("{chatRoomId}/enter")

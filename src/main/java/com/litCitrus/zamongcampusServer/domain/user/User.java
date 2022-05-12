@@ -76,8 +76,7 @@ public class User extends BaseEntity {
     private Set<PostLike> likedPosts;
 
     @OneToMany(mappedBy = "user")
-    @Builder.Default
-    private List<UserPicture> pictures = new ArrayList<UserPicture>();
+    private List<UserPicture> pictures;
 
     @OneToMany(mappedBy = "owner")
     private Set<VoiceRoom> voiceRooms;
