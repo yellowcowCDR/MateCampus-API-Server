@@ -50,7 +50,7 @@ public class ChatRoomService {
 
         /* 2. 채팅방, 채팅방 멤버 정보 전달 */
         /* (CREATE message 실시간 전송 + 본인 제외!! 참여한 user들의 modifiedChatInfo db 저장) */
-        systemMessageComponent.sendSaveCreateSystemMessage(chatRoom, members, user);
+        systemMessageComponent.sendSaveCreateSystemMessage(chatRoom, members, user, other);
         return new ChatRoomDtoRes(chatRoom, members, user);
     }
 

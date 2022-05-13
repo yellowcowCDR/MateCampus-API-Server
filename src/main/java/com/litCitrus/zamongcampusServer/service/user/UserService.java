@@ -44,6 +44,12 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    @Transactional
+    public void updateDeviceToken(UserDtoReq.Update userDto){
+        User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
+        user.updateDeviceToken(userDto.getDeviceToken());
+    }
+
     /* 관리자(ADMIN)만 사용 */
     @Transactional(readOnly = true)
     public Optional<User> getUserWithAuthorities(String loginId) {

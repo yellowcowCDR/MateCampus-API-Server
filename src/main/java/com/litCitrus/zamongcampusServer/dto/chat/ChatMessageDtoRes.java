@@ -103,7 +103,7 @@ public class ChatMessageDtoRes {
             }else{
                 ChatRoom chatRoom = modifiedChatInfo.getChatRoom();
                 List<User> members = Arrays.asList(chatRoom.getUsers().get(0), chatRoom.getUsers().get(1));
-                List<String> chatRoomTitleAndImage = chatRoom.getChatRoomTitleAndImage(actor.getLoginId());
+                List<String> chatRoomTitleAndImage = chatRoom.getCounterpartChatRoomTitleAndImage(actor.getLoginId()); // 여기의 actor는 메세지 보낸 사람이 아닌 메세지 받는 사람을 지칭
                 SystemMessageDto.RoomInfo roomInfo = new SystemMessageDto.RoomInfo(
                         chatRoom.getRoomId(), chatRoom.getType(), chatRoomTitleAndImage.get(0), chatRoomTitleAndImage.get(1));
                 List<SystemMessageDto.MemberInfo> memberInfos = members.stream()

@@ -50,5 +50,6 @@ public class UserDtoReq {
     public static class Update {
         private String nickname;
         private MultipartFile profileImage;
+        private String deviceToken;
     }
 }

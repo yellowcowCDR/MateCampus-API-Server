@@ -128,6 +128,8 @@ public class User extends BaseEntity {
         this.nickname = nickname;
     }
 
+    public void updateDeviceToken(String deviceToken){ this.deviceToken = deviceToken;}
+
     public User addUserPictures(List<UserPicture> userPictures){
         Collections.addAll(this.pictures, userPictures.toArray(new UserPicture[0]));
         return this;

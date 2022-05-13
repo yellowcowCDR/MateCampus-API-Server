@@ -107,8 +107,8 @@ public class SystemMessageComponent {
 
     /* CREATE: 채팅방, 채팅방 멤버 정보 전달, 단 본인 제외 */
     @Transactional
-    public void sendSaveCreateSystemMessage(ChatRoom chatRoom, List<User> recipients, User actor){
-        List<String> chatRoomTitleAndImage = chatRoom.getChatRoomTitleAndImage(actor.getLoginId());
+    public void sendSaveCreateSystemMessage(ChatRoom chatRoom, List<User> recipients, User actor, User other){
+        List<String> chatRoomTitleAndImage = chatRoom.getCounterpartChatRoomTitleAndImage(other.getLoginId()); // 채팅방 만든이의 사진,닉네임
         SystemMessageDto.RoomInfo roomInfo = new SystemMessageDto.RoomInfo(
                 chatRoom.getRoomId(), chatRoom.getType(), chatRoomTitleAndImage.get(0), chatRoomTitleAndImage.get(1));
         List<SystemMessageDto.MemberInfo> memberInfos = recipients.stream()
