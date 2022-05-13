@@ -46,7 +46,7 @@ public class ModifiedChatInfo {
         return modifiedChatInfo;
     }
 
-    public static ModifiedChatInfo createMatch(MemberStatus memberStatus, ChatRoom chatRoom, User user) {
+    public static ModifiedChatInfo createCreate(MemberStatus memberStatus, ChatRoom chatRoom, User user) {
         final ModifiedChatInfo modifiedChatInfo = ModifiedChatInfo.builder()
                 .memberStatus(memberStatus)
                 .chatRoom(chatRoom)
@@ -56,12 +56,12 @@ public class ModifiedChatInfo {
     }
 
     // 어떤 방의 어떤 유저의 정보를 삭제, 입력, 업데이트할건지.
-    // type => update, enter, exit, match
+    // type => update, enter, exit, create
     public enum MemberStatus{
         ENTER,
         UPDATE,
         EXIT,
-        MATCH,
+        CREATE,
         TALK
     }
 }

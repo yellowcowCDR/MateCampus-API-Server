@@ -76,8 +76,7 @@ public class User extends BaseEntity {
     private Set<PostLike> likedPosts;
 
     @OneToMany(mappedBy = "user")
-    @Builder.Default
-    private List<UserPicture> pictures = new ArrayList<UserPicture>();
+    private List<UserPicture> pictures;
 
     @OneToMany(mappedBy = "owner")
     private Set<VoiceRoom> voiceRooms;
@@ -125,9 +124,20 @@ public class User extends BaseEntity {
         return this;
     }
 
+    public void updateUserNickname(String nickname){
+        this.nickname = nickname;
+    }
+
+    public void updateDeviceToken(String deviceToken){ this.deviceToken = deviceToken;}
+
     public User addUserPictures(List<UserPicture> userPictures){
         Collections.addAll(this.pictures, userPictures.toArray(new UserPicture[0]));
         return this;
+    }
+
+    /** 사용자와 같은 채팅방에 있는 사람의 프로필 변경 여부 추가 */
+    public void addModifiedChatInfo(ModifiedChatInfo modifiedChatInfo){
+        this.modifiedChatInfos.add(modifiedChatInfo);
     }
 
     public void setActivated(){

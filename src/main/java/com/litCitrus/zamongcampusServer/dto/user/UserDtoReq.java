@@ -1,6 +1,7 @@
 package com.litCitrus.zamongcampusServer.dto.user;
 
 import lombok.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -42,5 +43,13 @@ public class UserDtoReq {
         @NotNull(message = "학번(studentNum)가 비워있습니다.")
         private int studentNum;
 
+    }
+
+    @Getter
+    @Setter
+    public static class Update {
+        private String nickname;
+        private MultipartFile profileImage;
+        private String deviceToken;
     }
 }

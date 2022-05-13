@@ -62,10 +62,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authenticationEntryPoint(jwtAuthenticationEntryPoint)
                 .accessDeniedHandler(jwtAccessDeniedHandler)
 
-//                .and()
-//                .headers()
-//                .frameOptions()
-//                .sameOrigin()
+                .and()
+                .headers()
+                .frameOptions()
+                .sameOrigin()
 
                 .and()
                 .sessionManagement()

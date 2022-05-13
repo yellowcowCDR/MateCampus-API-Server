@@ -24,6 +24,11 @@ public class UserApiController {
         return ResponseEntity.ok(userService.signup(userDto));
     }
 
+    @PostMapping("/user/updateDeviceToken")
+    public void updateDeviceToken(@Valid @RequestBody UserDtoReq.Update userDto){
+        userService.updateDeviceToken(userDto);
+    }
+
     @GetMapping("/user")
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
     public ResponseEntity<User> getMyUserInfo() {

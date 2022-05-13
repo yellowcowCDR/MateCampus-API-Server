@@ -11,9 +11,12 @@ import com.litCitrus.zamongcampusServer.io.dynamodb.service.DynamoDBHandler;
 import com.litCitrus.zamongcampusServer.repository.chat.ChatRoomRepository;
 import com.litCitrus.zamongcampusServer.repository.user.ModifiedChatInfoRepository;
 import com.litCitrus.zamongcampusServer.repository.user.UserRepository;
+import com.litCitrus.zamongcampusServer.security.jwt.TokenProvider;
 import com.litCitrus.zamongcampusServer.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.enhanced.dynamodb.model.PageIterable;
 
@@ -30,40 +33,40 @@ public class ChatMessageService {
     private final UserRepository userRepository;
     private final SimpMessageSendingOperations messagingTemplate;
     private final ModifiedChatInfoRepository modifiedChatInfoRepository;
+    private final TokenProvider tokenProvider;
 
-    public void sendMessage(ChatMessageDtoReq messageDto){
-        /**
-         * 역할: 사용자가 메시지를 작성하면, 모바일앱에서 메시지를 받아 다른 사용자에게 해당 메시지를 실시간으로 전달
-         * Dynamo Db에 저장 후 메시지를 채팅방 또는 상대방에게 Stomp으로 전송한다.
-         * TODO: 2021.12.22: 정윤아: 유저 검증 작업 필요
-         */
-        User user = userRepository.findByLoginId(messageDto.getLoginId()).orElseThrow(UserNotFoundException::new);
+    public void sendMessage(ChatMessageDtoReq messageDto, String token){
+        /* Dynamo Db에 저장 + 메시지를 채팅방(roomId)에게 Stomp으로 전송한다 */
+        Authentication authentication = tokenProvider.getAuthentication(token.substring(7));
+        User user = SecurityUtil.getCurrentUsername(authentication).flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
         final String currentTime = LocalDateTime.now().toString();
-        /* dto 변환 */
-        ChatMessageDtoRes.MessageDto messageDtoRes = new ChatMessageDtoRes.MessageDto(messageDto.getType(), messageDto.getLoginId(), messageDto.getText(), currentTime);
-        ChatMessageDtoRes.RoomIdMessageBundleDto roomIdMessageBundleDto = ChatMessageDtoRes.RoomIdMessageBundleDto.builder().type(ModifiedChatInfo.MemberStatus.TALK).roomId(messageDto.getRoomId()).messageDto(messageDtoRes).build();
+        ChatMessageDtoRes.MessageDto messageDtoRes = new ChatMessageDtoRes.MessageDto(messageDto.getType(), user.getLoginId(), messageDto.getText(), currentTime);
+        ChatMessageDtoRes.RealTimeMessageBundle roomIdMessageBundleDto = ChatMessageDtoRes.RealTimeMessageBundle.builder()
+                .type(ModifiedChatInfo.MemberStatus.TALK)
+                .roomId(messageDto.getRoomId())
+                .messageDto(messageDtoRes).build();
 
-        /* 채팅 메시지를 채팅방에 소속된 사용자에게 전송 (roomId에 메세지 publish) */
+        /* 1. 채팅 메시지를 채팅방에 소속된 사용자에게 전송 (roomId에 메세지 publish) */
         messagingTemplate.convertAndSend("/sub/chat/room/" + messageDto.getRoomId(), roomIdMessageBundleDto);
 
-        /* 채팅 메시지 디비에 저장 */
-        dynamoDBHandler.putMessage(messageDto);
+        /* 2. 채팅 메시지 디비에 저장 */
+        dynamoDBHandler.putMessage(messageDto, user.getLoginId(), currentTime);
     }
 
     // READ: GET MESSAGE
     public ChatMessageDtoRes.ChatBundle getChatMessageDynamo(String createdAfter){
-        /* 참여한 모든 방 찾기 */
+        /* 1. 참여한 모든 방 찾기 */
         User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
         List<ChatRoom> chatRooms = chatRoomRepository.findAllByParticipant_Users(user);
 
-        /* 각 채팅 roomId 기준으로 DynamoDB에서 메시지 가져오고 dto로 변환 */
+        /* 2. 각 채팅 roomId 기준으로 DynamoDB에서 메시지 가져오고 dto로 변환 */
         List<ChatMessageDtoRes.RoomMessageBundle> roomMessages
                 = chatRooms.stream()
                 .map(chatRoom ->makeRoomMessageBundle(chatRoom, createdAfter))
-                .filter(chatmessage -> chatmessage!=null)
+                .filter(chatMessage -> chatMessage!=null)
                 .collect(Collectors.toList());
 
-        /* ModifiedChatInfo에 대한 정보를 MySQL에서 가져오고 dto로 변환 */
+        /* 3. ModifiedChatInfo에 대한 정보를 MySQL에서 가져오고 dto로 변환 */
         List<ChatMessageDtoRes.ModifiedInfo> modifiedInfos
                 = user.getModifiedChatInfos().stream().map(modifiedChatInfo ->
                 new ChatMessageDtoRes.ModifiedInfo(modifiedChatInfo, user))

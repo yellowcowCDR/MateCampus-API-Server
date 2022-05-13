@@ -53,7 +53,7 @@ public class ChatRoom extends BaseEntity {
         return participant.getUsers();
     }
 
-    public List<String> getChatRoomTitleAndImage(String requesterUserLoginId){
+    public List<String> getCounterpartChatRoomTitleAndImage(String requesterUserLoginId){
         String imageUrl = "";
         String title = "";
         // 채팅방이 매칭인 경우 대표 이미지 가져오기
@@ -71,6 +71,14 @@ public class ChatRoom extends BaseEntity {
             title = counterpart.getNickname();
         }
         return new ArrayList<>(Arrays.asList(title, imageUrl));
+    }
+
+    public void deleteUser(User user){
+        this.getUsers().remove(user);
+    }
+
+    public void addUser(User user){
+        this.getUsers().add(user);
     }
 
 }
