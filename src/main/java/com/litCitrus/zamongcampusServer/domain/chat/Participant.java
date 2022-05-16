@@ -27,16 +27,27 @@ public class Participant {
     @ManyToMany
     private List<User> users;
 
-    private String hashCode;
+    private int hashCode;
 
     // 참여자인데, 유저id로 정렬하고, users를 순서대로 둔다.
     public static Participant CreateParticipant(List<User> users){
         users.sort(Comparator.comparingLong(User::getId));
         Participant participant = Participant.builder()
                 .users(users)
-                .hashCode(String.valueOf(users.hashCode()))
+                .hashCode(makeHashCode(users))
                 .build();
         return participant;
+    }
+
+    // TODO: hashCode를 임의로 만들었는데, 괜찮을까.
+    public static int makeHashCode(List<User> users){
+        users.sort(Comparator.comparingLong(User::getId));
+        int result = 321;
+        int size = users.size();
+        for(int i = 0; i < size; i ++){
+            result = 31 * result + users.get(i).getLoginId().hashCode();
+        }
+        return result;
     }
 
     public void addUser(User... user) {

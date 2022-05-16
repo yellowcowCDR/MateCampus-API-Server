@@ -33,8 +33,8 @@ public class ChatRoomService {
         User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
         User other = userRepository.findByLoginId(chatRoomDto.getOtherLoginId()).orElseThrow(UserNotFoundException::new);
         List<User> members = Arrays.asList(user, other);
-        members.sort(Comparator.comparingLong(User::getId));
-        Participant participant = participantRepository.findByUsersIn(members);
+        Participant newParticipant = Participant.CreateParticipant(members);
+        Participant participant = participantRepository.findByHashCode(newParticipant.getHashCode());
         // user와 other 두 명만 가지고 있는 채팅방을 찾아야한다. => TODO: 테스트 필요(2명+1명 있는 방도 가져오는지 등)
         /// case 1) 이미 존재하면 get
         if(participant != null){
@@ -43,7 +43,6 @@ public class ChatRoomService {
 
         /// case 2) 존재하지 않으면 create
         /* 1. 채팅방 만들기 */
-        Participant newParticipant = Participant.CreateParticipant(members);
         participantRepository.save(newParticipant);
         ChatRoom chatRoom = ChatRoom.createSingleChatRoom(newParticipant);
         chatRoomRepository.save(chatRoom);

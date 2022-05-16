@@ -11,5 +11,6 @@ import java.util.List;
 public interface ParticipantRepository extends JpaRepository<Participant, Long> {
 
     List<Participant> findByUsers_loginId(String loginId);
-    Participant findByUsersIn(List<User> users);
+//    Participant findByUsersIn(List<User> users);
+    Participant findByHashCode(int hashCode);
 }
