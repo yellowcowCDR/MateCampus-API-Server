@@ -112,7 +112,7 @@ public class SystemMessageComponent {
         SystemMessageDto.RoomInfo roomInfo = new SystemMessageDto.RoomInfo(
                 chatRoom.getRoomId(), chatRoom.getType(), chatRoomTitleAndImage.get(0), chatRoomTitleAndImage.get(1));
         List<SystemMessageDto.MemberInfo> memberInfos = recipients.stream()
-                .map(member -> new SystemMessageDto.MemberInfo(
+                .map(member -> new SystemMessageDto.MemberInfo(member.getId(),
                         member.getLoginId(), member.getNickname(), member.getPictures().get(0).getStored_file_path())).collect(Collectors.toList());
         SystemMessageDto.CreateDto createDto = SystemMessageDto.CreateDto.builder()
                 .type(ModifiedChatInfo.MemberStatus.CREATE)

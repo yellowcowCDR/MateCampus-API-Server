@@ -25,7 +25,7 @@ public class VoiceRoomApiController {
 
     @PostMapping
     public ResponseEntity<?> createVoiceRoom(
-            @Valid VoiceRoomDtoReq.Create dto) {
+            @Valid @RequestBody VoiceRoomDtoReq.Create dto) {
         return new ResponseEntity<>(voiceRoomService.createVoiceRoom(dto), HttpStatus.OK);
     }
 
@@ -35,10 +35,10 @@ public class VoiceRoomApiController {
 //        List<Post> posts = postService.getAllPostOrderbyRecent(loginId);
 //        return posts.stream().map(post -> new PostDtoRes.Res(post)).collect(Collectors.toList());
 //    }
-//
+
     @GetMapping("{voiceRoomId}")
-    public ResponseEntity<?> getVoiceRoom(@Valid @PathVariable("voiceRoomId") Long voiceRoomId, @RequestParam("loginId") String loginId){
-        return new ResponseEntity<>(voiceRoomService.getVoiceRoom(voiceRoomId, loginId), HttpStatus.OK);
+    public ResponseEntity<?> getVoiceRoom(@Valid @PathVariable("voiceRoomId") Long voiceRoomId){
+        return new ResponseEntity<>(voiceRoomService.joinVoiceRoom(voiceRoomId), HttpStatus.OK);
     }
 //
 //    // DELETE

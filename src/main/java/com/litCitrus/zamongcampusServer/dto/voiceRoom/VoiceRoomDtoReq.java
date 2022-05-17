@@ -14,14 +14,13 @@ public class VoiceRoomDtoReq {
     @Setter
     public static class Create {
 
-        @NotBlank(message = "로그인 ID는 Null 일 수 없습니다 ")
-        private String loginId;
+        @NotBlank(message = "대화방 제목이 비워있습니다")
+        @Size(min = 5, message = "대화방 제목 수는 5자 이상입니다")
+        private String title;
 
-        @NotBlank(message = "게시물 내용이 비워있습니다")
-        @Size(min = 5, message = "게시물 글자 수는 5자 이상입니다")
-        private String body;
-
-        private List<MultipartFile> files;
+        /// 관심사, 친구 목록 불러올 것.
+//        private List<String> inviteMemberLoginIds;
+//        private List<String> interests;
 
     }
 

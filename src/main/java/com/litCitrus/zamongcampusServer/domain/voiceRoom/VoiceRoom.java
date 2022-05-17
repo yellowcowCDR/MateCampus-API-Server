@@ -1,5 +1,6 @@
 package com.litCitrus.zamongcampusServer.domain.voiceRoom;
 
+import com.litCitrus.zamongcampusServer.domain.chat.ChatRoom;
 import com.litCitrus.zamongcampusServer.domain.chat.Participant;
 import com.litCitrus.zamongcampusServer.domain.user.User;
 import com.litCitrus.zamongcampusServer.dto.voiceRoom.VoiceRoomDtoReq;
@@ -19,22 +20,20 @@ public class VoiceRoom {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true)
-    private String roomId;
-
     @ManyToOne
     private User owner;
 
+    private String title;
     @NonNull
     @OneToOne(fetch = FetchType.LAZY)
-    private Participant participant;
+    private ChatRoom chatRoom;
 
 
-    public static VoiceRoom createVoiceRoom(User owner, VoiceRoomDtoReq.Create dto, Participant participant){
+    public static VoiceRoom createVoiceRoom(User owner, VoiceRoomDtoReq.Create dto, ChatRoom chatRoom){
         final VoiceRoom voiceRoom = VoiceRoom.builder()
-                .roomId(UUID.randomUUID().toString())
+                .title(dto.getTitle())
+                .chatRoom(chatRoom)
                 .owner(owner)
-                .participant(participant)
                 .build();
         return voiceRoom;
     }

@@ -29,24 +29,28 @@ public class Participant {
 
     private int hashCode;
 
+    private ParticipantType type;
+
     // 참여자인데, 유저id로 정렬하고, users를 순서대로 둔다.
-    public static Participant CreateParticipant(List<User> users){
+    public static Participant CreateParticipant(List<User> users, String type){
         users.sort(Comparator.comparingLong(User::getId));
         Participant participant = Participant.builder()
                 .users(users)
-                .hashCode(makeHashCode(users))
+                .type(ParticipantType.valueOf(type.toUpperCase()))
+                .hashCode(makeHashCode(users, type))
                 .build();
         return participant;
     }
 
     // TODO: hashCode를 임의로 만들었는데, 괜찮을까.
-    public static int makeHashCode(List<User> users){
+    public static int makeHashCode(List<User> users, String type){
         users.sort(Comparator.comparingLong(User::getId));
         int result = 321;
         int size = users.size();
         for(int i = 0; i < size; i ++){
             result = 31 * result + users.get(i).getLoginId().hashCode();
         }
+        result = 31 * result + type.hashCode();
         return result;
     }
 
@@ -62,4 +66,9 @@ public class Participant {
         return users.contains(user);
     }
 
+}
+
+enum ParticipantType {
+    CHAT,
+    VOICE
 }

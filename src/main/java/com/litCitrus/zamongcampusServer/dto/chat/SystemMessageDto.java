@@ -80,6 +80,7 @@ public class SystemMessageDto {
     @Getter
     @AllArgsConstructor
     public static class MemberInfo{
+        private Long id;
         private String loginId;
         private String nickname;
         private String imageUrl;
