@@ -47,7 +47,7 @@ public class VoiceRoomService {
         // 2. owner의 token 발행
         String token = agoraHandler.getRTCToken(new AgoraRepository(voiceRoom.getChatRoom().getRoomId(), Math.toIntExact(user.getId()), 3600, 2));
         // 3. dto 반환
-        return new VoiceRoomDtoRes.DetailRes(voiceRoom, token);
+        return new VoiceRoomDtoRes.DetailRes(voiceRoom, token, Math.toIntExact(user.getId()));
     }
 
     public List<VoiceRoomDtoRes.Res> getVoiceRooms(){
@@ -64,7 +64,7 @@ public class VoiceRoomService {
         // 2. token 발행 (user_id)로
         String token = agoraHandler.getRTCToken(new AgoraRepository(voiceRoom.getChatRoom().getRoomId(), Math.toIntExact(user.getId()), 3600, 2));
         // 3. dto 반환
-        return new VoiceRoomDtoRes.DetailRes(voiceRoom, token);
+        return new VoiceRoomDtoRes.DetailRes(voiceRoom, token, Math.toIntExact(user.getId()));
     }
 
 }
