@@ -17,6 +17,7 @@ import com.litCitrus.zamongcampusServer.repository.voiceRoom.ParticipantReposito
 import com.litCitrus.zamongcampusServer.repository.voiceRoom.VoiceRoomRepository;
 import com.litCitrus.zamongcampusServer.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -33,6 +34,7 @@ public class VoiceRoomService {
     private final ChatRoomRepository chatRoomRepository;
     private final UserRepository userRepository;
     private final AgoraHandler agoraHandler;
+    private final SimpMessageSendingOperations messagingTemplate;
 
     public VoiceRoomDtoRes.DetailRes createVoiceRoom(
              VoiceRoomDtoReq.Create dto) {
@@ -61,9 +63,12 @@ public class VoiceRoomService {
         VoiceRoom voiceRoom = voiceRoomRepository.findById(voiceRoomId).orElseThrow(VoiceRoomNotFoundException::new);
         // 1. participant에 추가
         voiceRoom.getChatRoom().getParticipant().addUser(user);
-        // 2. token 발행 (user_id)로
+        // 2. stomp으로 이미 참여자들에게 내 정보 실시간 전송
+        SystemMessageDto.MemberInfo memberInfo = new SystemMessageDto.MemberInfo(user.getId(), user.getLoginId(), user.getNickname(), user.getPictures().get(0).getStored_file_path());
+        messagingTemplate.convertAndSend("/sub/chat/room/" + voiceRoom.getChatRoom().getRoomId(), memberInfo);
+        // 3. token 발행 (user_id)로
         String token = agoraHandler.getRTCToken(new AgoraRepository(voiceRoom.getChatRoom().getRoomId(), Math.toIntExact(user.getId()), 3600, 2));
-        // 3. dto 반환
+        // 4. dto 반환
         return new VoiceRoomDtoRes.DetailRes(voiceRoom, token, Math.toIntExact(user.getId()));
     }
 
