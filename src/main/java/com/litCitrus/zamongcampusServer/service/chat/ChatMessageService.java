@@ -5,9 +5,12 @@ import com.litCitrus.zamongcampusServer.domain.user.ModifiedChatInfo;
 import com.litCitrus.zamongcampusServer.domain.user.User;
 import com.litCitrus.zamongcampusServer.dto.chat.ChatMessageDtoReq;
 import com.litCitrus.zamongcampusServer.dto.chat.ChatMessageDtoRes;
+import com.litCitrus.zamongcampusServer.exception.chat.ChatRoomNotFoundException;
 import com.litCitrus.zamongcampusServer.exception.user.UserNotFoundException;
 import com.litCitrus.zamongcampusServer.io.dynamodb.model.ChatMessage;
 import com.litCitrus.zamongcampusServer.io.dynamodb.service.DynamoDBHandler;
+import com.litCitrus.zamongcampusServer.io.fcm.FCMDto;
+import com.litCitrus.zamongcampusServer.io.fcm.FCMHandler;
 import com.litCitrus.zamongcampusServer.repository.chat.ChatRoomRepository;
 import com.litCitrus.zamongcampusServer.repository.user.ModifiedChatInfoRepository;
 import com.litCitrus.zamongcampusServer.repository.user.UserRepository;
@@ -34,6 +37,7 @@ public class ChatMessageService {
     private final SimpMessageSendingOperations messagingTemplate;
     private final ModifiedChatInfoRepository modifiedChatInfoRepository;
     private final TokenProvider tokenProvider;
+    private final FCMHandler fcmHandler;
 
     public void sendMessage(ChatMessageDtoReq messageDto, String token){
         /* Dynamo Db에 저장 + 메시지를 채팅방(roomId)에게 Stomp으로 전송한다 */
@@ -51,6 +55,11 @@ public class ChatMessageService {
 
         /* 2. 채팅 메시지 디비에 저장 */
         dynamoDBHandler.putMessage(messageDto, user.getLoginId(), currentTime);
+
+        /* 3. fcm(알림) 전송 */
+        FCMDto fcmDto = new FCMDto(user.getNickname() + " : " + messageDto.getText().substring(0, 20));
+        ChatRoom chatRoom = chatRoomRepository.findByRoomId(messageDto.getRoomId()).orElseThrow(ChatRoomNotFoundException::new);
+        fcmHandler.sendNotification(fcmDto, chatRoom.getUsers());
     }
 
     // READ: GET MESSAGE
