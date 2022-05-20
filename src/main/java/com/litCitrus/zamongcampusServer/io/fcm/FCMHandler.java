@@ -14,7 +14,7 @@ public class FCMHandler {
 
     private final FirebaseMessaging firebaseMessaging;
     final String title = "LitCitrus";
-    public void sendNotification(FCMDto fcmDto, List<User> recipients) {
+    public void sendNotification(FCMDto fcmDto, String channelId, List<User> recipients) {
 
         List<String> recipientTokens = recipients.stream().map(user -> user.getDeviceToken()).collect(Collectors.toList());
         Notification notification = Notification
@@ -22,11 +22,18 @@ public class FCMHandler {
                 .setTitle(title)
                 .setBody(fcmDto.getBody())
                 .build();
+        AndroidNotification androidNotification = AndroidNotification.builder()
+                .setChannelId(channelId)
+                .build();
+        AndroidConfig androidConfig = AndroidConfig.builder()
+                .setNotification(androidNotification)
+                .build();
 
         MulticastMessage message = MulticastMessage.builder()
                 .addAllTokens(recipientTokens)
                 .setNotification(notification)
                 .putAllData(fcmDto.getData())
+                .setAndroidConfig(androidConfig)
                 .putData("click_action", "FLUTTER_NOTIFICATION_CLICK")
                 .build();
         BatchResponse response = null;

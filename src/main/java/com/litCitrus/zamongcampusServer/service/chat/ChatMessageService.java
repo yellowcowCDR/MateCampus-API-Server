@@ -57,9 +57,10 @@ public class ChatMessageService {
         dynamoDBHandler.putMessage(messageDto, user.getLoginId(), currentTime);
 
         /* 3. fcm(알림) 전송 */
-        FCMDto fcmDto = new FCMDto(user.getNickname() + " : " + messageDto.getText().substring(0, 20));
-        ChatRoom chatRoom = chatRoomRepository.findByRoomId(messageDto.getRoomId()).orElseThrow(ChatRoomNotFoundException::new);
-        fcmHandler.sendNotification(fcmDto, chatRoom.getUsers());
+        FCMDto fcmDto = new FCMDto(user.getNickname() + " \n " + messageDto.getText().substring(0, 20));
+        List<User> recipientsExceptMe  = chatRoomRepository.findByRoomId(messageDto.getRoomId()).orElseThrow(ChatRoomNotFoundException::new)
+                .getUsers().stream().filter(recipient -> !recipient.equals(user)).collect(Collectors.toList());
+        fcmHandler.sendNotification(fcmDto, "fcm_message_channel",recipientsExceptMe);
     }
 
     // READ: GET MESSAGE
