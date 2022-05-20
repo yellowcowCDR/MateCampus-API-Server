@@ -3,6 +3,7 @@ package com.litCitrus.zamongcampusServer.dto.post;
 import com.litCitrus.zamongcampusServer.domain.post.PostComment;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -10,13 +11,14 @@ public class PostCommentDtoRes {
 
     @Getter
     public static class Res {
-        final private long id;
-        final private String loginId;
-        final private String userNickname;
-        final private String body;
-        final private boolean deleted;
-        final private long parentId;
-        final private List<Res> children;
+        private final long id;
+        private final String loginId;
+        private final String userNickname;
+        private final String body;
+        private final boolean deleted;
+        private final LocalDateTime createdAt;
+        private final long parentId;
+        private final List<Res> children;
 
         public Res(PostComment postComment){
             this.loginId = postComment.getUser().getLoginId();
@@ -24,9 +26,10 @@ public class PostCommentDtoRes {
             this.userNickname = postComment.getUser().getNickname();
             this.body = postComment.getBody();
             this.deleted = postComment.isDeleted();
+            this.createdAt = postComment.getCreatedAt();
             this.parentId = postComment.getParent() == null ? 0 : postComment.getParent().getId();
             this.children = postComment.getChildren() == null ? null : postComment.getChildren().stream()
-                    .filter(child -> !child.isDeleted())
+//                    .filter(child -> !child.isDeleted())
                     .map(Res::new).collect(Collectors.toList());
 
         }
