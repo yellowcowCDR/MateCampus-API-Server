@@ -6,6 +6,8 @@ import com.litCitrus.zamongcampusServer.dto.chat.SystemMessageDto;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,9 +31,11 @@ public class VoiceRoomDtoRes {
     public static class Res{
         private final Long id;
         private final String title;
+        private final List<String> userImageUrls;
         public Res(VoiceRoom voiceRoom){
             this.title = voiceRoom.getTitle();
             this.id = voiceRoom.getId();
+            this.userImageUrls = voiceRoom.getChatRoom().getUsers().stream().map(user -> user.getPictures().get(0).getStored_file_path()).collect(Collectors.toList());
         }
     }
 

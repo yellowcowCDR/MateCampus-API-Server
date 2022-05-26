@@ -26,15 +26,14 @@ public class VoiceRoomApiController {
     @PostMapping
     public ResponseEntity<?> createVoiceRoom(
             @Valid @RequestBody VoiceRoomDtoReq.Create dto) {
-        return new ResponseEntity<>(voiceRoomService.createVoiceRoom(dto), HttpStatus.OK);
+        return new ResponseEntity<>(voiceRoomService.createVoiceRoom(dto), HttpStatus.CREATED);
     }
 
-//    @GetMapping
-//    @ResponseStatus(HttpStatus.OK)
-//    public List<PostDtoRes.Res> getVoiceRooms(@Valid @RequestParam("loginId") String loginId){
-//        List<Post> posts = postService.getAllPostOrderbyRecent(loginId);
-//        return posts.stream().map(post -> new PostDtoRes.Res(post)).collect(Collectors.toList());
-//    }
+    @GetMapping
+    @ResponseStatus(HttpStatus.OK)
+    public List<VoiceRoomDtoRes.Res> getVoiceRooms(){
+        return voiceRoomService.getVoiceRooms();
+    }
 
     @GetMapping("{voiceRoomId}")
     public ResponseEntity<?> getVoiceRoom(@Valid @PathVariable("voiceRoomId") Long voiceRoomId){
