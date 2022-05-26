@@ -121,7 +121,7 @@ public class SystemMessageComponent {
                 .build();
 
         /* 1. stomp 실시간 전달. user의 devicetoken으로 (단, 본인 제외) */
-        List<User> recipientsExceptMe = recipients.stream().filter(recipient -> !recipient.equals(actor)).collect(Collectors.toList());
+        List<User> recipientsExceptMe = recipients.stream().filter(recipient -> !recipient.getLoginId().equals(actor.getLoginId())).collect(Collectors.toList());
         recipientsExceptMe.stream()
                 .forEach(recipient -> messagingTemplate.convertAndSend("/sub/chat/room/" + recipient.getDeviceToken(), createDto));
 

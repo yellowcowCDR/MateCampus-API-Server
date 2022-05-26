@@ -21,9 +21,11 @@ import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import software.amazon.awssdk.enhanced.dynamodb.model.PageIterable;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -39,6 +41,7 @@ public class ChatMessageService {
     private final TokenProvider tokenProvider;
     private final FCMHandler fcmHandler;
 
+    @Transactional
     public void sendMessage(ChatMessageDtoReq messageDto, String token){
         /* Dynamo Db에 저장 + 메시지를 채팅방(roomId)에게 Stomp으로 전송한다 */
         Authentication authentication = tokenProvider.getAuthentication(token.substring(7));
@@ -57,9 +60,11 @@ public class ChatMessageService {
         dynamoDBHandler.putMessage(messageDto, user.getLoginId(), currentTime);
 
         /* 3. fcm(알림) 전송 */
-        FCMDto fcmDto = new FCMDto(user.getNickname() + " \n " + messageDto.getText().substring(0, 20));
+        FCMDto fcmDto = new FCMDto(
+                user.getNickname() + " \n " + messageDto.getText(),
+                new HashMap<String,String>(){{ put("navigate","/chatDetail"); }});
         List<User> recipientsExceptMe  = chatRoomRepository.findByRoomId(messageDto.getRoomId()).orElseThrow(ChatRoomNotFoundException::new)
-                .getUsers().stream().filter(recipient -> !recipient.equals(user)).collect(Collectors.toList());
+                .getUsers().stream().filter(recipient -> !recipient.getLoginId().equals(user.getLoginId())).collect(Collectors.toList());
         fcmHandler.sendNotification(fcmDto, "fcm_message_channel",recipientsExceptMe);
     }
 

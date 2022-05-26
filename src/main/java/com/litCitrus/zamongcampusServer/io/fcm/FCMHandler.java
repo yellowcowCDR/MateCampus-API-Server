@@ -38,7 +38,7 @@ public class FCMHandler {
                 .build();
         BatchResponse response = null;
         try {
-            response = FirebaseMessaging.getInstance().sendMulticast(message);
+            response = firebaseMessaging.sendMulticast(message);
         } catch (FirebaseMessagingException e) {
             e.printStackTrace();
         }
