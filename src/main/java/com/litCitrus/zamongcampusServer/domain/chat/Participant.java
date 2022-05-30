@@ -42,7 +42,13 @@ public class Participant {
         return participant;
     }
 
+    /// 애초에 createpariticpant 함수를 2개를 만든다
+    /// createChatRoomParticipant & createVoiceRoomParticiapnt
+    /// 그리고 "chatroom".hashCode() 와 "voiceRoom".hashcode()로 구분 짓기.
     // TODO: hashCode를 임의로 만들었는데, 괜찮을까.
+    // 여기가 문제인게. voiceroom과 chatroom의 구성원이 같은 경우가 존재할 수 있다.
+    // 그리고 chatroom에서도 같은 구성원을 띌수도 있는 에러 존재.
+    // 같은 구성원이면 다르게 처리하는 무언가가 필요.
     public static int makeHashCode(List<User> users, String type){
         users.sort(Comparator.comparingLong(User::getId));
         int result = 321;
