@@ -60,10 +60,16 @@ public class ChatMessageService {
         dynamoDBHandler.putMessage(messageDto, user.getLoginId(), currentTime);
 
         /* 3. fcm(알림) 전송 */
+        ChatRoom chatRoom = chatRoomRepository.findByRoomId(messageDto.getRoomId()).orElseThrow(ChatRoomNotFoundException::new);
+        List<String> chatRoomTitleAndImage = chatRoom.getCounterpartChatRoomTitleAndImage(user.getLoginId());
         FCMDto fcmDto = new FCMDto(user.getNickname() + " \n " + messageDto.getText(),
                 new HashMap<String,String>(){{
                     put("navigate","/chatDetail");
-                    put("roomId", messageDto.getRoomId());
+                    put("roomId", chatRoom.getRoomId());
+                    put("title", user.getNickname());
+                    put("imageUrl", user.getPictures().get(0).getStored_file_path());
+                    put("type", chatRoom.getType());
+
         }});
         List<User> recipientsExceptMe  = chatRoomRepository.findByRoomId(messageDto.getRoomId()).orElseThrow(ChatRoomNotFoundException::new)
                 .getUsers().stream().filter(recipient -> !recipient.getLoginId().equals(user.getLoginId())).collect(Collectors.toList());
