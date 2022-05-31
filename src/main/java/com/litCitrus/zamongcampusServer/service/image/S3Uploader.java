@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -45,6 +46,21 @@ public class S3Uploader {
         }
 
         return uploadImageUrls;
+    }
+
+    public String uploadOne(MultipartFile multipartFile, String dirName) throws IOException {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
+        String current_date = simpleDateFormat.format(new Date());
+        String path = new File("").getAbsolutePath() + "/images/";
+        String new_file_name = Long.toString(System.nanoTime()) + multipartFile.getOriginalFilename();
+        File convertFile = new File(path + new_file_name);
+        if (convertFile.createNewFile()) { // 바로 위에서 지정한 경로에 File이 생성됨 (경로가 잘못되었다면 생성 불가능)
+            try (FileOutputStream fos = new FileOutputStream(convertFile)) { // FileOutputStream 데이터를 파일에 바이트 스트림으로 저장하기 위함
+                fos.write(multipartFile.getBytes());
+            }
+        }
+        String fileName = dirName + "/"  + current_date + "/"+ UUID.randomUUID() + convertFile.getName();   // S3에 저장된 파일 이름
+        return putS3(convertFile, fileName); // s3로 업로드 후 주소 반환
     }
 
     // S3로 업로드

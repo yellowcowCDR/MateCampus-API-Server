@@ -4,11 +4,13 @@ import com.litCitrus.zamongcampusServer.domain.user.User;
 import com.litCitrus.zamongcampusServer.dto.user.UserDtoReq;
 import com.litCitrus.zamongcampusServer.service.user.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/api")
@@ -18,10 +20,9 @@ public class UserApiController {
     private final UserService userService;
 
     @PostMapping("/signup")
-    public ResponseEntity<User> signup(
-            @Valid @RequestBody UserDtoReq.Create userDto
-    ) {
-        return ResponseEntity.ok(userService.signup(userDto));
+    public ResponseEntity<?> signup(@Valid @ModelAttribute UserDtoReq.Create userDto) throws IOException {
+        User user = userService.signup(userDto);
+        return new ResponseEntity<>("정상적인 접근: 회원가입 완료", HttpStatus.CREATED);
     }
 
     @PostMapping("/user/updateDeviceToken")

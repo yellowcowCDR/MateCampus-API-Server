@@ -40,11 +40,6 @@ public class SignUpService {
 //			throw new HttpClientErrorException.BadRequest("");
         }
 
-        if (userRepository.existsUserByEmail(user.getEmail())){
-            log.info("Here2");
-            throw new IllegalStateException("이미 존재하는 학번입니다");
-        }
-
         if (userRepository.existsUserByNickname(user.getNickname())){
             log.info("Here3");
             throw new IllegalStateException("이미 존재하는 닉네임입니다");

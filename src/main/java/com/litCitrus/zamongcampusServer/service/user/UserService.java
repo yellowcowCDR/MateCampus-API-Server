@@ -1,20 +1,24 @@
 package com.litCitrus.zamongcampusServer.service.user;
 
 import com.litCitrus.zamongcampusServer.domain.chat.Participant;
+import com.litCitrus.zamongcampusServer.domain.post.PostPicture;
 import com.litCitrus.zamongcampusServer.domain.user.Authority;
 import com.litCitrus.zamongcampusServer.domain.user.User;
 import com.litCitrus.zamongcampusServer.domain.user.UserPicture;
 import com.litCitrus.zamongcampusServer.dto.user.UserDtoReq;
 import com.litCitrus.zamongcampusServer.exception.user.UserNotFoundException;
+import com.litCitrus.zamongcampusServer.repository.user.UserPictureRepository;
 import com.litCitrus.zamongcampusServer.repository.user.UserRepository;
 import com.litCitrus.zamongcampusServer.repository.voiceRoom.ParticipantRepository;
 import com.litCitrus.zamongcampusServer.service.chat.SystemMessageComponent;
+import com.litCitrus.zamongcampusServer.service.image.S3Uploader;
 import com.litCitrus.zamongcampusServer.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -26,13 +30,15 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final ParticipantRepository participantRepository;
     private final SystemMessageComponent systemMessageComponent;
+    private final UserPictureRepository userPictureRepository;
+    private final S3Uploader s3Uploader;
 
     /** 회원가입
      * 자동으로 ROLE_USER의 권한을 가진다.
      * ROLE_ADMIN는 data.sql에서 서버 실행과 함께 하나만 생성한다. (따로 메소드로 두진 않는다 위험해서)
      * */
     @Transactional
-    public User signup(UserDtoReq.Create userDto) {
+    public User signup(UserDtoReq.Create userDto) throws IOException {
         if (userRepository.findOneWithAuthoritiesByLoginId(userDto.getLoginId()).orElse(null) != null) {
             throw new RuntimeException("이미 가입되어 있는 유저입니다.");
         }
@@ -41,7 +47,18 @@ public class UserService {
                 .authorityName("ROLE_USER")
                 .build();
         User user = User.createUser(userDto, passwordEncoder.encode(userDto.getPassword()), authority);
-        return userRepository.save(user);
+        userRepository.save(user);
+        if(userDto.getStudentIdImg() != null){
+            String uploadImageUrl = s3Uploader.uploadOne(userDto.getStudentIdImg(), "2022/userIdImage");
+            user.setStudentIdImageUrl(uploadImageUrl);
+        }
+        if(userDto.getProfileImg() != null){
+            String uploadImageUrl = s3Uploader.uploadOne(userDto.getProfileImg(), "2022/user");
+            UserPicture userPicture = UserPicture.createUserPicture(user, uploadImageUrl);
+            userPictureRepository.save(userPicture);
+            user.addPicture(userPicture);
+        }
+        return user;
     }
 
     @Transactional

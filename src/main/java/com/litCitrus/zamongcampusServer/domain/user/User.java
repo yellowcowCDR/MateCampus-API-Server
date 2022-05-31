@@ -15,10 +15,7 @@ import javax.validation.constraints.NotNull;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Getter
@@ -41,19 +38,16 @@ public class User extends BaseEntity {
     @Column(unique = true, length = 50)
     private String nickname;
 
-    private boolean activated;
 
-    @Column(unique = true)
+//    @Column(unique = true)
     private String deviceToken;
 
-    @Column(unique = true)
-    private String email;
-
-    private String name;
     private String collegeCode;
     private String majorCode;
-    private int studentNum;
     private String introduction;
+
+    private boolean activated;
+    private String studentIdImageUrl;
 
     @Builder.Default
     private boolean emailAuthentication = Boolean.FALSE;
@@ -76,7 +70,7 @@ public class User extends BaseEntity {
     private Set<PostLike> likedPosts;
 
     @OneToMany(mappedBy = "user")
-    private List<UserPicture> pictures;
+    private List<UserPicture> pictures = new ArrayList<UserPicture>();
 
     @OneToMany(mappedBy = "owner")
     private Set<VoiceRoom> voiceRooms;
@@ -92,12 +86,10 @@ public class User extends BaseEntity {
                 .password(encodedPassword)
                 .authorities(Collections.singleton(authority))
                 .deviceToken(userDto.getDeviceToken())
-                .email(userDto.getEmail())
                 .nickname(userDto.getNickname())
-                .name(userDto.getName())
                 .collegeCode(userDto.getCollegeCode())
                 .majorCode(userDto.getMajorCode())
-                .studentNum(userDto.getStudentNum())
+                .introduction(userDto.getIntroduce())
 //                .activated(true)  // 이거 활성화시키면 회원가입만 하면 우리 서비스 바로 사용 가능.
                 .build();
         return user;
@@ -142,5 +134,17 @@ public class User extends BaseEntity {
 
     public void setActivated(){
         this.activated = true;
+    }
+
+    public void addPicture(UserPicture userPicture){
+        if(this.pictures == null){
+            this.pictures = new ArrayList<>(Arrays.asList(userPicture));
+        }else{
+            Collections.addAll(this.pictures, userPicture);
+        }
+    }
+
+    public void setStudentIdImageUrl(String url){
+        this.studentIdImageUrl = url;
     }
 }
