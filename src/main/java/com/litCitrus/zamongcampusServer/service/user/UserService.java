@@ -1,12 +1,17 @@
 package com.litCitrus.zamongcampusServer.service.user;
 
 import com.litCitrus.zamongcampusServer.domain.chat.Participant;
+import com.litCitrus.zamongcampusServer.domain.interest.Interest;
+import com.litCitrus.zamongcampusServer.domain.interest.InterestCode;
 import com.litCitrus.zamongcampusServer.domain.post.PostPicture;
-import com.litCitrus.zamongcampusServer.domain.user.Authority;
-import com.litCitrus.zamongcampusServer.domain.user.User;
-import com.litCitrus.zamongcampusServer.domain.user.UserPicture;
+import com.litCitrus.zamongcampusServer.domain.user.*;
 import com.litCitrus.zamongcampusServer.dto.user.UserDtoReq;
+import com.litCitrus.zamongcampusServer.dto.user.UserDtoRes;
 import com.litCitrus.zamongcampusServer.exception.user.UserNotFoundException;
+import com.litCitrus.zamongcampusServer.repository.interest.InterestRepository;
+import com.litCitrus.zamongcampusServer.repository.post.PostRepository;
+import com.litCitrus.zamongcampusServer.repository.user.FriendRepository;
+import com.litCitrus.zamongcampusServer.repository.user.UserInterestRepository;
 import com.litCitrus.zamongcampusServer.repository.user.UserPictureRepository;
 import com.litCitrus.zamongcampusServer.repository.user.UserRepository;
 import com.litCitrus.zamongcampusServer.repository.voiceRoom.ParticipantRepository;
@@ -31,7 +36,12 @@ public class UserService {
     private final ParticipantRepository participantRepository;
     private final SystemMessageComponent systemMessageComponent;
     private final UserPictureRepository userPictureRepository;
+    private final UserInterestRepository userInterestRepository;
+    private final InterestRepository interestRepository;
+    private final FriendRepository friendRepository;
+    private final PostRepository postRepository;
     private final S3Uploader s3Uploader;
+
 
     /** 회원가입
      * 자동으로 ROLE_USER의 권한을 가진다.
@@ -42,7 +52,7 @@ public class UserService {
         if (userRepository.findOneWithAuthoritiesByLoginId(userDto.getLoginId()).orElse(null) != null) {
             throw new RuntimeException("이미 가입되어 있는 유저입니다.");
         }
-
+        System.out.println(userDto.getInterestCodes());
         Authority authority = Authority.builder()
                 .authorityName("ROLE_USER")
                 .build();
@@ -56,7 +66,14 @@ public class UserService {
             String uploadImageUrl = s3Uploader.uploadOne(userDto.getProfileImg(), "2022/user");
             UserPicture userPicture = UserPicture.createUserPicture(user, uploadImageUrl);
             userPictureRepository.save(userPicture);
-            user.addPicture(userPicture);
+            user.addPicture(userPicture); // 이거 필요 없어 보이는데??
+        }
+        if(!userDto.getInterestCodes().isEmpty()){
+            List<UserInterest> userInterests = new ArrayList<>();
+            for(String interestCode : userDto.getInterestCodes()) {
+                Interest interest = interestRepository.findByInterestCode(InterestCode.valueOf(interestCode));
+                userInterestRepository.save(UserInterest.createUserInterest(user, interest));
+            }
         }
         return user;
     }
@@ -75,8 +92,12 @@ public class UserService {
 
     /* 일반 User들이 사용 */
     @Transactional(readOnly = true)
-    public Optional<User> getMyUserWithAuthorities() {
-        return SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId);
+    public UserDtoRes.ResForMyPage getMyUserInfoInMyPage() {
+        User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
+        long friendsCount = friendRepository.findByRequestorOrRecipient(user, user).stream().filter(friend -> friend.getStatus() == Friend.Status.ACCEPTED).count();
+        long postsCount = user.getPosts().size();
+        long commentsCount = user.getComments().size();
+        return new UserDtoRes.ResForMyPage(user, friendsCount, postsCount, commentsCount);
     }
 
     @Transactional

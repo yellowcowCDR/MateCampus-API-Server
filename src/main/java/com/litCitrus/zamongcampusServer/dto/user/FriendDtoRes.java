@@ -16,8 +16,8 @@ public class FriendDtoRes {
 
         public ResWithDetail(User other, Friend friend){
             super(other, friend);
-            this.collegeCode = other.getCollegeCode();
-            this.majorCode = other.getMajorCode();
+            this.collegeCode = other.getCollegeCode().name();
+            this.majorCode = other.getMajorCode().name();
             this.introduction = other.getIntroduction();
         }
     }

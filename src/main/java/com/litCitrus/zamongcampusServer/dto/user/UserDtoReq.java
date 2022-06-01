@@ -40,6 +40,8 @@ public class UserDtoReq {
 
         private String introduce;
 
+        private List<String> interestCodes;
+
     }
 
     @Getter

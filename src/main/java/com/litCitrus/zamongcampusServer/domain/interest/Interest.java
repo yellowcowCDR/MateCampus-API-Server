@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Interest extends BaseEntity {
+public class Interest {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,20 +23,20 @@ public class Interest extends BaseEntity {
 
     @NotNull
     @Column(unique = true)
-    private String title;
+    private InterestCode interestCode;
 
     @OneToMany(mappedBy = "interest")
     private Set<UserInterest> userInterests;
 
-    public static Interest createInterest(String title){
+    public static Interest createInterest(String interestCode){
         final Interest interest = Interest.builder()
-                .title(title)
+                .interestCode(InterestCode.valueOf(interestCode))
                 .build();
         return interest;
     }
 
-    public static List<Interest> createInterests(List<String> titles){
-        return titles.stream().map(title -> Interest.createInterest(title)).collect(Collectors.toList());
+    public static List<Interest> createInterests(List<String> interestCodes){
+        return interestCodes.stream().map(interestCode -> Interest.createInterest(interestCode)).collect(Collectors.toList());
     }
 
 }

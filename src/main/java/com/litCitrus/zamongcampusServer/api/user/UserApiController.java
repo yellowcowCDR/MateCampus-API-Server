@@ -2,6 +2,7 @@ package com.litCitrus.zamongcampusServer.api.user;
 
 import com.litCitrus.zamongcampusServer.domain.user.User;
 import com.litCitrus.zamongcampusServer.dto.user.UserDtoReq;
+import com.litCitrus.zamongcampusServer.dto.user.UserDtoRes;
 import com.litCitrus.zamongcampusServer.service.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -30,10 +31,10 @@ public class UserApiController {
         userService.updateDeviceToken(userDto);
     }
 
-    @GetMapping("/user")
+    @GetMapping("/user/mypage")
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
-    public ResponseEntity<User> getMyUserInfo() {
-        return ResponseEntity.ok(userService.getMyUserWithAuthorities().get());
+    public ResponseEntity<UserDtoRes.ResForMyPage> getMyUserInfoInMyPage() {
+        return ResponseEntity.ok(userService.getMyUserInfoInMyPage());
     }
 
     /** 어드민만 가능한 함수
@@ -47,7 +48,8 @@ public class UserApiController {
 
     @PostMapping("/user/activate")
     @PreAuthorize("hasAnyRole('ADMIN')")
-    public ResponseEntity<User> activateUser(@RequestParam("loginId") String loginId) {
-        return ResponseEntity.ok(userService.activateUser(loginId));
+    public ResponseEntity<?> activateUser(@RequestParam("loginId") String loginId) {
+        User user = userService.activateUser(loginId);
+        return ResponseEntity.ok("정상접근: " + user.getLoginId() + " 활성화 완료");
     }
 }

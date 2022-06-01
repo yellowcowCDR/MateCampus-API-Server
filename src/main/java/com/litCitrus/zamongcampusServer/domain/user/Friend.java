@@ -16,10 +16,10 @@ public class Friend extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private User requestor;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private User recipient;
 
     @Builder.Default
