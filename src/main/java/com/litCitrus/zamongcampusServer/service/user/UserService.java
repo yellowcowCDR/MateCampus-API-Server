@@ -90,17 +90,7 @@ public class UserService {
         return userRepository.findOneWithAuthoritiesByLoginId(loginId);
     }
 
-    /* 일반 User들이 사용 */
-    @Transactional(readOnly = true)
-    public UserDtoRes.ResForMyPage getMyUserInfoInMyPage() {
-        User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
-        long friendsCount = friendRepository.findByRequestorOrRecipient(user, user).stream().filter(friend -> friend.getStatus() == Friend.Status.ACCEPTED).count();
-        long postsCount = user.getPosts().size();
-        long commentsCount = user.getComments().size();
-        return new UserDtoRes.ResForMyPage(user, friendsCount, postsCount, commentsCount);
-    }
-
-    public List<UserDtoRes.ResForRecommend> getRecommendUsers(){
+    public List<UserDtoRes.CommonRes> getRecommendUsers(){
         User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
         // 나중에 querydsl로 변경해야함.
         // 1. accepted인 친구만
@@ -114,8 +104,27 @@ public class UserService {
         friendLoginIds.add("admin"); // admin 아이디 추가
         List<User> allUsersExceptFriend = userRepository.findAllByLoginIdIsNotContaining(user.getLoginId()).stream()
                 .filter(u -> !friendLoginIds.contains(u.getLoginId())).collect(Collectors.toList());
-        return allUsersExceptFriend.stream().map(UserDtoRes.ResForRecommend::new).collect(Collectors.toList());
+        return allUsersExceptFriend.stream().map(UserDtoRes.CommonRes::new).collect(Collectors.toList());
     }
+
+    public UserDtoRes.ResForDetailInfo getOtherUserInfo(String loginId){
+        User user = userRepository.findByLoginId(loginId).orElseThrow(UserNotFoundException::new);
+        List<Interest> interests = interestRepository.findAllByUserInterests_User(user);
+        return new UserDtoRes.ResForDetailInfo(user, interests);
+
+    }
+
+    /* 일반 User들이 사용 */
+    @Transactional(readOnly = true)
+    public UserDtoRes.ResForMyPage getMyUserInfoInMyPage() {
+        User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
+        long friendsCount = friendRepository.findByRequestorOrRecipient(user, user).stream().filter(friend -> friend.getStatus() == Friend.Status.ACCEPTED).count();
+        long postsCount = user.getPosts().size();
+        long commentsCount = user.getComments().size();
+        return new UserDtoRes.ResForMyPage(user, friendsCount, postsCount, commentsCount);
+    }
+
+
 
     @Transactional
     public void updateUserInfo(UserDtoReq.Update userUpdateDto) {

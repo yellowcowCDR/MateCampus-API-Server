@@ -32,15 +32,20 @@ public class UserApiController {
         userService.updateDeviceToken(userDto);
     }
 
+    @GetMapping("/user/recommend")
+    public ResponseEntity<List<UserDtoRes.CommonRes>> getRecommendUsers(){
+        return ResponseEntity.ok(userService.getRecommendUsers());
+    }
+
     @GetMapping("/user/mypage")
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
     public ResponseEntity<UserDtoRes.ResForMyPage> getMyUserInfoInMyPage() {
         return ResponseEntity.ok(userService.getMyUserInfoInMyPage());
     }
 
-    @GetMapping("/user/recommend")
-    public ResponseEntity<List<UserDtoRes.ResForRecommend>> getRecommendUsers(){
-        return ResponseEntity.ok(userService.getRecommendUsers());
+    @GetMapping("/user/info/{loginId}")
+    public ResponseEntity<UserDtoRes.ResForDetailInfo> getOtherUserInfo(@Valid @PathVariable String loginId){
+        return ResponseEntity.ok(userService.getOtherUserInfo(loginId));
     }
 
     /** 어드민만 가능한 함수
@@ -48,7 +53,7 @@ public class UserApiController {
      * */
     @GetMapping("/user/{username}")
     @PreAuthorize("hasAnyRole('ADMIN')")
-    public ResponseEntity<User> getUserInfo(@PathVariable String username) {
+    public ResponseEntity<User> getUserInfoByAdmin(@PathVariable String username) {
         return ResponseEntity.ok(userService.getUserWithAuthorities(username).get());
     }
 
