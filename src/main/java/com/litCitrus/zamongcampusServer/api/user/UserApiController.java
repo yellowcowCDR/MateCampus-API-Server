@@ -2,6 +2,7 @@ package com.litCitrus.zamongcampusServer.api.user;
 
 import com.litCitrus.zamongcampusServer.domain.user.User;
 import com.litCitrus.zamongcampusServer.dto.user.UserDtoReq;
+import com.litCitrus.zamongcampusServer.dto.user.UserDtoRes;
 import com.litCitrus.zamongcampusServer.service.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.io.IOException;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api")
@@ -30,10 +32,20 @@ public class UserApiController {
         userService.updateDeviceToken(userDto);
     }
 
-    @GetMapping("/user")
+    @GetMapping("/user/recommend")
+    public ResponseEntity<List<UserDtoRes.CommonRes>> getRecommendUsers(){
+        return ResponseEntity.ok(userService.getRecommendUsers());
+    }
+
+    @GetMapping("/user/mypage")
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
-    public ResponseEntity<User> getMyUserInfo() {
-        return ResponseEntity.ok(userService.getMyUserWithAuthorities().get());
+    public ResponseEntity<UserDtoRes.ResForMyPage> getMyUserInfoInMyPage() {
+        return ResponseEntity.ok(userService.getMyUserInfoInMyPage());
+    }
+
+    @GetMapping("/user/info/{loginId}")
+    public ResponseEntity<UserDtoRes.ResForDetailInfo> getOtherUserInfo(@Valid @PathVariable String loginId){
+        return ResponseEntity.ok(userService.getOtherUserInfo(loginId));
     }
 
     /** 어드민만 가능한 함수
@@ -41,13 +53,14 @@ public class UserApiController {
      * */
     @GetMapping("/user/{username}")
     @PreAuthorize("hasAnyRole('ADMIN')")
-    public ResponseEntity<User> getUserInfo(@PathVariable String username) {
+    public ResponseEntity<User> getUserInfoByAdmin(@PathVariable String username) {
         return ResponseEntity.ok(userService.getUserWithAuthorities(username).get());
     }
 
     @PostMapping("/user/activate")
     @PreAuthorize("hasAnyRole('ADMIN')")
-    public ResponseEntity<User> activateUser(@RequestParam("loginId") String loginId) {
-        return ResponseEntity.ok(userService.activateUser(loginId));
+    public ResponseEntity<?> activateUser(@RequestParam("loginId") String loginId) {
+        User user = userService.activateUser(loginId);
+        return ResponseEntity.ok("정상접근: " + user.getLoginId() + " 활성화 완료");
     }
 }

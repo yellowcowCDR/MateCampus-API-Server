@@ -2,12 +2,14 @@ package com.litCitrus.zamongcampusServer.domain.user;
 
 import com.litCitrus.zamongcampusServer.domain.BaseEntity;
 import com.litCitrus.zamongcampusServer.domain.post.Post;
+import com.litCitrus.zamongcampusServer.domain.post.PostComment;
 import com.litCitrus.zamongcampusServer.domain.post.PostLike;
 import com.litCitrus.zamongcampusServer.domain.voiceRoom.VoiceRoom;
 import com.litCitrus.zamongcampusServer.dto.post.PostDtoReq;
 import com.litCitrus.zamongcampusServer.dto.user.UserDtoReq;
 import lombok.*;
 import org.hibernate.annotations.SQLDelete;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
@@ -42,8 +44,8 @@ public class User extends BaseEntity {
 //    @Column(unique = true)
     private String deviceToken;
 
-    private String collegeCode;
-    private String majorCode;
+    private CollegeCode collegeCode;
+    private MajorCode majorCode;
     private String introduction;
 
     private boolean activated;
@@ -70,6 +72,12 @@ public class User extends BaseEntity {
     private Set<PostLike> likedPosts;
 
     @OneToMany(mappedBy = "user")
+    private Set<Post> posts;
+
+    @OneToMany(mappedBy = "user")
+    private Set<PostComment> comments;
+
+    @OneToMany(mappedBy = "user")
     private List<UserPicture> pictures = new ArrayList<UserPicture>();
 
     @OneToMany(mappedBy = "owner")
@@ -87,8 +95,8 @@ public class User extends BaseEntity {
                 .authorities(Collections.singleton(authority))
                 .deviceToken(userDto.getDeviceToken())
                 .nickname(userDto.getNickname())
-                .collegeCode(userDto.getCollegeCode())
-                .majorCode(userDto.getMajorCode())
+                .collegeCode(CollegeCode.valueOf(userDto.getCollegeCode()))
+                .majorCode(MajorCode.valueOf(userDto.getMajorCode()))
                 .introduction(userDto.getIntroduce())
 //                .activated(true)  // 이거 활성화시키면 회원가입만 하면 우리 서비스 바로 사용 가능.
                 .build();
@@ -110,24 +118,15 @@ public class User extends BaseEntity {
         }
     }
 
-    /** 아래 update 함수랑 합쳐야할지도. */
-    public User updateUserInterests(Set<UserInterest> userInterests) {
-        this.userInterests = userInterests;
-        return this;
-    }
-
     public void updateUserNickname(String nickname){
         this.nickname = nickname;
     }
 
     public void updateDeviceToken(String deviceToken){ this.deviceToken = deviceToken;}
 
-    public User addUserPictures(List<UserPicture> userPictures){
-        Collections.addAll(this.pictures, userPictures.toArray(new UserPicture[0]));
-        return this;
-    }
-
     /** 사용자와 같은 채팅방에 있는 사람의 프로필 변경 여부 추가 */
+    // TODO: 이거 잘 저장되는지 볼 것. 아마 안될껄?
+    // 안되면 아마도 해당 코드에서 ModifiedInfoRepo에 저장하는 방식으로 변경해야할 듯.
     public void addModifiedChatInfo(ModifiedChatInfo modifiedChatInfo){
         this.modifiedChatInfos.add(modifiedChatInfo);
     }
@@ -136,6 +135,7 @@ public class User extends BaseEntity {
         this.activated = true;
     }
 
+    // TODO: 이 함수는 따로 필요 없어 보이거든??
     public void addPicture(UserPicture userPicture){
         if(this.pictures == null){
             this.pictures = new ArrayList<>(Arrays.asList(userPicture));
@@ -147,4 +147,5 @@ public class User extends BaseEntity {
     public void setStudentIdImageUrl(String url){
         this.studentIdImageUrl = url;
     }
+
 }

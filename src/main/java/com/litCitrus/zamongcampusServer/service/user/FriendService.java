@@ -1,10 +1,12 @@
 package com.litCitrus.zamongcampusServer.service.user;
 
+import com.litCitrus.zamongcampusServer.domain.interest.Interest;
 import com.litCitrus.zamongcampusServer.domain.user.Friend;
 import com.litCitrus.zamongcampusServer.domain.user.User;
 import com.litCitrus.zamongcampusServer.dto.user.FriendDtoReq;
 import com.litCitrus.zamongcampusServer.dto.user.FriendDtoRes;
 import com.litCitrus.zamongcampusServer.exception.user.UserNotFoundException;
+import com.litCitrus.zamongcampusServer.repository.interest.InterestRepository;
 import com.litCitrus.zamongcampusServer.repository.user.FriendRepository;
 import com.litCitrus.zamongcampusServer.repository.user.UserRepository;
 import com.litCitrus.zamongcampusServer.util.SecurityUtil;
@@ -21,6 +23,7 @@ public class FriendService {
 
     private final UserRepository userRepository;
     private final FriendRepository friendRepository;
+    private final InterestRepository interestRepository;
 
     // ** 친구신청
     public void requestFriend(FriendDtoReq.Create dto){
@@ -40,7 +43,9 @@ public class FriendService {
     public FriendDtoRes.ResWithDetail getFriend(String friendId){
         User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
         Friend friend = friendRepository.findById(Long.parseLong(friendId)).get();
-        return new FriendDtoRes.ResWithDetail(friend.getRequestor().equals(user) ? friend.getRecipient() : friend.getRequestor(), friend);
+        User other = friend.getRequestor().equals(user) ? friend.getRecipient() : friend.getRequestor();
+        List<Interest> otherInterests = interestRepository.findAllByUserInterests_User(other);
+        return new FriendDtoRes.ResWithDetail(other, friend, otherInterests);
     }
     // ** 친구수락
     @Transactional
