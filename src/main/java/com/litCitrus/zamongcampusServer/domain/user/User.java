@@ -78,7 +78,7 @@ public class User extends BaseEntity {
     private Set<PostComment> comments;
 
     @OneToMany(mappedBy = "user")
-    private List<UserPicture> pictures = new ArrayList<UserPicture>();
+    private List<UserPicture> pictures;
 
     @OneToMany(mappedBy = "owner")
     private Set<VoiceRoom> voiceRooms;
