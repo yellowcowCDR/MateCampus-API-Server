@@ -32,6 +32,25 @@ public class UserDtoRes {
             this.myCommentCount = commentCount;
         }
     }
+
+    @Getter
+    public static class ResForRecommend{
+        private final String loginId;
+        private final String imageUrl;
+        private final String collegeCode;
+        private final String majorName;
+        private final boolean isOnline;
+
+        public ResForRecommend(User user){
+            this.loginId = user.getLoginId();
+            this.imageUrl = user.getPictures().isEmpty() ? "" : user.getPictures().get(0).getStored_file_path();
+            this.collegeCode = user.getCollegeCode().name();
+            this.majorName = user.getMajorCode().name();
+            this.isOnline = true;
+        }
+
+
+    }
 }
 
 

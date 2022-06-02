@@ -100,6 +100,23 @@ public class UserService {
         return new UserDtoRes.ResForMyPage(user, friendsCount, postsCount, commentsCount);
     }
 
+    public List<UserDtoRes.ResForRecommend> getRecommendUsers(){
+        User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
+        // 나중에 querydsl로 변경해야함.
+        // 1. accepted인 친구만
+        // 2. friend에서 나 말고 다른 사람
+        // 3. 본인 제외 모든 유저 불러옴.
+        User admin = userRepository.findByLoginId("admin").get();
+        List<String> friendLoginIds = friendRepository.findByRequestorOrRecipient(user, user).stream()
+                .filter(friend -> friend.getStatus() == Friend.Status.ACCEPTED)
+                .map(friend -> friend.getRequestor().getLoginId() == user.getLoginId() ? friend.getRecipient().getLoginId() : friend.getRequestor().getLoginId())
+                .collect(Collectors.toList());
+        friendLoginIds.add("admin"); // admin 아이디 추가
+        List<User> allUsersExceptFriend = userRepository.findAllByLoginIdIsNotContaining(user.getLoginId()).stream()
+                .filter(u -> !friendLoginIds.contains(u.getLoginId())).collect(Collectors.toList());
+        return allUsersExceptFriend.stream().map(UserDtoRes.ResForRecommend::new).collect(Collectors.toList());
+    }
+
     @Transactional
     public void updateUserInfo(UserDtoReq.Update userUpdateDto) {
 

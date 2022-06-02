@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.io.IOException;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api")
@@ -35,6 +36,11 @@ public class UserApiController {
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
     public ResponseEntity<UserDtoRes.ResForMyPage> getMyUserInfoInMyPage() {
         return ResponseEntity.ok(userService.getMyUserInfoInMyPage());
+    }
+
+    @GetMapping("/user/recommend")
+    public ResponseEntity<List<UserDtoRes.ResForRecommend>> getRecommendUsers(){
+        return ResponseEntity.ok(userService.getRecommendUsers());
     }
 
     /** 어드민만 가능한 함수
