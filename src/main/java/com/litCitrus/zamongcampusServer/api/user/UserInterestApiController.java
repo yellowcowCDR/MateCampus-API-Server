@@ -18,7 +18,6 @@ public class UserInterestApiController {
 
     @PutMapping("/my")
     public ResponseEntity<?> updateMyInterests(@Valid @RequestBody List<InterestDtoReq> interestDtoReqList){
-        int interestCount = userInterestService.updateMyInterests(interestDtoReqList);
-        return ResponseEntity.ok(Integer.toString(interestCount));
+        return ResponseEntity.ok(userInterestService.updateMyInterests(interestDtoReqList));
     }
 }
