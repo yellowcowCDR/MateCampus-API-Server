@@ -19,16 +19,16 @@ import software.amazon.awssdk.services.dynamodb.waiters.DynamoDbWaiter;
 @Configuration
 public class DynamoDBConfig {
     private DynamoDbClient ddb;
-    @Value("${amazon.dynamodb.endpoint}")
+    @Value("${spring.amazon.dynamodb.endpoint}")
     private String amazonDynamoDBEndpoint;
 
-    @Value("${amazon.dynamodb.region}")
+    @Value("${spring.amazon.dynamodb.region}")
     private String amazonDynamoDBRegion;
 
-    @Value("${amazon.dynamodb.credentials.accessKey}")
+    @Value("${spring.amazon.dynamodb.credentials.accessKey}")
     private String accessKey;
 
-    @Value("${amazon.dynamodb.credentials.secretKey}")
+    @Value("${spring.amazon.dynamodb.credentials.secretKey}")
     private String secretKey;
 
     @Bean
