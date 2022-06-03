@@ -3,6 +3,7 @@ package com.litCitrus.zamongcampusServer.service.post;
 import com.litCitrus.zamongcampusServer.domain.post.Post;
 import com.litCitrus.zamongcampusServer.domain.post.PostLike;
 import com.litCitrus.zamongcampusServer.domain.user.User;
+import com.litCitrus.zamongcampusServer.dto.post.PostLikeDtoRes;
 import com.litCitrus.zamongcampusServer.exception.post.PostNotFoundException;
 import com.litCitrus.zamongcampusServer.exception.user.UserNotFoundException;
 import com.litCitrus.zamongcampusServer.repository.post.PostLikeRepository;
@@ -23,7 +24,7 @@ public class PostLikeService {
     private final UserRepository userRepository;
 
     @Transactional
-    public Long likePost(Long postId){
+    public PostLikeDtoRes likePost(Long postId){
         User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
         Post post = postRepository.findById(postId).orElseThrow(PostNotFoundException::new);
         PostLike postLike = postLikeRepository.findByUserAndPost(user, post);
@@ -34,6 +35,6 @@ public class PostLikeService {
             post.minusLikeCnt();
             postLikeRepository.deleteById(postLike.getId());
         }
-        return post.getId();
+        return new PostLikeDtoRes(post);
     }
 }

@@ -36,7 +36,7 @@ public class Post extends BaseEntity {
     private String body;
 
     private int likeCount;
-    private int CommentCount;
+    private int commentCount;
 
     @OneToMany(mappedBy = "post")
     private List<PostPicture> pictures;
@@ -61,7 +61,7 @@ public class Post extends BaseEntity {
                 .title(postDto.getTitle())
                 .body(postDto.getBody())
                 .likeCount(0)
-                .CommentCount(0)
+                .commentCount(0)
                 .build();
         return post;
     }
@@ -73,9 +73,14 @@ public class Post extends BaseEntity {
     public void plusLikeCnt(){
         likeCount ++;
     }
-
     public void minusLikeCnt(){
         likeCount --;
+    }
+    public void plusCommentCnt(){
+        commentCount ++;
+    }
+    public void minusCommentCnt(){
+        commentCount --;
     }
 
     // 이 함수도 필요 없을 수도 있어.

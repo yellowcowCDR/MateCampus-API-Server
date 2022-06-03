@@ -1,5 +1,6 @@
 package com.litCitrus.zamongcampusServer.api.post;
 
+import com.litCitrus.zamongcampusServer.dto.post.PostLikeDtoRes;
 import com.litCitrus.zamongcampusServer.service.post.PostLikeService;
 import com.litCitrus.zamongcampusServer.service.post.PostService;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +19,7 @@ public class PostLikeApiController {
 
     private final PostLikeService postLikeService;
     @PostMapping("{postId}")
-    public ResponseEntity<Long> likePost(@Valid @PathVariable Long postId){
+    public ResponseEntity<PostLikeDtoRes> likePost(@Valid @PathVariable Long postId){
         return ResponseEntity.ok(postLikeService.likePost(postId));
     }
 }

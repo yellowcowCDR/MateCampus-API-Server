@@ -23,7 +23,7 @@ public class PostDtoRes {
         /// 근데 만약 삭제된 댓글 + (자식도 없거나 || 자식들이 다 삭제된거면)
         /// 안 들고 가도록 (isDeleted인 값이 true 아닌 것들의, 즉 존재하는 값이 없을때(noneMatch))
         public ResWithComment(Post post){
-            super(post, true);
+            super(post);
             this.comments = post.getComments().stream()
                     .filter(postComment -> postComment.getParent() == null)
 //                    .filter(postComment -> !((postComment.isDeleted() && (postComment.getChildren().isEmpty() || postComment.getChildren().stream().noneMatch(child -> child.isDeleted() != true)))))
@@ -53,23 +53,10 @@ public class PostDtoRes {
             this.body = post.getBody();
             this.createdAt = post.getCreatedAt();
             this.imageUrls = post.getPictures().stream().map(postPicture -> postPicture.getStored_file_path()).collect(Collectors.toList());
-            this.likedCount = post.getLikedUsers().size();
+            this.likedCount = post.getLikeCount();
             // 1. 부모고 삭제된 상태고 자식도 없으면 count에서 제외, 2. 부모고 삭제된 상태고, 자식들도 다 삭제된 상태면 부모+자식 count에서 제외
             // 일단 이 경우는 나중에 생각. 적용 x (2022.5.20) 위에 filter도 주석
-            this.commentCount = post.getComments().size();
-            this.viewCount = 53;
-        }
-
-        public Res(Post post, boolean noCommentCount){
-            this.id = post.getId();
-            this.loginId = post.getUser().getLoginId();
-            this.userNickname = post.getUser().getNickname();
-            this.title = post.getTitle();
-            this.body = post.getBody();
-            this.createdAt = post.getCreatedAt();
-            this.imageUrls = post.getPictures().stream().map(postPicture -> postPicture.getStored_file_path()).collect(Collectors.toList());
-            this.likedCount = post.getLikedUsers().size();
-            this.commentCount = -1;
+            this.commentCount = post.getCommentCount();
             this.viewCount = 53;
         }
     }
