@@ -15,6 +15,7 @@ import com.litCitrus.zamongcampusServer.repository.user.UserRepository;
 import com.litCitrus.zamongcampusServer.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.List;
@@ -29,14 +30,17 @@ public class PostCommentService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
 
+    @Transactional
     public PostComment createPostComment(Long postId, PostCommentDtoReq.CreateRequest postCommentDto){
         Post post = postRepository.findById(postId).orElseThrow(PostNotFoundException::new);
         User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
         PostComment parent = null;
+
         // 1. parent가 없는 경우(댓글) 2. parent가 존재(대댓글)
         if(postCommentDto.getParentId() != null)
             parent = postCommentRepository.findById(postCommentDto.getParentId()).orElseThrow(PostCommentNotFoundException::new);
         PostComment postComment = PostComment.createPostComment(user, post, parent, postCommentDto);
+        post.plusCommentCnt();
         return postCommentRepository.save(postComment);
     }
 
@@ -48,6 +52,7 @@ public class PostCommentService {
                 .map(PostCommentDtoRes.Res::new).collect(Collectors.toList());
     }
 
+    @Transactional
     public void deletePostComment(Long postCommentId) {
         PostComment postComment = postCommentRepository.findById(postCommentId).orElseThrow(PostCommentNotFoundException::new);
         User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
@@ -56,5 +61,6 @@ public class PostCommentService {
             throw new PostCommentOwnerNotMatchException();
 
         postCommentRepository.deleteById(postComment.getId());
+        postComment.getPost().minusCommentCnt();
     }
 }

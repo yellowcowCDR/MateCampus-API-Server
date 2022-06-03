@@ -35,15 +35,18 @@ public class Post extends BaseEntity {
 
     private String body;
 
+    private int likeCount;
+    private int commentCount;
+
     @OneToMany(mappedBy = "post")
     private List<PostPicture> pictures;
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     private Set<PostLike> likedUsers;
 
-//    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
-//    private Set<PostBookMark> bookMarkUsers;
-//
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
+    private Set<PostBookMark> bookMarkUsers;
+
     @OneToMany(mappedBy = "post")
     private List<PostComment> comments;
 
@@ -57,6 +60,8 @@ public class Post extends BaseEntity {
                 .user(user)
                 .title(postDto.getTitle())
                 .body(postDto.getBody())
+                .likeCount(0)
+                .commentCount(0)
                 .build();
         return post;
     }
@@ -65,6 +70,20 @@ public class Post extends BaseEntity {
         this.body = postDto.getBody();
     }
 
+    public void plusLikeCnt(){
+        likeCount ++;
+    }
+    public void minusLikeCnt(){
+        likeCount --;
+    }
+    public void plusCommentCnt(){
+        commentCount ++;
+    }
+    public void minusCommentCnt(){
+        commentCount --;
+    }
+
+    // 이 함수도 필요 없을 수도 있어.
     public void setPictures(List<PostPicture> pictureBeans){
         this.pictures = pictureBeans;
     }

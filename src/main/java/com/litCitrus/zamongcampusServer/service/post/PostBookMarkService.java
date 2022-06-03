@@ -1,12 +1,12 @@
 package com.litCitrus.zamongcampusServer.service.post;
 
 import com.litCitrus.zamongcampusServer.domain.post.Post;
+import com.litCitrus.zamongcampusServer.domain.post.PostBookMark;
 import com.litCitrus.zamongcampusServer.domain.post.PostLike;
 import com.litCitrus.zamongcampusServer.domain.user.User;
-import com.litCitrus.zamongcampusServer.dto.post.PostLikeDtoRes;
 import com.litCitrus.zamongcampusServer.exception.post.PostNotFoundException;
 import com.litCitrus.zamongcampusServer.exception.user.UserNotFoundException;
-import com.litCitrus.zamongcampusServer.repository.post.PostLikeRepository;
+import com.litCitrus.zamongcampusServer.repository.post.PostBookMarkRepository;
 import com.litCitrus.zamongcampusServer.repository.post.PostRepository;
 import com.litCitrus.zamongcampusServer.repository.user.UserRepository;
 import com.litCitrus.zamongcampusServer.util.SecurityUtil;
@@ -17,24 +17,22 @@ import org.springframework.util.ObjectUtils;
 
 @Service
 @RequiredArgsConstructor
-public class PostLikeService {
+public class PostBookMarkService {
 
-    private final PostLikeRepository postLikeRepository;
+    private final PostBookMarkRepository postBookMarkRepository;
     private final PostRepository postRepository;
     private final UserRepository userRepository;
 
     @Transactional
-    public PostLikeDtoRes likePost(Long postId){
+    public Long bookMarkPost(Long postId){
         User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
         Post post = postRepository.findById(postId).orElseThrow(PostNotFoundException::new);
-        PostLike postLike = postLikeRepository.findByUserAndPost(user, post);
-        if (ObjectUtils.isEmpty(postLike)){
-            post.plusLikeCnt(); // 여기는 transactinal를 넣어야할 것 같은데, 왜 안 넣고도 적용될까?
-            postLikeRepository.save(new PostLike(user, post));
+        PostBookMark postBookMark = postBookMarkRepository.findByUserAndPost(user, post);
+        if (ObjectUtils.isEmpty(postBookMark)){
+            postBookMarkRepository.save(new PostBookMark(user, post));
         } else {
-            post.minusLikeCnt();
-            postLikeRepository.deleteById(postLike.getId());
+            postBookMarkRepository.deleteById(postBookMark.getId());
         }
-        return new PostLikeDtoRes(post);
+        return post.getId();
     }
 }
