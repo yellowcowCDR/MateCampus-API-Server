@@ -3,6 +3,7 @@ package com.litCitrus.zamongcampusServer.api.post;
 import com.litCitrus.zamongcampusServer.domain.post.Post;
 import com.litCitrus.zamongcampusServer.dto.post.PostDtoRes;
 import com.litCitrus.zamongcampusServer.dto.post.PostDtoReq;
+import com.litCitrus.zamongcampusServer.dto.post.PostIdDto;
 import com.litCitrus.zamongcampusServer.service.post.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
@@ -52,9 +53,13 @@ public class PostApiController {
     // READ : 자신이 쓴 게시글 최신순
     @GetMapping("/my")
     public ResponseEntity<?> getMyPostOrderByRecent(@RequestParam("nextPageToken") String nextPageToken){
-        // TODO: 반드시 인증절차 넣어야함(token 담아서 보내고 해당 token의 진위여부 판단) => 모든 곳에서
         ResponseEntity<?> response = new ResponseEntity<>(postService.getMyPostOrderByRecent(nextPageToken), HttpStatus.OK);
         return response;
+    }
+
+    @GetMapping("/myLikeBookMarkIds")
+    public ResponseEntity<PostIdDto> getMyLikeBookMarkPostIds(){
+        return ResponseEntity.ok(postService.getMyLikeBookMarkPostIds());
     }
 
     @GetMapping("{postId}")

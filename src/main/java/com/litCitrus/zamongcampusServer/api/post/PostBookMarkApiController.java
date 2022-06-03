@@ -1,7 +1,6 @@
 package com.litCitrus.zamongcampusServer.api.post;
 
-import com.litCitrus.zamongcampusServer.service.post.PostLikeService;
-import com.litCitrus.zamongcampusServer.service.post.PostService;
+import com.litCitrus.zamongcampusServer.service.post.PostBookMarkService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,12 +12,13 @@ import javax.validation.Valid;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/post/like")
-public class PostLikeApiController {
+@RequestMapping("/api/post/bookmark")
+public class PostBookMarkApiController {
 
-    private final PostLikeService postLikeService;
+    private final PostBookMarkService postBookMarkService;
+
     @PostMapping("{postId}")
-    public ResponseEntity<Long> likePost(@Valid @PathVariable Long postId){
-        return ResponseEntity.ok(postLikeService.likePost(postId));
+    ResponseEntity<Long> bookMarkPost(@Valid @PathVariable Long postId){
+        return ResponseEntity.ok(postBookMarkService.bookMarkPost(postId));
     }
 }

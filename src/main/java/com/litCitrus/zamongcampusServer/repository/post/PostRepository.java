@@ -19,6 +19,9 @@ public interface PostRepository extends PagingAndSortingRepository<Post, Long> {
     List<Post> findByUser(User user, Pageable page);
     List<Post> findByUser(User user);
 
+    List<Post> findAllByLikedUsers_User(User user);
+    List<Post> findAllByBookMarkUsers_User(User user);
+
 
     @Query(value = "SELECT * From post where deleted = 0", nativeQuery = true)
     List<Post> findAllByOrderByCreatedAtDesc(Pageable page);

@@ -1,12 +1,16 @@
 package com.litCitrus.zamongcampusServer.service.post;
 
 import com.litCitrus.zamongcampusServer.domain.post.Post;
+import com.litCitrus.zamongcampusServer.domain.post.PostLike;
 import com.litCitrus.zamongcampusServer.domain.post.PostPicture;
 import com.litCitrus.zamongcampusServer.domain.user.User;
 import com.litCitrus.zamongcampusServer.dto.post.PostDtoReq;
 import com.litCitrus.zamongcampusServer.dto.post.PostDtoRes;
+import com.litCitrus.zamongcampusServer.dto.post.PostIdDto;
 import com.litCitrus.zamongcampusServer.exception.post.PostNotFoundException;
 import com.litCitrus.zamongcampusServer.exception.user.UserNotFoundException;
+import com.litCitrus.zamongcampusServer.repository.post.PostBookMarkRepository;
+import com.litCitrus.zamongcampusServer.repository.post.PostLikeRepository;
 import com.litCitrus.zamongcampusServer.repository.post.PostPictureRepository;
 import com.litCitrus.zamongcampusServer.repository.post.PostRepository;
 import com.litCitrus.zamongcampusServer.repository.user.UserRepository;
@@ -31,7 +35,8 @@ public class PostService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
     private final PostPictureRepository postPictureRepository;
-
+    private final PostLikeRepository postLikeRepository;
+    private final PostBookMarkRepository postBookMarkRepository;
     private final S3Uploader s3Uploader;
 
     public Post createPost(PostDtoReq.Create postDto) throws Exception{
@@ -45,7 +50,6 @@ public class PostService {
             List<String> uploadImageUrls = s3Uploader.upload(postDto.getFiles(), "2022/post");
             List<PostPicture> postPictures = uploadImageUrls.stream().map(url -> PostPicture.createPostPicture(post, url)).collect(Collectors.toList());
             postPictureRepository.saveAll(postPictures);
-
             post.setPictures(postPictures);
         }
         return postRepository.save(post);
@@ -78,6 +82,16 @@ public class PostService {
         Pageable page = PageRequest.of(Integer.parseInt(nextPageToken), 7); // 0번째부터 7개의 게시글
         List<Post> posts =  postRepository.findByUser(user, page);
         return posts.stream().map(PostDtoRes.Res::new).collect(Collectors.toList());
+    }
+
+    public PostIdDto getMyLikeBookMarkPostIds(){
+        User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
+//        List<PostLike> postLikes = postLikeRepository.findAllByUser(user).stream().map(postLike -> postLike.get);
+        List<Long> likePostIds = postRepository.findAllByLikedUsers_User(user).stream().map(post -> post.getId()).collect(Collectors.toList());
+        List<Long> bookMarkPostIds = postRepository.findAllByBookMarkUsers_User(user).stream().map(post -> post.getId()).collect(Collectors.toList());
+
+        return new PostIdDto(likePostIds, bookMarkPostIds);
+
     }
 
     public PostDtoRes.ResWithComment getPost(Long postId){
