@@ -40,7 +40,7 @@ public class UserDtoRes {
         public CommonRes(User user){
             this.loginId = user.getLoginId();
             this.nickname = user.getNickname();
-            this.imageUrl = user.getPictures().isEmpty() ? "" : user.getPictures().get(0).getStored_file_path();
+            this.imageUrl = user.getPictures().isEmpty() ? null : user.getPictures().get(0).getStored_file_path();
             this.collegeCode = user.getCollegeCode().name();
             this.majorCode = user.getMajorCode().name();
             this.isOnline = true;
