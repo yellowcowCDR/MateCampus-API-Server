@@ -11,5 +11,7 @@ import java.util.List;
 public interface FriendRepository extends JpaRepository<Friend, Long> {
 
     Friend findByRequestorAndRecipient(User requestor, User recipient);
+    // 두 user 값을 동일인물에 넣으면 해당 인물의 모든 친구가 나온다.
     List<Friend> findByRequestorOrRecipient(User requestor, User recipient);
+    //
 }

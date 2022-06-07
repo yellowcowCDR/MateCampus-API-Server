@@ -20,4 +20,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     List<User> findAllByLoginIdIsNotContaining(String loginId);
 
+    List<User> findAllByLoginIdIsIn(List<String> loginIds);
+
 }

@@ -11,6 +11,8 @@ import com.litCitrus.zamongcampusServer.exception.user.UserNotFoundException;
 import com.litCitrus.zamongcampusServer.exception.voiceRoom.VoiceRoomNotFoundException;
 import com.litCitrus.zamongcampusServer.io.agora.AgoraHandler;
 import com.litCitrus.zamongcampusServer.io.agora.AgoraRepository;
+import com.litCitrus.zamongcampusServer.io.fcm.FCMDto;
+import com.litCitrus.zamongcampusServer.io.fcm.FCMHandler;
 import com.litCitrus.zamongcampusServer.repository.chat.ChatRoomRepository;
 import com.litCitrus.zamongcampusServer.repository.user.UserRepository;
 import com.litCitrus.zamongcampusServer.repository.voiceRoom.ParticipantRepository;
@@ -22,6 +24,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,6 +38,7 @@ public class VoiceRoomService {
     private final UserRepository userRepository;
     private final AgoraHandler agoraHandler;
     private final SimpMessageSendingOperations messagingTemplate;
+    private final FCMHandler fcmHandler;
 
     public VoiceRoomDtoRes.DetailRes createVoiceRoom(
              VoiceRoomDtoReq.Create dto) {
@@ -48,7 +52,14 @@ public class VoiceRoomService {
         voiceRoomRepository.save(voiceRoom);
         // 2. owner의 token 발행
         String token = agoraHandler.getRTCToken(new AgoraRepository(voiceRoom.getChatRoom().getRoomId(), Math.toIntExact(user.getId()), 3600, 2));
-        // 3. dto 반환
+        // 3. 초대한 friend에게 fcm 알림 보내기
+        List<User> recipients = userRepository.findAllByLoginIdIsIn(dto.getSelectedMemberLoginIds());
+        FCMDto fcmDto = new FCMDto(user.getNickname() + "님이 만드신 \"" + dto.getTitle() + "\" 방에 참여해보세요!" ,
+                new HashMap<String,String>(){{
+                    put("type", chatRoom.getType());
+                }});
+        fcmHandler.sendNotification(fcmDto, "fcm_voiceroom_invite_channel", recipients);
+        // 4. dto 반환
         return new VoiceRoomDtoRes.DetailRes(voiceRoom, token, Math.toIntExact(user.getId()));
     }
 
