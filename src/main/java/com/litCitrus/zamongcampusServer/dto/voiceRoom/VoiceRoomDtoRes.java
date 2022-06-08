@@ -1,6 +1,7 @@
 package com.litCitrus.zamongcampusServer.dto.voiceRoom;
 
 import com.litCitrus.zamongcampusServer.domain.post.Post;
+import com.litCitrus.zamongcampusServer.domain.user.User;
 import com.litCitrus.zamongcampusServer.domain.voiceRoom.VoiceRoom;
 import com.litCitrus.zamongcampusServer.dto.chat.SystemMessageDto;
 import lombok.Getter;
@@ -55,6 +56,21 @@ public class VoiceRoomDtoRes {
             this.token = token;
             this.uid = uid;
             this.ownerLoginId = voiceRoom.getOwner().getLoginId();
+        }
+    }
+
+    @Getter
+    public static class UpdateMemberInfo {
+        private final String type;
+        private final String loginId;
+        private final String nickname;
+        private String imageUrl;
+
+        public UpdateMemberInfo(User user, String type){
+            this.type = type;
+            this.loginId = user.getLoginId();
+            this.nickname = user.getNickname();
+            this.imageUrl = user.getPictures().get(0).getStored_file_path();
         }
     }
 }
