@@ -3,6 +3,7 @@ package com.litCitrus.zamongcampusServer.dto.chat;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.litCitrus.zamongcampusServer.domain.user.ModifiedChatInfo;
+import com.litCitrus.zamongcampusServer.domain.user.User;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
@@ -80,10 +81,18 @@ public class SystemMessageDto {
     @Getter
     @AllArgsConstructor
     public static class MemberInfo{
+        // User 값 그대로 받는게 낫지 않을까.
         private Long id;
         private String loginId;
         private String nickname;
         private String imageUrl;
+
+        public MemberInfo(User user){
+            this.id = user.getId();
+            this.loginId = user.getLoginId();
+            this.nickname = user.getNickname();
+            this.imageUrl = user.getPictures().get(0).getStored_file_path();
+        }
     }
 }
 

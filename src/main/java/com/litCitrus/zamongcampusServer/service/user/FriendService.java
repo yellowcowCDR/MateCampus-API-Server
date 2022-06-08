@@ -36,6 +36,15 @@ public class FriendService {
         User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
         // TODO: querydsl 필요 (accepted 된 것들만 가져오는..?)
         return friendRepository.findByRequestorOrRecipient(user, user).stream()
+                .filter(friend -> !friend.getStatus().equals(Friend.Status.REFUSED))
+                .map(friend -> new FriendDtoRes.Res(friend.getRequestor().equals(user) ? friend.getRecipient() : friend.getRequestor(), friend))
+                .collect(Collectors.toList());
+    }
+
+    public List<FriendDtoRes.Res> getApproveFriends(){
+        User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
+        return friendRepository.findByRequestorOrRecipient(user, user).stream()
+                .filter(friend -> friend.getStatus().equals(Friend.Status.ACCEPTED))
                 .map(friend -> new FriendDtoRes.Res(friend.getRequestor().equals(user) ? friend.getRecipient() : friend.getRequestor(), friend))
                 .collect(Collectors.toList());
     }
@@ -52,8 +61,6 @@ public class FriendService {
     public Friend approveFriend(FriendDtoReq.Update dto){
         User actor = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
         User target = userRepository.findByLoginId(dto.getTargetLoginId()).orElseThrow(UserNotFoundException::new);
-        System.out.println(actor.getLoginId());
-        System.out.println(target.getLoginId());
         return friendRepository.findByRequestorAndRecipient(target, actor).updateFriendStatus("accepted");
     }
     // ** 친구거절

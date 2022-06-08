@@ -26,7 +26,7 @@ public class ChatRoom extends BaseEntity {
     private String roomId;
 
     @NonNull
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     private Participant participant;
 
     private String type;

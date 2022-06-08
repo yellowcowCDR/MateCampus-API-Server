@@ -36,8 +36,14 @@ public class VoiceRoomApiController {
     }
 
     @GetMapping("{voiceRoomId}")
-    public ResponseEntity<?> getVoiceRoom(@Valid @PathVariable("voiceRoomId") Long voiceRoomId){
-        return new ResponseEntity<>(voiceRoomService.joinVoiceRoom(voiceRoomId), HttpStatus.OK);
+    public ResponseEntity<?> joinAndGetVoiceRoom(@Valid @PathVariable("voiceRoomId") Long voiceRoomId){
+        return new ResponseEntity<>(voiceRoomService.joinAndGetVoiceRoom(voiceRoomId), HttpStatus.OK);
+    }
+
+    @PutMapping({"/exit/{voiceRoomId}"})
+    public ResponseEntity<?> exitVoiceRoom(@Valid @PathVariable("voiceRoomId") Long voiceRoomId){
+        voiceRoomService.exitVoiceRoom(voiceRoomId);
+        return new ResponseEntity<>("정상접근: 방 나가기 완료", HttpStatus.OK);
     }
 //
 //    // DELETE

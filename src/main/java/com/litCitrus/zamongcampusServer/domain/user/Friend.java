@@ -29,7 +29,8 @@ public class Friend extends BaseEntity {
     public enum Status {
         UNACCEPTED,
         ACCEPTED,
-        REFUSED
+        REFUSED,
+        NONE
     }
 
     public static Friend createFriend(User requestor, User recipient){

@@ -1,10 +1,12 @@
 package com.litCitrus.zamongcampusServer.dto.voiceRoom;
 
+import com.litCitrus.zamongcampusServer.dto.interest.InterestDtoReq;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.List;
 
@@ -18,8 +20,9 @@ public class VoiceRoomDtoReq {
         @Size(min = 5, message = "대화방 제목 수는 5자 이상입니다")
         private String title;
 
-        /// 관심사, 친구 목록 불러올 것.
-//        private List<String> inviteMemberLoginIds;
+        @NotNull(message = "selectedMemberLoginIds가 비워있습니다")
+        List<String> selectedMemberLoginIds;
+
 //        private List<String> interests;
 
     }

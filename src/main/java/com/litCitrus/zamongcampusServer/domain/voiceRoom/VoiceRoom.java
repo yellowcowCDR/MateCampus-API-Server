@@ -24,8 +24,10 @@ public class VoiceRoom {
     private User owner;
 
     private String title;
+    // cascade: voiceroom 삭제시 chatroom도 같이 삭제
+    // @OneToOne(cascade = CascadeType.REMOVE, orphanRemoval = true) ?
     @NonNull
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private ChatRoom chatRoom;
 
 
@@ -36,6 +38,10 @@ public class VoiceRoom {
                 .owner(owner)
                 .build();
         return voiceRoom;
+    }
+
+    public void updateOwner(User user){
+        this.owner = user;
     }
 
 }

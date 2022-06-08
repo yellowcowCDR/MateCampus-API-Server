@@ -31,6 +31,11 @@ public class FriendApiController {
         return friendService.getFriends();
     }
 
+    @GetMapping("/approve")
+    public ResponseEntity<List<FriendDtoRes.Res>> getApproveFriends(){
+        return ResponseEntity.ok(friendService.getApproveFriends());
+    }
+
     @GetMapping("{friendId}")
     @ResponseStatus(HttpStatus.OK)
     public FriendDtoRes.ResWithDetail getFriend(@Valid @PathVariable("friendId") String friendId){

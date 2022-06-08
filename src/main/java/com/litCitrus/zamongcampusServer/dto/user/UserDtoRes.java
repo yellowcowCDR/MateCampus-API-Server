@@ -1,6 +1,7 @@
 package com.litCitrus.zamongcampusServer.dto.user;
 
 import com.litCitrus.zamongcampusServer.domain.interest.Interest;
+import com.litCitrus.zamongcampusServer.domain.user.Friend;
 import com.litCitrus.zamongcampusServer.domain.user.User;
 import com.litCitrus.zamongcampusServer.dto.interest.InterestDtoRes;
 import lombok.Getter;
@@ -51,8 +52,10 @@ public class UserDtoRes {
     public static class ResForDetailInfo extends CommonRes{
 
         private final List<InterestDtoRes> interests;
-        public ResForDetailInfo(User user, List<Interest> interests){
-            super(user);
+        private Friend.Status friendStatus;
+        public ResForDetailInfo(User other, List<Interest> interests, Friend.Status friendStatus){
+            super(other);
+            this.friendStatus = friendStatus;
             this.interests = interests.stream().map(InterestDtoRes::new).collect(Collectors.toList());
 
         }
