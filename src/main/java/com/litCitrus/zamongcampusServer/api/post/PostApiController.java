@@ -78,9 +78,8 @@ public class PostApiController {
 
     // DELETE
     @DeleteMapping("{postId}")
-    public ResponseEntity<?> deletePost(@Valid @PathVariable("postId") Long postId){
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deletePost(@Valid @PathVariable("postId") Long postId){
         postService.deletePost(postId);
-        ResponseEntity<?> response = new ResponseEntity<>("정상적인 접근: 게시물 삭제", HttpStatus.OK);
-        return response;
     }
 }

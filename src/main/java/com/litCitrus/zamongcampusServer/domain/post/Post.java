@@ -79,6 +79,7 @@ public class Post extends BaseEntity {
     public void plusCommentCnt(){
         commentCount ++;
     }
+    // 아래 minus는 안 쓸수도. (댓글을 따로 삭제 안하기 때문)
     public void minusCommentCnt(){
         commentCount --;
     }

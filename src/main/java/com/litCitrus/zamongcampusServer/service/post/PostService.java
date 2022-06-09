@@ -123,8 +123,8 @@ public class PostService {
         User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
         Post post = postRepository.findById(postId).orElseThrow(PostNotFoundException::new);
 
-        if(post == null && post.getUser() != user){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "비정상접근");
+        if(post.getUser() != user){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "비정상접근: 본인만 삭제 가능");
         }
 
         postRepository.deleteById(postId);

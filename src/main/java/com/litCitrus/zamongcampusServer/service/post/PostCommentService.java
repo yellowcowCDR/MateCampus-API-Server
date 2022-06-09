@@ -61,6 +61,5 @@ public class PostCommentService {
             throw new PostCommentOwnerNotMatchException();
 
         postCommentRepository.deleteById(postComment.getId());
-        postComment.getPost().minusCommentCnt();
     }
 }
