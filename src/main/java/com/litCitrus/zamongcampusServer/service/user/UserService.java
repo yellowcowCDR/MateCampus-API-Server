@@ -90,7 +90,7 @@ public class UserService {
         return userRepository.findOneWithAuthoritiesByLoginId(loginId);
     }
 
-    public List<UserDtoRes.CommonRes> getRecommendUsers(){
+    public List<UserDtoRes.ResWithMajorCollege> getRecommendUsers(){
         User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
         // 나중에 querydsl로 변경해야함.
         /// 제외시킬 사람 유형
@@ -118,7 +118,18 @@ public class UserService {
         friendLoginIds.add("admin"); // admin 아이디 추가
         List<User> allUsersExceptFriend = userRepository.findAllByLoginIdIsNotContaining(user.getLoginId()).stream()
                 .filter(u -> !friendLoginIds.contains(u.getLoginId())).collect(Collectors.toList());
-        return allUsersExceptFriend.stream().map(UserDtoRes.CommonRes::new).collect(Collectors.toList());
+        return allUsersExceptFriend.stream().map(UserDtoRes.ResWithMajorCollege::new).collect(Collectors.toList());
+    }
+
+    public UserDtoRes.ResForRecentTalkFriend getRecentTalkAndFriendUsers(List<String> recentTalkUserLoginIds){
+        User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
+        List<User> recentTalkUsers = userRepository.findAllByLoginIdIsIn(recentTalkUserLoginIds);
+        List<User> approveFriends = friendRepository.findByRequestorOrRecipient(user, user).stream()
+                .filter(friend -> friend.getStatus().equals(Friend.Status.ACCEPTED))
+                .map(friend -> friend.getRequestor().equals(user) ? friend.getRecipient() : friend.getRequestor())
+                .collect(Collectors.toList());
+
+        return new UserDtoRes.ResForRecentTalkFriend(recentTalkUsers, approveFriends);
     }
 
     public UserDtoRes.ResForDetailInfo getOtherUserInfo(String loginId){

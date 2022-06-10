@@ -33,8 +33,13 @@ public class UserApiController {
     }
 
     @GetMapping("/user/recommend")
-    public ResponseEntity<List<UserDtoRes.CommonRes>> getRecommendUsers(){
+    public ResponseEntity<List<UserDtoRes.ResWithMajorCollege>> getRecommendUsers(){
         return ResponseEntity.ok(userService.getRecommendUsers());
+    }
+
+    @GetMapping("/user/recentTalkAndFriend")
+    public ResponseEntity<UserDtoRes.ResForRecentTalkFriend> getRecentTalkAndFriendUsers(@Valid @RequestParam("recentTalkUserLoginIds") List<String> recentTalkUserLoginIds){
+        return ResponseEntity.ok(userService.getRecentTalkAndFriendUsers(recentTalkUserLoginIds));
     }
 
     @GetMapping("/user/mypage")
@@ -46,6 +51,11 @@ public class UserApiController {
     @GetMapping("/user/info/{loginId}")
     public ResponseEntity<UserDtoRes.ResForDetailInfo> getOtherUserInfo(@Valid @PathVariable String loginId){
         return ResponseEntity.ok(userService.getOtherUserInfo(loginId));
+    }
+
+    @PutMapping("/user")
+    public void updateUserInfo(@Valid @ModelAttribute UserDtoReq.Update dto){
+        userService.updateUserInfo(dto);
     }
 
     /** 어드민만 가능한 함수

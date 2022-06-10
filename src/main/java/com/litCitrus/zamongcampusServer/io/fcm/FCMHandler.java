@@ -28,20 +28,21 @@ public class FCMHandler {
         AndroidConfig androidConfig = AndroidConfig.builder()
                 .setNotification(androidNotification)
                 .build();
-
-        MulticastMessage message = MulticastMessage.builder()
-                .addAllTokens(recipientTokens)
-                .setNotification(notification)
-                .putAllData(fcmDto.getData())
-                .setAndroidConfig(androidConfig)
-                .putData("click_action", "FLUTTER_NOTIFICATION_CLICK")
-                .build();
-        BatchResponse response = null;
-        try {
-            response = firebaseMessaging.sendMulticast(message);
-        } catch (FirebaseMessagingException e) {
-            e.printStackTrace();
+        if(!recipientTokens.isEmpty()){
+            MulticastMessage message = MulticastMessage.builder()
+                    .addAllTokens(recipientTokens)
+                    .setNotification(notification)
+                    .putAllData(fcmDto.getData())
+                    .setAndroidConfig(androidConfig)
+                    .putData("click_action", "FLUTTER_NOTIFICATION_CLICK")
+                    .build();
+            BatchResponse response = null;
+            try {
+                response = firebaseMessaging.sendMulticast(message);
+            } catch (FirebaseMessagingException e) {
+                e.printStackTrace();
+            }
+            System.out.println(response.getSuccessCount());
         }
-        System.out.println(response.getSuccessCount());
     }
 }

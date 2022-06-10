@@ -47,7 +47,7 @@ public class VoiceRoomApiController {
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PostMapping("{voiceRoomId}/invite")
+    @PutMapping("{voiceRoomId}/invite")
     public void inviteMembers(@Valid @PathVariable("voiceRoomId") Long voiceRoomId, @Valid VoiceRoomDtoReq.UpdateInvite dto){
         voiceRoomService.inviteMembers(voiceRoomId, dto);
     }

@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 public class UserDtoRes {
     /// interest까지 포함해서 나중에 전달.
     @Getter
-    public static class ResForMyPage extends CommonRes{
+    public static class ResForMyPage extends ResWithMajorCollege{
         private final long interestCount;
         private final long friendCount;
         private final long bookMarkCount;
@@ -34,22 +34,40 @@ public class UserDtoRes {
         private final String loginId;
         private final String nickname;
         private final String imageUrl;
-        private final String collegeCode;
-        private final String majorCode;
         private final boolean isOnline;
 
         public CommonRes(User user){
             this.loginId = user.getLoginId();
             this.nickname = user.getNickname();
             this.imageUrl = user.getPictures().isEmpty() ? null : user.getPictures().get(0).getStored_file_path();
-            this.collegeCode = user.getCollegeCode().name();
-            this.majorCode = user.getMajorCode().name();
             this.isOnline = true;
         }
     }
 
     @Getter
-    public static class ResForDetailInfo extends CommonRes{
+    public static class ResWithMajorCollege extends CommonRes{
+        private final String collegeCode;
+        private final String majorCode;
+        public ResWithMajorCollege(User user){
+            super(user);
+            this.collegeCode = user.getCollegeCode().name();
+            this.majorCode = user.getMajorCode().name();
+        }
+    }
+
+    @Getter
+    public static class ResForRecentTalkFriend{
+        private final List<CommonRes> recentTalkUsers;
+        private final List<CommonRes> approveFriends;
+
+        public ResForRecentTalkFriend(List<User> recentTalkUsers, List<User> approveFriends){
+            this.recentTalkUsers = recentTalkUsers.stream().map(CommonRes::new).collect(Collectors.toList());
+            this.approveFriends = approveFriends.stream().map(CommonRes::new).collect(Collectors.toList());
+        }
+    }
+
+    @Getter
+    public static class ResForDetailInfo extends ResWithMajorCollege{
 
         private final List<InterestDtoRes> interests;
         private Friend.Status friendStatus;
