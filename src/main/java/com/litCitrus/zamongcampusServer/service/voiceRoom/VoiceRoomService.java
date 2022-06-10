@@ -114,6 +114,7 @@ public class VoiceRoomService {
             // voiceroomID만 넘기기. (voicedetail에 들어가면서 알아서 또 데이터 부르도록)
             FCMDto fcmDto = new FCMDto(actor.getNickname() + "님이 \"" + voiceRoom.getTitle() + "\" 음성대화방에 초대했습니다! 참여해보세요!" ,
                     new HashMap<String,String>(){{
+                        put("navigate","/voiceDetail");
                         put("voiceRoomId", voiceRoom.getId().toString());
                         put("validTime", "300"); // 300초가 초대 유효시간?
                     }});
