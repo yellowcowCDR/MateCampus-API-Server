@@ -44,4 +44,9 @@ public class VoiceRoom {
         this.owner = user;
     }
 
+    public boolean isFull(){
+        // 나중에 querydsl를 활용해서 count 문법으로 변경할지도.
+        return this.chatRoom.getUsers().size() >= 8 ? true : false;
+    }
+
 }

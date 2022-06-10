@@ -45,13 +45,10 @@ public class VoiceRoomApiController {
         voiceRoomService.exitVoiceRoom(voiceRoomId);
         return new ResponseEntity<>("정상접근: 방 나가기 완료", HttpStatus.OK);
     }
-//
-//    // DELETE
-//    @DeleteMapping("{voiceRoomId}")
-//    public ResponseEntity<?> deletePost(@Valid @PathVariable("voiceRoomId") Long voiceRoomId, @RequestParam("loginId") String loginId){
-//        postService.deletePost(voiceRoomId, loginId);
-//        ResponseEntity<?> response = new ResponseEntity<>("정상적인 접근: 게시물 삭제", HttpStatus.OK);
-//        return response;
-//    }
 
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PostMapping("{voiceRoomId}/invite")
+    public void inviteMembers(@Valid @PathVariable("voiceRoomId") Long voiceRoomId, @Valid VoiceRoomDtoReq.UpdateInvite dto){
+        voiceRoomService.inviteMembers(voiceRoomId, dto);
+    }
 }

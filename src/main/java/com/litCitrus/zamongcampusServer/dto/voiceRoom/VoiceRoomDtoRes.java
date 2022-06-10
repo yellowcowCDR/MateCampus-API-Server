@@ -16,15 +16,22 @@ public class VoiceRoomDtoRes {
 
     @Getter
     public static class DetailRes{
-        final private VoiceRoomAndTokenInfo voiceRoomAndTokenInfo;
-        final private List<SystemMessageDto.MemberInfo> memberInfos;
+        private final boolean isFull;
+        private VoiceRoomAndTokenInfo voiceRoomAndTokenInfo;
+        private List<SystemMessageDto.MemberInfo> memberInfos;
 
         public DetailRes(VoiceRoom voiceRoom, String token, int uid){
             /// uid 현재는 user_id, 나중에 변경 필요.
+            this.isFull = false;
             this.voiceRoomAndTokenInfo = new VoiceRoomAndTokenInfo(voiceRoom, token, uid);
             this.memberInfos = voiceRoom.getChatRoom().getUsers().stream()
                     .map(member -> new SystemMessageDto.MemberInfo(member.getId(),
                             member.getLoginId(), member.getNickname(), member.getPictures().get(0).getStored_file_path())).collect(Collectors.toList());
+        }
+
+        public DetailRes(VoiceRoom voiceRoom){
+            this.isFull = true;
+            this.voiceRoomAndTokenInfo = new VoiceRoomAndTokenInfo(voiceRoom);
         }
     }
 
@@ -42,12 +49,12 @@ public class VoiceRoomDtoRes {
 
     @Getter
     public static class VoiceRoomAndTokenInfo{
-        final private long id;
-        final private String title;
-        final private String roomId;
-        final private String token;
-        final private int uid;
-        final private String ownerLoginId;
+        private final long id;
+        private String title;
+        private String roomId;
+        private String token;
+        private int uid;
+        private String ownerLoginId;
 
         public VoiceRoomAndTokenInfo(VoiceRoom voiceRoom, String token, int uid){
             this.id = voiceRoom.getId();
@@ -56,6 +63,9 @@ public class VoiceRoomDtoRes {
             this.token = token;
             this.uid = uid;
             this.ownerLoginId = voiceRoom.getOwner().getLoginId();
+        }
+        public VoiceRoomAndTokenInfo(VoiceRoom voiceRoom){
+            this.id = voiceRoom.getId();
         }
     }
 

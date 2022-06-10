@@ -53,16 +53,7 @@ public class VoiceRoomService {
         // 2. owner의 token 발행
         String token = agoraHandler.getRTCToken(new AgoraRepository(voiceRoom.getChatRoom().getRoomId(), Math.toIntExact(user.getId()), 3600, 2));
         // 3. 초대한 friend에게 fcm 알림 보내기
-        List<User> recipients = userRepository.findAllByLoginIdIsIn(dto.getSelectedMemberLoginIds());
-        if(!recipients.isEmpty()){
-            // FCM dto에 담는게 맞는지. 아니면 voiceroomID만 넘기고 다시 서버에서 값을 한번 더 불러올지.
-            FCMDto fcmDto = new FCMDto(user.getNickname() + "님이 만드신 \"" + dto.getTitle() + "\" 방에 참여해보세요!" ,
-                    new HashMap<String,String>(){{
-                        put("type", chatRoom.getType());
-                        put("type", chatRoom.getType());
-                    }});
-            fcmHandler.sendNotification(fcmDto, "fcm_voiceroom_invite_channel", recipients);
-        }
+        sendFcm(user, voiceRoom, dto.getSelectedMemberLoginIds());
         // 4. dto 반환
         return new VoiceRoomDtoRes.DetailRes(voiceRoom, token, Math.toIntExact(user.getId()));
     }
@@ -71,11 +62,15 @@ public class VoiceRoomService {
         List<VoiceRoom> voiceRooms = voiceRoomRepository.findAll();
         return voiceRooms.stream().map(VoiceRoomDtoRes.Res::new).collect(Collectors.toList());
     }
-//
+
     @Transactional
     public VoiceRoomDtoRes.DetailRes joinAndGetVoiceRoom(Long voiceRoomId){
         User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
         VoiceRoom voiceRoom = voiceRoomRepository.findById(voiceRoomId).orElseThrow(VoiceRoomNotFoundException::new);
+        // !! 꽉찼는지 먼저 확인 (최대 8명)
+        if(voiceRoom.isFull()){
+            return new VoiceRoomDtoRes.DetailRes(voiceRoom);
+        }
         // 1. participant에 추가
         voiceRoom.getChatRoom().getParticipant().addUser(user);
         // 2. stomp으로 이미 참여자들에게 내 정보 실시간 전송
@@ -104,6 +99,25 @@ public class VoiceRoomService {
             if(owner.getLoginId().equals(user.getLoginId())){
                 voiceRoom.updateOwner(voiceRoom.getChatRoom().getUsers().get(0));
             }
+        }
+    }
+
+    public void inviteMembers(Long voiceRoomId, VoiceRoomDtoReq.UpdateInvite dto){
+        User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
+        VoiceRoom voiceRoom = voiceRoomRepository.findById(voiceRoomId).orElseThrow(VoiceRoomNotFoundException::new);
+        sendFcm(user, voiceRoom, dto.getSelectedMemberLoginIds());
+    }
+
+    public void sendFcm(User actor, VoiceRoom voiceRoom, List<String> selectedMemberLoginIds){
+        List<User> recipients = userRepository.findAllByLoginIdIsIn(selectedMemberLoginIds);
+        if(!recipients.isEmpty()){
+            // voiceroomID만 넘기기. (voicedetail에 들어가면서 알아서 또 데이터 부르도록)
+            FCMDto fcmDto = new FCMDto(actor.getNickname() + "님이 \"" + voiceRoom.getTitle() + "\" 음성대화방에 초대했습니다! 참여해보세요!" ,
+                    new HashMap<String,String>(){{
+                        put("voiceRoomId", voiceRoom.getId().toString());
+                        put("validTime", "300"); // 300초가 초대 유효시간?
+                    }});
+            fcmHandler.sendNotification(fcmDto, "fcm_voiceroom_invite_channel", recipients);
         }
     }
 
