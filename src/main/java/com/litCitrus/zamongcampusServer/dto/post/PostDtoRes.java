@@ -2,6 +2,7 @@ package com.litCitrus.zamongcampusServer.dto.post;
 
 import com.litCitrus.zamongcampusServer.domain.post.Post;
 import com.litCitrus.zamongcampusServer.domain.post.PostComment;
+import com.litCitrus.zamongcampusServer.domain.post.PostParticipant;
 import com.litCitrus.zamongcampusServer.domain.user.User;
 import lombok.Getter;
 
@@ -22,12 +23,12 @@ public class PostDtoRes {
         /// 일단 삭제된 댓글이라도 들고 간다.
         /// 근데 만약 삭제된 댓글 + (자식도 없거나 || 자식들이 다 삭제된거면)
         /// 안 들고 가도록 (isDeleted인 값이 true 아닌 것들의, 즉 존재하는 값이 없을때(noneMatch))
-        public ResWithComment(Post post){
+        public ResWithComment(Post post, List<PostParticipant> postParticipants){
             super(post);
             this.comments = post.getComments().stream()
                     .filter(postComment -> postComment.getParent() == null)
 //                    .filter(postComment -> !((postComment.isDeleted() && (postComment.getChildren().isEmpty() || postComment.getChildren().stream().noneMatch(child -> child.isDeleted() != true)))))
-                    .map(PostCommentDtoRes.Res::new).collect(Collectors.toList());
+                    .map(postComment -> new PostCommentDtoRes.Res(postComment, postParticipants)).collect(Collectors.toList());
 
         }
     }

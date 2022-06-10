@@ -2,6 +2,7 @@ package com.litCitrus.zamongcampusServer.service.post;
 
 import com.litCitrus.zamongcampusServer.domain.post.Post;
 import com.litCitrus.zamongcampusServer.domain.post.PostLike;
+import com.litCitrus.zamongcampusServer.domain.post.PostParticipant;
 import com.litCitrus.zamongcampusServer.domain.post.PostPicture;
 import com.litCitrus.zamongcampusServer.domain.user.User;
 import com.litCitrus.zamongcampusServer.dto.post.PostDtoReq;
@@ -9,10 +10,7 @@ import com.litCitrus.zamongcampusServer.dto.post.PostDtoRes;
 import com.litCitrus.zamongcampusServer.dto.post.PostIdDto;
 import com.litCitrus.zamongcampusServer.exception.post.PostNotFoundException;
 import com.litCitrus.zamongcampusServer.exception.user.UserNotFoundException;
-import com.litCitrus.zamongcampusServer.repository.post.PostBookMarkRepository;
-import com.litCitrus.zamongcampusServer.repository.post.PostLikeRepository;
-import com.litCitrus.zamongcampusServer.repository.post.PostPictureRepository;
-import com.litCitrus.zamongcampusServer.repository.post.PostRepository;
+import com.litCitrus.zamongcampusServer.repository.post.*;
 import com.litCitrus.zamongcampusServer.repository.user.UserRepository;
 import com.litCitrus.zamongcampusServer.service.image.S3Uploader;
 import com.litCitrus.zamongcampusServer.util.SecurityUtil;
@@ -37,21 +35,20 @@ public class PostService {
     private final PostPictureRepository postPictureRepository;
     private final PostLikeRepository postLikeRepository;
     private final PostBookMarkRepository postBookMarkRepository;
+    private final PostParticipantRepository postParticipantRepository;
     private final S3Uploader s3Uploader;
 
     public Post createPost(PostDtoReq.Create postDto) throws Exception{
         User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
         Post post = Post.createPost(user, postDto);
         postRepository.save(post);
-        if(postDto.getFiles() == null){
-            return postRepository.save(post);
-        }
-        else{
+        if(postDto.getFiles() != null){
             List<String> uploadImageUrls = s3Uploader.upload(postDto.getFiles(), "2022/post");
             List<PostPicture> postPictures = uploadImageUrls.stream().map(url -> PostPicture.createPostPicture(post, url)).collect(Collectors.toList());
             postPictureRepository.saveAll(postPictures);
-            post.setPictures(postPictures);
+            post.setPictures(postPictures); // 이거 필요없을수도
         }
+        postParticipantRepository.save(PostParticipant.createPostPartcipant(user, post, ""));
         return postRepository.save(post);
     }
 
@@ -98,8 +95,8 @@ public class PostService {
         // 댓글까지 주는 것 추가할 것
         User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
         Post post = postRepository.findById(postId).orElseThrow(PostNotFoundException::new);
-
-        return new PostDtoRes.ResWithComment(post);
+        List<PostParticipant> postParticipants = postParticipantRepository.findAllByPost(post);
+        return new PostDtoRes.ResWithComment(post, postParticipants);
     }
 
     // UPDATE

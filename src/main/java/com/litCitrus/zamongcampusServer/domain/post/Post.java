@@ -39,6 +39,9 @@ public class Post extends BaseEntity {
     private int commentCount;
 
     @OneToMany(mappedBy = "post")
+    private List<PostParticipant> postParticipants;
+
+    @OneToMany(mappedBy = "post")
     private List<PostPicture> pictures;
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
