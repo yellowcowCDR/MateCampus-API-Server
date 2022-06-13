@@ -36,6 +36,10 @@ public class PostComment extends BaseEntity {
 
     @Builder.Default
     @NotNull
+    private boolean exposed = Boolean.TRUE;
+
+    @Builder.Default
+    @NotNull
     private boolean deleted = Boolean.FALSE;
 
     @OneToMany(mappedBy = "parent")
@@ -49,6 +53,10 @@ public class PostComment extends BaseEntity {
                 .parent(parent)
                 .build();
         return postComment;
+    }
+
+    public void changeExposed(Boolean value){
+        this.exposed = value;
     }
 
 

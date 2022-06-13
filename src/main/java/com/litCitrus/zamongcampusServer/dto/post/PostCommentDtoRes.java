@@ -17,6 +17,7 @@ public class PostCommentDtoRes {
         private final String userNickname;
         private final String body;
         private final boolean deleted;
+        private final boolean exposed;
         private final LocalDateTime createdAt;
         private final long parentId;
         private final List<Res> children;
@@ -31,6 +32,7 @@ public class PostCommentDtoRes {
             this.userNickname = anonymityUser.isAuthor() ? "작성자" : "익명" + anonymityUser.getParticipantIndex();
             this.body = postComment.getBody();
             this.deleted = postComment.isDeleted();
+            this.exposed = postComment.isExposed();
             this.createdAt = postComment.getCreatedAt();
             this.parentId = postComment.getParent() == null ? 0 : postComment.getParent().getId();
             this.children = postComment.getChildren() == null ? null : postComment.getChildren().stream()

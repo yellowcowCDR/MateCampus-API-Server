@@ -46,7 +46,6 @@ public class PostService {
             List<String> uploadImageUrls = s3Uploader.upload(postDto.getFiles(), "2022/post");
             List<PostPicture> postPictures = uploadImageUrls.stream().map(url -> PostPicture.createPostPicture(post, url)).collect(Collectors.toList());
             postPictureRepository.saveAll(postPictures);
-            post.setPictures(postPictures); // 이거 필요없을수도
         }
         postParticipantRepository.save(PostParticipant.createPostPartcipant(user, post, ""));
         return postRepository.save(post);
@@ -56,8 +55,10 @@ public class PostService {
     public List<PostDtoRes.Res> getAllPostOrderByRecent(String nextPageToken){
         User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
         Pageable page = PageRequest.of(Integer.parseInt(nextPageToken), 7); // 0번째부터 7개의 게시글
-        return postRepository.findAllByOrderByCreatedAtDesc(page)
-                .stream().map(PostDtoRes.Res::new).collect(Collectors.toList());
+        return postRepository.findAllByOrderByCreatedAtDesc(page).stream()
+                .filter(post -> post.isExposed())
+                .map(PostDtoRes.Res::new)
+                .collect(Collectors.toList());
     }
 
     // READ : 전체 게시글 인기순 (좋아요순)
@@ -69,11 +70,13 @@ public class PostService {
         // 나중에 필요할 수도 있기에 추석처리.
         User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
         Pageable page = PageRequest.of(Integer.parseInt(nextPageToken), 7); // 0번째부터 7개의 게시글
-        return postRepository.findAllByOrderByCreatedAtDesc(page)
-                .stream().map(PostDtoRes.Res::new).collect(Collectors.toList());
+        return postRepository.findAllByOrderByCreatedAtDesc(page).stream()
+                .filter(post -> post.isExposed())
+                .map(PostDtoRes.Res::new)
+                .collect(Collectors.toList());
     }
 
-    // READ 1개 : 자신이 쓴 게시글 최신순 dsl 적용까지.
+    // READ 1개 : 자신이 쓴 게시글 최신순
     public List<PostDtoRes.Res> getMyPostOrderByRecent(String nextPageToken){
         User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
         Pageable page = PageRequest.of(Integer.parseInt(nextPageToken), 7); // 0번째부터 7개의 게시글
@@ -83,7 +86,6 @@ public class PostService {
 
     public PostIdDto getMyLikeBookMarkPostIds(){
         User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
-//        List<PostLike> postLikes = postLikeRepository.findAllByUser(user).stream().map(postLike -> postLike.get);
         List<Long> likePostIds = postRepository.findAllByLikedUsers_User(user).stream().map(post -> post.getId()).collect(Collectors.toList());
         List<Long> bookMarkPostIds = postRepository.findAllByBookMarkUsers_User(user).stream().map(post -> post.getId()).collect(Collectors.toList());
 
@@ -92,8 +94,6 @@ public class PostService {
     }
 
     public PostDtoRes.ResWithComment getPost(Long postId){
-        // 댓글까지 주는 것 추가할 것
-        User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
         Post post = postRepository.findById(postId).orElseThrow(PostNotFoundException::new);
         List<PostParticipant> postParticipants = postParticipantRepository.findAllByPost(post);
         return new PostDtoRes.ResWithComment(post, postParticipants);

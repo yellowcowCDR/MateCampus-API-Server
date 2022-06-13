@@ -194,7 +194,7 @@ public class UserService {
     @Transactional
     public User activateUser(String loginId){
         User user = userRepository.findOneWithAuthoritiesByLoginId(loginId).orElseThrow(UserNotFoundException::new);
-        user.setActivated();
+        user.updateActivated(true);
         return user;
     }
 }

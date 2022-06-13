@@ -34,6 +34,7 @@ public class StompConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
+        // sockjs를 위해 https://localhost:8080를 allow해주는 것인데, 추후 적용
         registry.addEndpoint("/ws-stomp").setAllowedOrigins("https://10.0.2.2:8080").setAllowedOrigins("https://localhost:8080").withSockJS(); // 연결하는곳
     }
 

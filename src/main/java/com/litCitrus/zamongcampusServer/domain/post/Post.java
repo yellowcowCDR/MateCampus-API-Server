@@ -55,6 +55,10 @@ public class Post extends BaseEntity {
 
     @Builder.Default
     @NotNull
+    private boolean exposed = Boolean.TRUE;
+
+    @Builder.Default
+    @NotNull
     private boolean deleted = Boolean.FALSE;
 
     public static Post createPost(User user, PostDtoReq.Create postDto) {
@@ -87,10 +91,6 @@ public class Post extends BaseEntity {
         commentCount --;
     }
 
-    // 이 함수도 필요 없을 수도 있어.
-    public void setPictures(List<PostPicture> pictureBeans){
-        this.pictures = pictureBeans;
-    }
-
+    public void changeExposed(Boolean value){ this.exposed = value; }
 }
 

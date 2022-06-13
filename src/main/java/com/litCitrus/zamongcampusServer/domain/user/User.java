@@ -119,8 +119,8 @@ public class User extends BaseEntity {
     public void updateNickname(String nickname){ this.nickname = nickname; }
     public void updateIntroduction(String introduction) { this.introduction = introduction;}
     public void updateDeviceToken(String deviceToken){ this.deviceToken = deviceToken;}
-    public void setActivated(){
-        this.activated = true;
+    public void updateActivated(boolean value){
+        this.activated = value;
     }
     public void setStudentIdImageUrl(String url){
         this.studentIdImageUrl = url;
