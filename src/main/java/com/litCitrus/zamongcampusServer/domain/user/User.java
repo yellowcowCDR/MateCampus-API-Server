@@ -40,14 +40,12 @@ public class User extends BaseEntity {
     @Column(unique = true, length = 50)
     private String nickname;
 
-
 //    @Column(unique = true)
     private String deviceToken;
 
     private CollegeCode collegeCode;
     private MajorCode majorCode;
     private String introduction;
-
     private boolean activated;
     private String studentIdImageUrl;
 
@@ -118,32 +116,12 @@ public class User extends BaseEntity {
         }
     }
 
-    public void updateUserNickname(String nickname){
-        this.nickname = nickname;
-    }
-
+    public void updateNickname(String nickname){ this.nickname = nickname; }
+    public void updateIntroduction(String introduction) { this.introduction = introduction;}
     public void updateDeviceToken(String deviceToken){ this.deviceToken = deviceToken;}
-
-    /** 사용자와 같은 채팅방에 있는 사람의 프로필 변경 여부 추가 */
-    // TODO: 이거 잘 저장되는지 볼 것. 아마 안될껄?
-    // 안되면 아마도 해당 코드에서 ModifiedInfoRepo에 저장하는 방식으로 변경해야할 듯.
-    public void addModifiedChatInfo(ModifiedChatInfo modifiedChatInfo){
-        this.modifiedChatInfos.add(modifiedChatInfo);
-    }
-
     public void setActivated(){
         this.activated = true;
     }
-
-    // TODO: 이 함수는 따로 필요 없어 보이거든??
-    public void addPicture(UserPicture userPicture){
-        if(this.pictures == null){
-            this.pictures = new ArrayList<>(Arrays.asList(userPicture));
-        }else{
-            Collections.addAll(this.pictures, userPicture);
-        }
-    }
-
     public void setStudentIdImageUrl(String url){
         this.studentIdImageUrl = url;
     }

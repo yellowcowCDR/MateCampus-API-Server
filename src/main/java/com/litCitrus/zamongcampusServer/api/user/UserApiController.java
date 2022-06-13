@@ -54,8 +54,8 @@ public class UserApiController {
     }
 
     @PutMapping("/user")
-    public void updateUserInfo(@Valid @ModelAttribute UserDtoReq.Update dto){
-        userService.updateUserInfo(dto);
+    public ResponseEntity<?> updateUserInfo(@Valid @ModelAttribute UserDtoReq.Update dto) throws IOException {
+        return ResponseEntity.ok(userService.updateUserInfo(dto));
     }
 
     /** 어드민만 가능한 함수

@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+// 이건 과거 코드인듯 삭제할 수도. (06.13)
 @Slf4j
 @Service
 @RequiredArgsConstructor

@@ -7,6 +7,7 @@ import com.litCitrus.zamongcampusServer.dto.chat.ChatMessageDtoReq;
 import com.litCitrus.zamongcampusServer.dto.chat.ChatMessageDtoRes;
 import com.litCitrus.zamongcampusServer.dto.chat.SystemMessageDto;
 import com.litCitrus.zamongcampusServer.io.dynamodb.service.DynamoDBHandler;
+import com.litCitrus.zamongcampusServer.repository.user.ModifiedChatInfoRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
@@ -24,6 +25,7 @@ public class SystemMessageComponent {
 
     private final SimpMessageSendingOperations messagingTemplate;
     private final DynamoDBHandler dynamoDBHandler;
+    private final ModifiedChatInfoRepository modifiedChatInfoRepository;
 
     /* ENTER */
     @Transactional
@@ -39,6 +41,7 @@ public class SystemMessageComponent {
                 .body(newMember.getNickname()+"님이 입장하셨습니다.")
                 .build();
 
+        // TODO: 본인제외 필요할지도. (update나 create msg 확인)
         /* 1. stomp 실시간 전달 (일반메세지와 modifiedChatInfo에 해당되는 정보 혼합형) */
         /* (enterDto: roomId,loginId,nickname,imageUrl,createdAt,body)    */
         messagingTemplate.convertAndSend("/sub/chat/room/" + chatRoom.getRoomId(), enterDto);
@@ -50,7 +53,7 @@ public class SystemMessageComponent {
         /* 3. 각 유저의 modifiedChatInfos에 저장 */
         for(User member: chatRoom.getUsers()){
             ModifiedChatInfo modifiedChatInfo = ModifiedChatInfo.createEnterExit(ModifiedChatInfo.MemberStatus.ENTER, newMember, chatRoom, member);
-            member.addModifiedChatInfo(modifiedChatInfo);
+            modifiedChatInfoRepository.save(modifiedChatInfo);
         }
 
     }
@@ -66,6 +69,8 @@ public class SystemMessageComponent {
                 .createdAt(currentTime)
                 .body(exitMember.getNickname()+"님이 퇴장하셨습니다.")
                 .build();
+
+        // TODO: 본인제외 필요할지도. (update나 create msg 확인)
         /* 1. stomp 실시간 전달 (exitDto: roomId,loginId,nickname,createdAt,body)*/
         messagingTemplate.convertAndSend("/sub/chat/room/" + chatRoom.getRoomId(), exitDto);
 
@@ -76,7 +81,7 @@ public class SystemMessageComponent {
         /* 3. 각 유저의 modifiedChatInfos에 저장 */
         for(User member: chatRoom.getUsers()){
             ModifiedChatInfo modifiedChatInfo = ModifiedChatInfo.createEnterExit(ModifiedChatInfo.MemberStatus.EXIT, exitMember, chatRoom, member);
-            member.addModifiedChatInfo(modifiedChatInfo);
+            modifiedChatInfoRepository.save(modifiedChatInfo);
         }
     }
 
@@ -95,13 +100,15 @@ public class SystemMessageComponent {
                 .nickname(updatedMember.getNickname())
                 .imageUrl(updatedMember.getPictures().get(0).getStored_file_path())
                 .build();
-        /* stomp 실시간 전달. user 개별로 보냄. (roomID로 보내면 겹치는 user가 많기 때문) */
-        recipients.stream().forEach(recipient -> messagingTemplate.convertAndSend("/sub/chat/room/" + recipient.getDeviceToken(), updateDto));
+        /* 1. stomp 실시간 전달. user의 devicetoken으로 (단, 본인 제외) */
+        List<User> recipientsExceptMe = recipients.stream().filter(recipient -> !recipient.getLoginId().equals(updatedMember.getLoginId())).collect(Collectors.toList());
+        recipientsExceptMe.stream()
+                .forEach(recipient -> messagingTemplate.convertAndSend("/sub/chat/room/" + recipient.getDeviceToken(), updateDto));
 
         /* 각 유저의 modifiedChatInfos에 저장 */
         for(User memberUser: recipients){
             ModifiedChatInfo modifiedChatInfo = ModifiedChatInfo.createUpdate(ModifiedChatInfo.MemberStatus.UPDATE, updatedMember, memberUser);
-            memberUser.addModifiedChatInfo(modifiedChatInfo);
+            modifiedChatInfoRepository.save(modifiedChatInfo);
         }
     }
 
@@ -129,7 +136,7 @@ public class SystemMessageComponent {
         /* (Create Info는 채팅방, 채팅방멤버 정보를 가진다. )*/
         for(User memberUser: recipientsExceptMe){
             ModifiedChatInfo modifiedChatInfo = ModifiedChatInfo.createCreate(ModifiedChatInfo.MemberStatus.CREATE, chatRoom, memberUser);
-            memberUser.addModifiedChatInfo(modifiedChatInfo);
+            modifiedChatInfoRepository.save(modifiedChatInfo);
         }
     }
 }

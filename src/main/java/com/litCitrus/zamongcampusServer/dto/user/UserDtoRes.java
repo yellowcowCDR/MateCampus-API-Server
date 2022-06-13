@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class UserDtoRes {
-    /// interest까지 포함해서 나중에 전달.
     @Getter
     public static class ResForMyPage extends ResWithMajorCollege{
         private final long interestCount;
@@ -34,13 +33,15 @@ public class UserDtoRes {
         private final String loginId;
         private final String nickname;
         private final String imageUrl;
-        private final boolean isOnline;
+        private final boolean isOnline; // stomp에 연결한 사람으로 알 수 있지 않을까?
+        private final String introduction;
 
         public CommonRes(User user){
             this.loginId = user.getLoginId();
             this.nickname = user.getNickname();
             this.imageUrl = user.getPictures().isEmpty() ? null : user.getPictures().get(0).getStored_file_path();
             this.isOnline = true;
+            this.introduction = user.getIntroduction();
         }
     }
 
