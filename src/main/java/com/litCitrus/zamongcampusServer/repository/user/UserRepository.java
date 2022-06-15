@@ -18,7 +18,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @EntityGraph(attributePaths = "authorities")
     Optional<User> findOneWithAuthoritiesByLoginId(String loginId);
 
-    List<User> findAllByLoginIdIsNotContaining(String loginId);
+    List<User> findAllByLoginIdIsNot(String loginId);
 
     List<User> findAllByLoginIdIsIn(List<String> loginIds);
 

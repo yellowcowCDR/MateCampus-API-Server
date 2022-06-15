@@ -84,6 +84,9 @@ public class User extends BaseEntity {
     @OneToMany(mappedBy = "user")
     private List<ModifiedChatInfo> modifiedChatInfos;
 
+    @OneToMany(mappedBy = "recipient")
+    private List<RecommendUser> recommendUsers;
+
 
     public static User createUser(UserDtoReq.Create userDto, String encodedPassword, Authority authority) {
         //빌더 객체를 사용할 경우
@@ -119,9 +122,7 @@ public class User extends BaseEntity {
     public void updateNickname(String nickname){ this.nickname = nickname; }
     public void updateIntroduction(String introduction) { this.introduction = introduction;}
     public void updateDeviceToken(String deviceToken){ this.deviceToken = deviceToken;}
-    public void updateActivated(boolean value){
-        this.activated = value;
-    }
+    public void updateActivated(boolean value){ this.activated = value; }
     public void setStudentIdImageUrl(String url){
         this.studentIdImageUrl = url;
     }

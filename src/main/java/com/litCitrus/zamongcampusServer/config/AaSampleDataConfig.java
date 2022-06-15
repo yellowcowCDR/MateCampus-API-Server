@@ -16,6 +16,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Random;
+
 @RequiredArgsConstructor
 @Configuration
 class AaSampleDataConfig {
@@ -32,23 +36,26 @@ class AaSampleDataConfig {
      */
     CommandLineRunner commandLineRunnerForInterests() {
         return args -> {
+            List<String> nicknames = Arrays.asList("한소희", "이해리", "아이유", "마동석", "송중기", "박민영", "정용화", "공유", "뷔", "차은우", "정해인", "웬디");
+            Random random = new Random();
             for(int i = 4; i < 15; i ++){
                 UserDtoReq.Create dto = new UserDtoReq.Create(
                         "user" + Integer.toString(i),
                         "1234",
-                        "nick" + Integer.toString(i),
+                        nicknames.get(i - 4),
                         "sampledeviceToken",
-                        "COLLEGE0001",
-                        "MAJOR0001",
+                        "COLLEGE000" + Integer.toString((random.nextInt(4) + 1)),
+                        "MAJOR000" + Integer.toString((random.nextInt(4) + 1)),
                         null,
                         null,
-                        "user" + Integer.toString(i) + "입니다!",
+                        "테스트 유저 " + Integer.toString(i) + "번 입니다!",
                         null
                         );
                 Authority authority = Authority.builder()
                         .authorityName("ROLE_USER")
                         .build();
                 User user = User.createUser(dto, passwordEncoder.encode("1234"), authority);
+                user.updateActivated(true);
                 userRepository.save(user);
 
                 UserPicture userPicture = UserPicture.createUserPicture(user, "https://d1cy8kjxuu1lsp.cloudfront.net/2022/user/20220504/a43e5a59-3b08-4fac-9c36-27468edc11da83851993430251user"+Integer.toString(i)+".jpg");

@@ -30,7 +30,7 @@ public class Friend extends BaseEntity {
         UNACCEPTED,
         ACCEPTED,
         REFUSED,
-        NONE
+        NONE // 실제로는 존재하지 않는 값. (DTO를 위해 존재)
     }
 
     public static Friend createFriend(User requestor, User recipient){

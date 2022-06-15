@@ -11,13 +11,18 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
+import javax.annotation.PostConstruct;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.Date;
+import java.util.TimeZone;
 
 @SpringBootApplication
 @EnableJpaAuditing
 public class ZamongcampusServerApplication {
 
+	// 이 아래 코드는 config로 따로 빼도 괜찮을듯.
 	@Bean
 	FirebaseMessaging firebaseMessaging() throws IOException {
 		GoogleCredentials googleCredentials = GoogleCredentials
@@ -30,10 +35,13 @@ public class ZamongcampusServerApplication {
 		return FirebaseMessaging.getInstance(app);
 	}
 
-//    public static void main(String[] args) {
-//        SpringApplication.run(ServerApplication.class, args);
-//    }
+	@PostConstruct
+	public void started(){
+		TimeZone.setDefault(TimeZone.getTimeZone("Asia/Seoul"));
+//		System.out.println("현재시각 : " + new Date());
+//		System.out.println(LocalDateTime.now());
 
+	}
 
 	public static final String APPLICATION_LOCATIONS = "spring.config.location="
 			+ "classpath:application.yml,"

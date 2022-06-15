@@ -10,10 +10,7 @@ import com.litCitrus.zamongcampusServer.dto.user.UserDtoRes;
 import com.litCitrus.zamongcampusServer.exception.user.UserNotFoundException;
 import com.litCitrus.zamongcampusServer.repository.interest.InterestRepository;
 import com.litCitrus.zamongcampusServer.repository.post.PostRepository;
-import com.litCitrus.zamongcampusServer.repository.user.FriendRepository;
-import com.litCitrus.zamongcampusServer.repository.user.UserInterestRepository;
-import com.litCitrus.zamongcampusServer.repository.user.UserPictureRepository;
-import com.litCitrus.zamongcampusServer.repository.user.UserRepository;
+import com.litCitrus.zamongcampusServer.repository.user.*;
 import com.litCitrus.zamongcampusServer.repository.voiceRoom.ParticipantRepository;
 import com.litCitrus.zamongcampusServer.service.chat.SystemMessageComponent;
 import com.litCitrus.zamongcampusServer.service.image.S3Uploader;
@@ -24,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -32,6 +30,7 @@ import java.util.stream.Collectors;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final RecommendUserRepository recommendUserRepository;
     private final PasswordEncoder passwordEncoder;
     private final ParticipantRepository participantRepository;
     private final SystemMessageComponent systemMessageComponent;
@@ -89,35 +88,55 @@ public class UserService {
         return userRepository.findOneWithAuthoritiesByLoginId(loginId);
     }
 
+    @Transactional
     public List<UserDtoRes.ResWithMajorCollege> getRecommendUsers(){
         User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
-        // 나중에 querydsl로 변경해야함.
-        /// 제외시킬 사람 유형
-        // 1. none인 friend 뺴고 다 (accepted, request중, 거절된 사람 포함)
-        // 내가 신청자면 request 중인 것도 가져오지만, 내가 신청자가 아니면 가지오지 않도록.
-        // 1. A: 신청자, B: 받는이
-        // 1-1. A에게는 신청중인 것도 나오고 , B는 신청중인 것이 안나와야한다.
-        // 1-2. 따라서 상대가 신청중이고 신청자가 자신인 경우는 A의 경우고. A는 이런 경우가 본인한테 나타나야하기에 값이 false여야한다.
-        // 1-3. 반대로 B는 신청중인 상태이지만 자신의 로그인 아이디가 아니라서 false이고, !부정때문에 true로 되어 friendLoginIds에 해당 건이 추가된다.
-        // 1-4. 즉, B에게는 이 경우가 나타나지 않는다.
-        // 2. 그 friend에서 나 말고 다른 사람
-        // 3. 본인 제외 모든 유저 불러옴.
-        /** 이 부분은 다시 고려해서 만들 것.
-        // 왜냐하면 추천친구가 예를들어 24시간 지나면 바뀌거나 그런식으로 할 것이기 때문에
-        // 로직이 아예 달라질 수도 있다.
-        */
-        List<String> friendLoginIds = friendRepository.findByRequestorOrRecipient(user, user).stream()
-//                .filter(friend -> !friend.getStatus().equals(Friend.Status.NONE))
-                // 이 아래 식이 잘 안 먹힌다.
-//                .filter(friend -> !(friend.getStatus().equals(Friend.Status.UNACCEPTED) && friend.getRequestor().getLoginId().equals(user.getLoginId())))
-                .filter(friend -> friend.getStatus().equals(Friend.Status.ACCEPTED) || friend.getStatus().equals(Friend.Status.REFUSED))
 
+        if(!user.getRecommendUsers().stream().filter(recommendUser -> recommendUser.isActivated()).findAny().isPresent()){
+            // 처음 회원가입 후 로그인한 경우
+            return makeNewRecommendUsersAndReturn(true, user);
+        }else{
+            LocalDateTime twelveNoon = LocalDateTime.of(LocalDateTime.now().getYear(), LocalDateTime.now().getMonth(), LocalDateTime.now().getDayOfMonth(), 12, 0);
+            if(user.getRecommendUsers().get(0).getCreatedAt().isAfter(twelveNoon)){
+                // 기존 친구 반환
+                return user.getRecommendUsers().stream().map(recommendUser -> new UserDtoRes.ResWithMajorCollege(recommendUser.getRecommendedUser())).collect(Collectors.toList());
+            }else{
+                // 기존 친구 삭제 후 새로 지정
+                return makeNewRecommendUsersAndReturn(false, user);
+            }
+        }
+    }
+
+    public List<UserDtoRes.ResWithMajorCollege> makeNewRecommendUsersAndReturn(boolean isNew, User user){
+        if(!isNew){
+            for(RecommendUser recommendUser : user.getRecommendUsers()){
+                recommendUser.updateActivated(false);
+            }
+        }
+        // 제외할 사람 외 나머지 유저들 중 랜덤으로 5명 선정
+        // 제외할 사람: 1. accepted, refused, UNACCEPTED 된 친구 2. admin
+        // 단, 실제로 1번 제약조건은 그냥 friend 다 불러오면 된다. 모든 친구가 위 3개의 status 중 하나이기 때문. (NONE는 불가능)
+        List<String> friendLoginIds = friendRepository.findByRequestorOrRecipient(user, user).stream()
                 .map(friend -> friend.getRequestor().getLoginId() == user.getLoginId() ? friend.getRecipient().getLoginId() : friend.getRequestor().getLoginId())
                 .collect(Collectors.toList());
         friendLoginIds.add("admin"); // admin 아이디 추가
-        List<User> allUsersExceptFriend = userRepository.findAllByLoginIdIsNotContaining(user.getLoginId()).stream()
-                .filter(u -> !friendLoginIds.contains(u.getLoginId())).collect(Collectors.toList());
-        return allUsersExceptFriend.stream().map(UserDtoRes.ResWithMajorCollege::new).collect(Collectors.toList());
+        List<User> allUsersExceptFriend = userRepository.findAllByLoginIdIsNot(user.getLoginId())
+                .stream()
+                .filter(u -> !friendLoginIds.contains(u.getLoginId()))
+                .filter(u -> u.isActivated()).collect(Collectors.toList());
+        Collections.shuffle(allUsersExceptFriend);
+        int randomRecommendUsersLength = 5;
+        List<User> randomRecommendUsers = allUsersExceptFriend.subList(0, allUsersExceptFriend.size() < 5 ? allUsersExceptFriend.size() : randomRecommendUsersLength);
+        for(User randomUser : randomRecommendUsers){
+            if(recommendUserRepository.existsByRecipientAndRecommendedUser(user, randomUser)){
+                RecommendUser recommendUser = recommendUserRepository.findByRecipientAndRecommendedUser(user, randomUser);
+                recommendUser.plusCount();
+                recommendUser.updateActivated(true);
+            } else{
+                recommendUserRepository.save(RecommendUser.createRecommendUser(user, randomUser));
+            }
+        }
+        return randomRecommendUsers.stream().map(UserDtoRes.ResWithMajorCollege::new).collect(Collectors.toList());
     }
 
     public UserDtoRes.ResForRecentTalkFriend getRecentTalkAndFriendUsers(List<String> recentTalkUserLoginIds){
