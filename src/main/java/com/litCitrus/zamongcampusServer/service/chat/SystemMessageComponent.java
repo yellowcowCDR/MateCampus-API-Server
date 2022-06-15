@@ -93,12 +93,12 @@ public class SystemMessageComponent {
      */
     /* UPDATE: member정보 전달 */
     @Transactional
-    public void sendSaveUpdateSystemMessage(User updatedMember, Set<User> recipients){
+    public void sendSaveUpdateSystemMessage(User updatedMember, Set<User> recipients, String imageUrl){
         SystemMessageDto.UpdateDto updateDto = SystemMessageDto.UpdateDto.builder()
                 .type(ModifiedChatInfo.MemberStatus.UPDATE)
                 .loginId(updatedMember.getLoginId())
                 .nickname(updatedMember.getNickname())
-                .imageUrl(updatedMember.getPictures().get(0).getStored_file_path())
+                .imageUrl(imageUrl)
                 .build();
         /* 1. stomp 실시간 전달. user의 devicetoken으로 (단, 본인 제외) */
         List<User> recipientsExceptMe = recipients.stream().filter(recipient -> !recipient.getLoginId().equals(updatedMember.getLoginId())).collect(Collectors.toList());

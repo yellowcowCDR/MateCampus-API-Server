@@ -180,11 +180,13 @@ public class UserService {
 
         /* 1. 변경 정보를 MySQL에 저장 */
         User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
+        String imageUrl = user.getPictures().isEmpty() ? "" : user.getPictures().get(0).getStored_file_path();
         /// TODO: user image 내용
         if(userUpdateDto.getProfileImage() != null){
             /* 1-1. profileImage: 기존 사진 url 삭제 후, 재 삽입. */
             userPictureRepository.deleteAll(user.getPictures());
             List<String> uploadImageUrl = s3Uploader.upload(Arrays.asList(userUpdateDto.getProfileImage()), "2022/user");
+            imageUrl = uploadImageUrl.get(0);
             List<UserPicture> userProfilePictures = uploadImageUrl.stream().map(url -> UserPicture.createUserPicture(user, url)).collect(Collectors.toList());
             userPictureRepository.saveAll(userProfilePictures);
         }
@@ -197,17 +199,19 @@ public class UserService {
             user.updateIntroduction(userUpdateDto.getIntroduction());
         }
 
-        /* 2. 변경 정보를 같은 채팅방 친구들에게 보낸다. (nickname, imageUrl) */
+        /* 2. 변경 정보를 같은 채팅방 친구들에게 보낸다. (nickname, imageUrl이 변경된 경우에) */
         /* 2-1. 유저와 같은 방에 있는 멤버 찾기 */
-        List<Participant> participants = participantRepository.findByUsers_loginId(user.getLoginId());
-        Set<User> recipients =
-                participants.stream()
-                        .flatMap(participant -> participant.getUsers().stream())
-                        .collect(Collectors.toSet());
-        /* 2-2. 멤버들에게 실시간 전송 및 ModifiedInfo에 저장 */
-        systemMessageComponent.sendSaveUpdateSystemMessage(user, recipients);
+        if(userUpdateDto.getProfileImage() != null || userUpdateDto.getNickname() != null){
+            List<Participant> participants = participantRepository.findByUsers_loginId(user.getLoginId());
+            Set<User> recipients =
+                    participants.stream()
+                            .flatMap(participant -> participant.getUsers().stream())
+                            .collect(Collectors.toSet());
+            /* 2-2. 멤버들에게 실시간 전송 및 ModifiedInfo에 저장 */
+            systemMessageComponent.sendSaveUpdateSystemMessage(user, recipients, imageUrl);
+        }
 
-        return new UserDtoRes.CommonRes(user);
+        return new UserDtoRes.CommonRes(user, imageUrl);
     }
 
     @Transactional
