@@ -47,6 +47,7 @@ public class ZamongcampusServerApplication {
 			+ "classpath:application.yml,"
 			+ "/app/config/zamongcampus-server/application-dev.yml,"
 			+ "/app/config/zamongcampus-server/application-prod.yml,"
+			+ "/app/config/zamongcampus-server/dummy-data.yml,"
 			+ "/app/config/zamongcampus-server/aws.yml";
 
 	public static void main(String[] args) {

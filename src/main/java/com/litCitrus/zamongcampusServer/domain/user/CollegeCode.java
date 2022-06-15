@@ -4,6 +4,7 @@ import lombok.Getter;
 
 @Getter
 public enum CollegeCode {
+    COLLEGE0000("빈값"),
     COLLEGE0001("단국대학교"),
     COLLEGE0002("건국대학교"),
     COLLEGE0003("동국대학교"),

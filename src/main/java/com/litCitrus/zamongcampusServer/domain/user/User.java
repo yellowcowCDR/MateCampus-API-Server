@@ -104,6 +104,22 @@ public class User extends BaseEntity {
         return user;
     }
 
+    public static User createAdmin(UserDtoReq.Create userDto, String encodedPassword, List<Authority> authorities) {
+        //빌더 객체를 사용할 경우
+        final User user = User.builder()
+                .loginId(userDto.getLoginId())
+                .password(encodedPassword)
+                .authorities(new HashSet<>(authorities))
+                .deviceToken(userDto.getDeviceToken())
+                .nickname(userDto.getNickname())
+                .collegeCode(CollegeCode.valueOf(userDto.getCollegeCode()))
+                .majorCode(MajorCode.valueOf(userDto.getMajorCode()))
+                .introduction(userDto.getIntroduce())
+//                .activated(true)  // 이거 활성화시키면 회원가입만 하면 우리 서비스 바로 사용 가능.
+                .build();
+        return user;
+    }
+
     private static String sha256(String password) {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-256");
