@@ -84,6 +84,9 @@ public class User extends BaseEntity {
     @OneToMany(mappedBy = "user")
     private List<ModifiedChatInfo> modifiedChatInfos;
 
+    @OneToMany(mappedBy = "recipient")
+    private List<RecommendUser> recommendUsers;
+
 
     public static User createUser(UserDtoReq.Create userDto, String encodedPassword, Authority authority) {
         //빌더 객체를 사용할 경우
@@ -91,6 +94,22 @@ public class User extends BaseEntity {
                 .loginId(userDto.getLoginId())
                 .password(encodedPassword)
                 .authorities(Collections.singleton(authority))
+                .deviceToken(userDto.getDeviceToken())
+                .nickname(userDto.getNickname())
+                .collegeCode(CollegeCode.valueOf(userDto.getCollegeCode()))
+                .majorCode(MajorCode.valueOf(userDto.getMajorCode()))
+                .introduction(userDto.getIntroduce())
+//                .activated(true)  // 이거 활성화시키면 회원가입만 하면 우리 서비스 바로 사용 가능.
+                .build();
+        return user;
+    }
+
+    public static User createAdmin(UserDtoReq.Create userDto, String encodedPassword, List<Authority> authorities) {
+        //빌더 객체를 사용할 경우
+        final User user = User.builder()
+                .loginId(userDto.getLoginId())
+                .password(encodedPassword)
+                .authorities(new HashSet<>(authorities))
                 .deviceToken(userDto.getDeviceToken())
                 .nickname(userDto.getNickname())
                 .collegeCode(CollegeCode.valueOf(userDto.getCollegeCode()))
@@ -119,9 +138,7 @@ public class User extends BaseEntity {
     public void updateNickname(String nickname){ this.nickname = nickname; }
     public void updateIntroduction(String introduction) { this.introduction = introduction;}
     public void updateDeviceToken(String deviceToken){ this.deviceToken = deviceToken;}
-    public void updateActivated(boolean value){
-        this.activated = value;
-    }
+    public void updateActivated(boolean value){ this.activated = value; }
     public void setStudentIdImageUrl(String url){
         this.studentIdImageUrl = url;
     }

@@ -4,6 +4,7 @@ import lombok.Getter;
 
 @Getter
 public enum MajorCode {
+    MAJOR0000("빈값"),
     MAJOR0001("경영학과"),
     MAJOR0002("소프트웨어학"),
     MAJOR0003("산업디자인과"),

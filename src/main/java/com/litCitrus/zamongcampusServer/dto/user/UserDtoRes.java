@@ -43,6 +43,14 @@ public class UserDtoRes {
             this.isOnline = true;
             this.introduction = user.getIntroduction();
         }
+
+        public CommonRes(User user, String imageUrl){
+            this.loginId = user.getLoginId();
+            this.nickname = user.getNickname();
+            this.imageUrl = imageUrl;
+            this.isOnline = true;
+            this.introduction = user.getIntroduction();
+        }
     }
 
     @Getter

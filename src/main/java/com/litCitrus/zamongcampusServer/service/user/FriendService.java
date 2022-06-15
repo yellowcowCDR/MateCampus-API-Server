@@ -35,6 +35,8 @@ public class FriendService {
     public List<FriendDtoRes.Res> getFriends(){
         User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
         // TODO: querydsl 필요 (accepted 된 것들만 가져오는..?)
+        // user.getFriends를 안한 이유는 user.getFriends가 2개이기 때문이다. (Requestor, Recipient)
+        // 따라서 각각 내가 신청자일때도, 받은이일때도 있어서 아래처럼 하는 것이 좋다. (user모델에 각각 List로 안 둔 것도 그 이유)
         return friendRepository.findByRequestorOrRecipient(user, user).stream()
                 .filter(friend -> !friend.getStatus().equals(Friend.Status.REFUSED))
                 .map(friend -> new FriendDtoRes.Res(friend.getRequestor().equals(user) ? friend.getRecipient() : friend.getRequestor(), friend))
