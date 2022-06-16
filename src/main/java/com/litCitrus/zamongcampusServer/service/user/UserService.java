@@ -16,6 +16,7 @@ import com.litCitrus.zamongcampusServer.service.chat.SystemMessageComponent;
 import com.litCitrus.zamongcampusServer.service.image.S3Uploader;
 import com.litCitrus.zamongcampusServer.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +27,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class UserService {
 
@@ -91,12 +93,17 @@ public class UserService {
     @Transactional
     public List<UserDtoRes.ResWithMajorCollege> getRecommendUsers(){
         User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
-
-        if(!user.getRecommendUsers().stream().filter(recommendUser -> recommendUser.isActivated()).findAny().isPresent()){
+        if(!user.getRecommendUsers().stream().anyMatch(recommendUser -> recommendUser.isActivated())){
             // 처음 회원가입 후 로그인한 경우
             return makeNewRecommendUsersAndReturn(true, user);
         }else{
+            // 새벽 12시~ 오후 12시면 그 전날의 date(ex.6.16 정오)를, 오후 12시(정오)가 되면 그 날의 date(ex. 6.17 정오)를 줘야한다.
             LocalDateTime twelveNoon = LocalDateTime.of(LocalDateTime.now().getYear(), LocalDateTime.now().getMonth(), LocalDateTime.now().getDayOfMonth(), 12, 0);
+            LocalDateTime midnight = LocalDateTime.of(LocalDateTime.now().getYear(), LocalDateTime.now().getMonth(), LocalDateTime.now().getDayOfMonth(), 0, 0);
+            if(LocalDateTime.now().isBefore(twelveNoon) && LocalDateTime.now().isAfter(midnight)){
+                twelveNoon = twelveNoon.minusDays(1);
+            }
+            // 새벽 12시부터 오후 12시 사이에 하게 되면 아래 코드가 항상 false가 된다.
             if(user.getRecommendUsers().get(0).getCreatedAt().isAfter(twelveNoon)){
                 // 기존 친구 반환
                 return user.getRecommendUsers().stream().map(recommendUser -> new UserDtoRes.ResWithMajorCollege(recommendUser.getRecommendedUser())).collect(Collectors.toList());
@@ -107,6 +114,7 @@ public class UserService {
         }
     }
 
+    @Transactional
     public List<UserDtoRes.ResWithMajorCollege> makeNewRecommendUsersAndReturn(boolean isNew, User user){
         if(!isNew){
             for(RecommendUser recommendUser : user.getRecommendUsers()){
