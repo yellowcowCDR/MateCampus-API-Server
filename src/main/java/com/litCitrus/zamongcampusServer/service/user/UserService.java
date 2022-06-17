@@ -1,5 +1,6 @@
 package com.litCitrus.zamongcampusServer.service.user;
 
+import com.google.common.collect.Iterables;
 import com.litCitrus.zamongcampusServer.domain.chat.Participant;
 import com.litCitrus.zamongcampusServer.domain.interest.Interest;
 import com.litCitrus.zamongcampusServer.domain.interest.InterestCode;
@@ -15,6 +16,7 @@ import com.litCitrus.zamongcampusServer.repository.voiceRoom.ParticipantReposito
 import com.litCitrus.zamongcampusServer.service.chat.SystemMessageComponent;
 import com.litCitrus.zamongcampusServer.service.image.S3Uploader;
 import com.litCitrus.zamongcampusServer.util.SecurityUtil;
+import com.litCitrus.zamongcampusServer.util.UserComparatorForSort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -93,7 +95,7 @@ public class UserService {
     @Transactional
     public List<UserDtoRes.ResWithMajorCollege> getRecommendUsers(){
         User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
-        if(!user.getRecommendUsers().stream().anyMatch(recommendUser -> recommendUser.isActivated())){
+        if(!user.getRecommendUsers().stream().filter(recommendUser -> recommendUser.isActivated()).findAny().isPresent()){
             // 처음 회원가입 후 로그인한 경우
             return makeNewRecommendUsersAndReturn(true, user);
         }else{
@@ -104,9 +106,13 @@ public class UserService {
                 twelveNoon = twelveNoon.minusDays(1);
             }
             // 새벽 12시부터 오후 12시 사이에 하게 되면 아래 코드가 항상 false가 된다.
-            if(user.getRecommendUsers().get(0).getCreatedAt().isAfter(twelveNoon)){
+            if(Iterables.getLast(user.getRecommendUsers()).getUpdatedAt().isAfter(twelveNoon)){
                 // 기존 친구 반환
-                return user.getRecommendUsers().stream().map(recommendUser -> new UserDtoRes.ResWithMajorCollege(recommendUser.getRecommendedUser())).collect(Collectors.toList());
+                return user.getRecommendUsers().stream()
+                        .filter(recommendUser -> recommendUser.isActivated())
+                        .map(recommendUser -> recommendUser.getRecommendedUser())
+                        .sorted(new UserComparatorForSort())
+                        .map(sortedUser -> new UserDtoRes.ResWithMajorCollege(sortedUser)).collect(Collectors.toList());
             }else{
                 // 기존 친구 삭제 후 새로 지정
                 return makeNewRecommendUsersAndReturn(false, user);
@@ -144,6 +150,7 @@ public class UserService {
                 recommendUserRepository.save(RecommendUser.createRecommendUser(user, randomUser));
             }
         }
+        randomRecommendUsers.sort(new UserComparatorForSort());
         return randomRecommendUsers.stream().map(UserDtoRes.ResWithMajorCollege::new).collect(Collectors.toList());
     }
 
