@@ -13,6 +13,7 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -37,6 +38,7 @@ public class Post extends BaseEntity {
 
     private int likeCount;
     private int commentCount;
+    private int viewCount;
 
     @OneToMany(mappedBy = "post")
     private List<PostParticipant> postParticipants;
@@ -53,6 +55,9 @@ public class Post extends BaseEntity {
     @OneToMany(mappedBy = "post")
     private List<PostComment> comments;
 
+    @ManyToMany
+    private List<PostCategory> postCategories;
+
     @Builder.Default
     @NotNull
     private boolean exposed = Boolean.TRUE;
@@ -61,12 +66,13 @@ public class Post extends BaseEntity {
     @NotNull
     private boolean deleted = Boolean.FALSE;
 
-    public static Post createPost(User user, PostDtoReq.Create postDto) {
-        //빌더 객체를 사용할 경우
+    public static Post createPost(User user, PostDtoReq.Create postDto, List<PostCategory> postCategories) {
+        /// ** postCategory는 ManyToMany이기에 여기서 선언.
         final Post post = Post.builder()
                 .user(user)
                 .title(postDto.getTitle())
                 .body(postDto.getBody())
+                .postCategories(postCategories)
                 .likeCount(0)
                 .commentCount(0)
                 .build();
@@ -89,6 +95,9 @@ public class Post extends BaseEntity {
     // 아래 minus는 안 쓸수도. (댓글을 따로 삭제 안하기 때문)
     public void minusCommentCnt(){
         commentCount --;
+    }
+    public void plusViewCnt(){
+        viewCount ++;
     }
 
     public void changeExposed(Boolean value){ this.exposed = value; }

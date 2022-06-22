@@ -23,7 +23,8 @@ public class VoiceRoomDtoReq {
         @NotNull(message = "selectedMemberLoginIds가 비워있습니다")
         List<String> selectedMemberLoginIds;
 
-//        private List<String> interests;
+        @NotNull(message = "categoryCodeList가 비웠습니다.")
+        private List<String> categoryCodeList;
 
     }
 
