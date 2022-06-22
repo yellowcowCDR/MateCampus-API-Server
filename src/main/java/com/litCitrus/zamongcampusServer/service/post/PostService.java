@@ -1,9 +1,6 @@
 package com.litCitrus.zamongcampusServer.service.post;
 
-import com.litCitrus.zamongcampusServer.domain.post.Post;
-import com.litCitrus.zamongcampusServer.domain.post.PostLike;
-import com.litCitrus.zamongcampusServer.domain.post.PostParticipant;
-import com.litCitrus.zamongcampusServer.domain.post.PostPicture;
+import com.litCitrus.zamongcampusServer.domain.post.*;
 import com.litCitrus.zamongcampusServer.domain.user.User;
 import com.litCitrus.zamongcampusServer.dto.post.PostDtoReq;
 import com.litCitrus.zamongcampusServer.dto.post.PostDtoRes;
@@ -36,12 +33,16 @@ public class PostService {
     private final PostLikeRepository postLikeRepository;
     private final PostBookMarkRepository postBookMarkRepository;
     private final PostParticipantRepository postParticipantRepository;
+    private final PostCategoryRepository postCategoryRepository;
     private final S3Uploader s3Uploader;
 
     public Post createPost(PostDtoReq.Create postDto) throws Exception{
         User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
-        Post post = Post.createPost(user, postDto);
+        List<PostCategory> postCategories = postCategoryRepository.findByPostCategoryCodeIsIn
+                (postDto.getCategoryCodeList().stream().map(categoryCode -> PostCategoryCode.valueOf(categoryCode.toUpperCase())).collect(Collectors.toList()));
+        Post post = Post.createPost(user, postDto, postCategories);
         postRepository.save(post);
+
         if(postDto.getFiles() != null){
             List<String> uploadImageUrls = s3Uploader.upload(postDto.getFiles(), "2022/post");
             List<PostPicture> postPictures = uploadImageUrls.stream().map(url -> PostPicture.createPostPicture(post, url)).collect(Collectors.toList());
@@ -93,8 +94,10 @@ public class PostService {
 
     }
 
+    @Transactional
     public PostDtoRes.ResWithComment getPost(Long postId){
         Post post = postRepository.findById(postId).orElseThrow(PostNotFoundException::new);
+        post.plusViewCnt();
         List<PostParticipant> postParticipants = postParticipantRepository.findAllByPost(post);
         return new PostDtoRes.ResWithComment(post, postParticipants);
     }

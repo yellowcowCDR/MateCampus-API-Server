@@ -45,6 +45,7 @@ public class PostDtoRes {
         private final int likedCount;
         private int commentCount;
         private final int viewCount;
+        private final List<String> postCategoryCodes;
 
         public Res(Post post){
             this.id = post.getId();
@@ -58,7 +59,8 @@ public class PostDtoRes {
             // 1. 부모고 삭제된 상태고 자식도 없으면 count에서 제외, 2. 부모고 삭제된 상태고, 자식들도 다 삭제된 상태면 부모+자식 count에서 제외
             // 일단 이 경우는 나중에 생각. 적용 x (2022.5.20) 위에 filter도 주석
             this.commentCount = post.getCommentCount();
-            this.viewCount = 53;
+            this.viewCount = post.getViewCount();
+            this.postCategoryCodes = post.getPostCategories().stream().map(postCategory -> postCategory.getPostCategoryCode().name()).collect(Collectors.toList());
         }
     }
 }

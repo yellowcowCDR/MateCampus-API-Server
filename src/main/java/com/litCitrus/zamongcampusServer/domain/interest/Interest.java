@@ -1,7 +1,9 @@
 package com.litCitrus.zamongcampusServer.domain.interest;
 
 import com.litCitrus.zamongcampusServer.domain.BaseEntity;
+import com.litCitrus.zamongcampusServer.domain.post.PostCategoryCode;
 import com.litCitrus.zamongcampusServer.domain.user.UserInterest;
+import com.litCitrus.zamongcampusServer.domain.voiceRoom.VoiceCategoryCode;
 import lombok.*;
 
 import javax.persistence.*;
@@ -20,6 +22,7 @@ public class Interest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+
 
     @NotNull
     @Column(unique = true)

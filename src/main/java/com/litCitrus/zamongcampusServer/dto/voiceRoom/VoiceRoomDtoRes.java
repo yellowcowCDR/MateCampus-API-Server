@@ -2,6 +2,7 @@ package com.litCitrus.zamongcampusServer.dto.voiceRoom;
 
 import com.litCitrus.zamongcampusServer.domain.post.Post;
 import com.litCitrus.zamongcampusServer.domain.user.User;
+import com.litCitrus.zamongcampusServer.domain.voiceRoom.VoiceCategory;
 import com.litCitrus.zamongcampusServer.domain.voiceRoom.VoiceRoom;
 import com.litCitrus.zamongcampusServer.dto.chat.SystemMessageDto;
 import lombok.Getter;
@@ -15,23 +16,31 @@ import java.util.stream.Collectors;
 public class VoiceRoomDtoRes {
 
     @Getter
-    public static class DetailRes{
+    public static class DetailRes extends Res{
+        private String roomId;
+        private String token;
+        private int uid;
+        private String ownerLoginId;
         private final boolean isFull;
-        private VoiceRoomAndTokenInfo voiceRoomAndTokenInfo;
         private List<SystemMessageDto.MemberInfo> memberInfos;
 
         public DetailRes(VoiceRoom voiceRoom, String token, int uid){
+            super(voiceRoom, false, true);
             /// uid 현재는 user_id, 나중에 변경 필요.
+            this.roomId = voiceRoom.getChatRoom().getRoomId();
+            this.token = token;
+            this.uid = uid;
+            this.ownerLoginId = voiceRoom.getOwner().getLoginId();
             this.isFull = false;
-            this.voiceRoomAndTokenInfo = new VoiceRoomAndTokenInfo(voiceRoom, token, uid);
             this.memberInfos = voiceRoom.getChatRoom().getUsers().stream()
                     .map(member -> new SystemMessageDto.MemberInfo(member.getId(),
                             member.getLoginId(), member.getNickname(), member.getPictures().get(0).getStored_file_path())).collect(Collectors.toList());
         }
 
+        // 꽉찬 경우 (isFull)
         public DetailRes(VoiceRoom voiceRoom){
+            super(voiceRoom, true);
             this.isFull = true;
-            this.voiceRoomAndTokenInfo = new VoiceRoomAndTokenInfo(voiceRoom);
         }
     }
 
@@ -39,35 +48,27 @@ public class VoiceRoomDtoRes {
     public static class Res{
         private final Long id;
         private final String title;
-        private final List<String> userImageUrls;
+        private List<String> userImageUrls;
+        private List<String> voiceCategoryCodes;
         public Res(VoiceRoom voiceRoom){
-            this.title = voiceRoom.getTitle();
             this.id = voiceRoom.getId();
+            this.title = voiceRoom.getTitle();
             this.userImageUrls = voiceRoom.getChatRoom().getUsers().stream().map(user -> user.getPictures().get(0).getStored_file_path()).collect(Collectors.toList());
+            this.voiceCategoryCodes = voiceRoom.getVoiceCategories().stream().map(voiceCategory -> voiceCategory.getVoiceCategoryCode().name()).collect(Collectors.toList());
         }
-    }
 
-    @Getter
-    public static class VoiceRoomAndTokenInfo{
-        private final long id;
-        private String title;
-        private String roomId;
-        private String token;
-        private int uid;
-        private String ownerLoginId;
-
-        public VoiceRoomAndTokenInfo(VoiceRoom voiceRoom, String token, int uid){
+        public Res(VoiceRoom voiceRoom, boolean isFull, boolean exceptUserImageUrls){
             this.id = voiceRoom.getId();
             this.title = voiceRoom.getTitle();
-            this.roomId = voiceRoom.getChatRoom().getRoomId();
-            this.token = token;
-            this.uid = uid;
-            this.ownerLoginId = voiceRoom.getOwner().getLoginId();
+            this.voiceCategoryCodes = voiceRoom.getVoiceCategories().stream().map(voiceCategory -> voiceCategory.getVoiceCategoryCode().name()).collect(Collectors.toList());
         }
-        public VoiceRoomAndTokenInfo(VoiceRoom voiceRoom){
+        // 꽉찬 경우 (isFull)
+        public Res(VoiceRoom voiceRoom, boolean isFull){
             this.id = voiceRoom.getId();
+            this.title = voiceRoom.getTitle();
         }
     }
+
 
     @Getter
     public static class UpdateMemberInfo {

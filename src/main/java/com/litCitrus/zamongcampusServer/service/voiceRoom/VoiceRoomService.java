@@ -3,6 +3,8 @@ package com.litCitrus.zamongcampusServer.service.voiceRoom;
 import com.litCitrus.zamongcampusServer.domain.chat.ChatRoom;
 import com.litCitrus.zamongcampusServer.domain.user.User;
 import com.litCitrus.zamongcampusServer.domain.chat.Participant;
+import com.litCitrus.zamongcampusServer.domain.voiceRoom.VoiceCategory;
+import com.litCitrus.zamongcampusServer.domain.voiceRoom.VoiceCategoryCode;
 import com.litCitrus.zamongcampusServer.domain.voiceRoom.VoiceRoom;
 import com.litCitrus.zamongcampusServer.dto.chat.SystemMessageDto;
 import com.litCitrus.zamongcampusServer.dto.voiceRoom.VoiceRoomDtoReq;
@@ -16,6 +18,7 @@ import com.litCitrus.zamongcampusServer.io.fcm.FCMHandler;
 import com.litCitrus.zamongcampusServer.repository.chat.ChatRoomRepository;
 import com.litCitrus.zamongcampusServer.repository.user.UserRepository;
 import com.litCitrus.zamongcampusServer.repository.voiceRoom.ParticipantRepository;
+import com.litCitrus.zamongcampusServer.repository.voiceRoom.VoiceCategoryRepository;
 import com.litCitrus.zamongcampusServer.repository.voiceRoom.VoiceRoomRepository;
 import com.litCitrus.zamongcampusServer.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
@@ -39,6 +42,7 @@ public class VoiceRoomService {
     private final AgoraHandler agoraHandler;
     private final SimpMessageSendingOperations messagingTemplate;
     private final FCMHandler fcmHandler;
+    private final VoiceCategoryRepository voiceCategoryRepository;
 
     public VoiceRoomDtoRes.DetailRes createVoiceRoom(
              VoiceRoomDtoReq.Create dto) {
@@ -48,7 +52,9 @@ public class VoiceRoomService {
         participantRepository.save(participant);
         ChatRoom chatRoom = ChatRoom.createMultiChatRoom(participant);
         chatRoomRepository.save(chatRoom);
-        VoiceRoom voiceRoom = VoiceRoom.createVoiceRoom(user, dto, chatRoom);
+        List<VoiceCategory> voiceCategories = voiceCategoryRepository.findByVoiceCategoryCodeIsIn(
+                dto.getCategoryCodeList().stream().map(categoryCode -> VoiceCategoryCode.valueOf(categoryCode.toUpperCase())).collect(Collectors.toList()));
+        VoiceRoom voiceRoom = VoiceRoom.createVoiceRoom(user, dto, chatRoom, voiceCategories);
         voiceRoomRepository.save(voiceRoom);
         // 2. owner의 token 발행
         String token = agoraHandler.getRTCToken(new AgoraRepository(voiceRoom.getChatRoom().getRoomId(), Math.toIntExact(user.getId()), 3600, 2));

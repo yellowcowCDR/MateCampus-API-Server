@@ -2,11 +2,13 @@ package com.litCitrus.zamongcampusServer.domain.voiceRoom;
 
 import com.litCitrus.zamongcampusServer.domain.chat.ChatRoom;
 import com.litCitrus.zamongcampusServer.domain.chat.Participant;
+import com.litCitrus.zamongcampusServer.domain.post.PostCategory;
 import com.litCitrus.zamongcampusServer.domain.user.User;
 import com.litCitrus.zamongcampusServer.dto.voiceRoom.VoiceRoomDtoReq;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -24,6 +26,10 @@ public class VoiceRoom {
     private User owner;
 
     private String title;
+
+    @ManyToMany
+    private List<VoiceCategory> voiceCategories;
+
     // cascade: voiceroom 삭제시 chatroom도 같이 삭제
     // @OneToOne(cascade = CascadeType.REMOVE, orphanRemoval = true) ?
     @NonNull
@@ -31,10 +37,11 @@ public class VoiceRoom {
     private ChatRoom chatRoom;
 
 
-    public static VoiceRoom createVoiceRoom(User owner, VoiceRoomDtoReq.Create dto, ChatRoom chatRoom){
+    public static VoiceRoom createVoiceRoom(User owner, VoiceRoomDtoReq.Create dto, ChatRoom chatRoom, List<VoiceCategory> voiceCategoryList){
         final VoiceRoom voiceRoom = VoiceRoom.builder()
                 .title(dto.getTitle())
                 .chatRoom(chatRoom)
+                .voiceCategories(voiceCategoryList)
                 .owner(owner)
                 .build();
         return voiceRoom;
