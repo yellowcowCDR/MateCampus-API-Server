@@ -55,6 +55,7 @@ public class PostComment extends BaseEntity {
         return postComment;
     }
 
+    // 신고를 위한 함수 (5회 이상 시 exposed false)
     public void changeExposed(Boolean value){
         this.exposed = value;
     }

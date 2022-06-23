@@ -14,13 +14,13 @@ public class PostCommentDtoRes {
     public static class Res {
         private final long id;
         private final String loginId;
-        private final String userNickname;
+        private String userNickname;
         private final String body;
         private final boolean deleted;
         private final boolean exposed;
         private final LocalDateTime createdAt;
-        private final long parentId;
-        private final List<Res> children;
+        private long parentId;
+        private List<Res> children;
 
         public Res(PostComment postComment, List<PostParticipant> postParticipants){
             PostParticipant anonymityUser = postParticipants.stream()
@@ -39,6 +39,15 @@ public class PostCommentDtoRes {
 //                    .filter(child -> !child.isDeleted())
                     .map(child -> new Res(child, postParticipants)).collect(Collectors.toList());
 
+        }
+
+        public Res(PostComment postComment){
+            this.loginId = postComment.getUser().getLoginId();
+            this.id = postComment.getId();
+            this.body = postComment.getBody();
+            this.deleted = postComment.isDeleted();
+            this.exposed = postComment.isExposed();
+            this.createdAt = postComment.getCreatedAt();
         }
 
     }

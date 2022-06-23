@@ -22,7 +22,7 @@ public class ChatRoomDtoRes {
                 chatRoom.getRoomId(), chatRoom.getType(), chatRoomTitleAndImage.get(0), chatRoomTitleAndImage.get(1));
         List<SystemMessageDto.MemberInfo> memberInfos = members.stream()
                 .map(member -> new SystemMessageDto.MemberInfo(member.getId(),
-                        member.getLoginId(), member.getNickname(), member.getPictures().get(0).getStored_file_path())).collect(Collectors.toList());
+                        member.getLoginId(), member.getNickname(), member.getPictures().isEmpty() ? null : member.getPictures().get(0).getStored_file_path())).collect(Collectors.toList());
         this.createDto = SystemMessageDto.CreateDto.builder()
                 .type(ModifiedChatInfo.MemberStatus.CREATE)
                 .roomInfo(roomInfo)

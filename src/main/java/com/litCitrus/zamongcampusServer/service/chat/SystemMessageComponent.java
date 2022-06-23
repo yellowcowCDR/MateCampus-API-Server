@@ -37,7 +37,7 @@ public class SystemMessageComponent {
                 .loginId(newMember.getLoginId())
                 .nickname(newMember.getNickname())
                 .createdAt(currentTime)
-                .imageUrl(newMember.getPictures().get(0).getStored_file_path())
+                .imageUrl(newMember.getPictures().isEmpty() ? null : newMember.getPictures().get(0).getStored_file_path())
                 .body(newMember.getNickname()+"님이 입장하셨습니다.")
                 .build();
 
@@ -120,7 +120,7 @@ public class SystemMessageComponent {
                 chatRoom.getRoomId(), chatRoom.getType(), chatRoomTitleAndImage.get(0), chatRoomTitleAndImage.get(1));
         List<SystemMessageDto.MemberInfo> memberInfos = recipients.stream()
                 .map(member -> new SystemMessageDto.MemberInfo(member.getId(),
-                        member.getLoginId(), member.getNickname(), member.getPictures().get(0).getStored_file_path())).collect(Collectors.toList());
+                        member.getLoginId(), member.getNickname(), member.getPictures().isEmpty() ? null : member.getPictures().get(0).getStored_file_path())).collect(Collectors.toList());
         SystemMessageDto.CreateDto createDto = SystemMessageDto.CreateDto.builder()
                 .type(ModifiedChatInfo.MemberStatus.CREATE)
                 .roomInfo(roomInfo)

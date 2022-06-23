@@ -2,8 +2,10 @@ package com.litCitrus.zamongcampusServer.service.report;
 
 import com.litCitrus.zamongcampusServer.domain.post.PostComment;
 import com.litCitrus.zamongcampusServer.domain.report.ReportPostComment;
+import com.litCitrus.zamongcampusServer.domain.report.ReportType;
 import com.litCitrus.zamongcampusServer.domain.report.ReportUser;
 import com.litCitrus.zamongcampusServer.domain.user.User;
+import com.litCitrus.zamongcampusServer.dto.report.ReportReq;
 import com.litCitrus.zamongcampusServer.dto.report.ReportRes;
 import com.litCitrus.zamongcampusServer.dto.report.ReportStatus;
 import com.litCitrus.zamongcampusServer.exception.post.PostCommentNotFoundException;
@@ -28,7 +30,7 @@ public class ReportPostCommentService {
     private final ReportUserRepository reportUserRepository;
 
     @Transactional
-    public ReportRes reportPostComment(Long postCommentId){
+    public ReportRes reportPostComment(Long postCommentId, ReportReq dto){
         User reporter = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
         PostComment postComment = postCommentRepository.findById(postCommentId).orElseThrow(PostCommentNotFoundException::new);
         User reportedUser = postComment.getUser();
@@ -37,7 +39,7 @@ public class ReportPostCommentService {
         if(reportPostCommentRepository.countAllByPostComment(postComment) >= 5){
             postComment.changeExposed(false);
         }
-        reportUserRepository.save(ReportUser.CreateReportUser(reporter, reportedUser));
+        reportUserRepository.save(ReportUser.CreateReportUser(reporter, reportedUser, ReportType.valueOf(dto.getReportType().toUpperCase())));
         if(reportUserRepository.countAllByUser(reportedUser) >= 10){
             reportedUser.updateActivated(false);
         }

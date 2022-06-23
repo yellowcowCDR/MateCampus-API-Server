@@ -39,7 +39,7 @@ public class FriendDtoRes {
         public Res(User other, Friend friend) {
             this.id = friend.getId();
             this.loginId = other.getLoginId();
-            this.imageUrl = other.getPictures().size() != 0 ? other.getPictures().get(0).getStored_file_path() : null;
+            this.imageUrl = other.getPictures().isEmpty() ? null : other.getPictures().get(0).getStored_file_path();
             this.nickname = other.getNickname();
             this.requestorLoginId = friend.getRequestor().getLoginId();
             this.status = friend.getStatus();

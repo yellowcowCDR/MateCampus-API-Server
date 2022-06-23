@@ -62,6 +62,12 @@ public class PostCommentService {
                 .map(postComment -> new PostCommentDtoRes.Res(postComment, postParticipants)).collect(Collectors.toList());
     }
 
+    public List<PostCommentDtoRes.Res> getMyComments(){
+        User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
+        return postCommentRepository.findAllByUserAndDeletedFalse(user).stream()
+                .map(PostCommentDtoRes.Res::new).collect(Collectors.toList());
+    }
+
     @Transactional
     public void deletePostComment(Long postCommentId) {
         PostComment postComment = postCommentRepository.findById(postCommentId).orElseThrow(PostCommentNotFoundException::new);

@@ -2,8 +2,10 @@ package com.litCitrus.zamongcampusServer.service.report;
 
 import com.litCitrus.zamongcampusServer.domain.post.Post;
 import com.litCitrus.zamongcampusServer.domain.report.ReportPost;
+import com.litCitrus.zamongcampusServer.domain.report.ReportType;
 import com.litCitrus.zamongcampusServer.domain.report.ReportUser;
 import com.litCitrus.zamongcampusServer.domain.user.User;
+import com.litCitrus.zamongcampusServer.dto.report.ReportReq;
 import com.litCitrus.zamongcampusServer.dto.report.ReportRes;
 import com.litCitrus.zamongcampusServer.dto.report.ReportStatus;
 import com.litCitrus.zamongcampusServer.exception.post.PostNotFoundException;
@@ -28,16 +30,17 @@ public class ReportPostService {
     private final ReportUserRepository reportUserRepository;
 
     @Transactional
-    public ReportRes reportPost(Long postId){
+    public ReportRes reportPost(Long postId, ReportReq dto){
         User reporter = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
         Post post = postRepository.findById(postId).orElseThrow(PostNotFoundException::new);
         User reportedUser = post.getUser();
         if(reportPostRepository.existsByReporterAndPost(reporter, post)) return new ReportRes(ReportStatus.DUPLICATE);
-        reportPostRepository.save(ReportPost.CreateReportPost(reporter, post));
+
+        reportPostRepository.save(ReportPost.CreateReportPost(reporter, post, ReportType.valueOf(dto.getReportType().toUpperCase())));
         if(reportPostRepository.countAllByPost(post) >= 5){
             post.changeExposed(false);
         }
-        reportUserRepository.save(ReportUser.CreateReportUser(reporter, reportedUser));
+        reportUserRepository.save(ReportUser.CreateReportUser(reporter, reportedUser, ReportType.valueOf(dto.getReportType().toUpperCase())));
         if(reportUserRepository.countAllByUser(reportedUser) >= 10){
             reportedUser.updateActivated(false);
         }
