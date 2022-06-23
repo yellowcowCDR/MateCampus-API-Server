@@ -43,7 +43,7 @@ public class UserApiController {
     }
 
     @GetMapping("/user/mypage")
-    @PreAuthorize("hasAnyRole('USER','ADMIN')")
+    @PreAuthorize("hasAnyRole('USER','ADMIN')") // <- 이거 나중에 보고 써보려고 나둔 것. 사실 따로 필요없음
     public ResponseEntity<UserDtoRes.ResForMyPage> getMyUserInfoInMyPage() {
         return ResponseEntity.ok(userService.getMyUserInfoInMyPage());
     }

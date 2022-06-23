@@ -185,7 +185,8 @@ public class UserService {
         long friendsCount = friendRepository.findByRequestorOrRecipient(user, user).stream().filter(friend -> friend.getStatus() == Friend.Status.ACCEPTED).count();
         long postsCount = user.getPosts().size();
         long commentsCount = user.getComments().size();
-        return new UserDtoRes.ResForMyPage(user, friendsCount, postsCount, commentsCount);
+        long bookmarkPostsCount = user.getBookmarkPosts().size();
+        return new UserDtoRes.ResForMyPage(user, friendsCount, bookmarkPostsCount, postsCount, commentsCount);
     }
 
 

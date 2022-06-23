@@ -76,6 +76,15 @@ public class VoiceRoomDtoRes {
         private final String loginId;
         private final String nickname;
         private String imageUrl;
+        private String newOwnerLoginId;
+
+        public UpdateMemberInfo(User user, String type, String newOwnerLoginId){
+            this.type = type;
+            this.loginId = user.getLoginId();
+            this.nickname = user.getNickname();
+            this.imageUrl = user.getPictures().isEmpty() ? null : user.getPictures().get(0).getStored_file_path();
+            this.newOwnerLoginId = newOwnerLoginId;
+        }
 
         public UpdateMemberInfo(User user, String type){
             this.type = type;
