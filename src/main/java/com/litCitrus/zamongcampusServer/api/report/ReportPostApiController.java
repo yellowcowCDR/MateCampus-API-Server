@@ -1,6 +1,7 @@
 package com.litCitrus.zamongcampusServer.api.report;
 
 import com.litCitrus.zamongcampusServer.domain.report.ReportPost;
+import com.litCitrus.zamongcampusServer.dto.report.ReportReq;
 import com.litCitrus.zamongcampusServer.dto.report.ReportRes;
 import com.litCitrus.zamongcampusServer.service.report.ReportPostService;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +19,7 @@ public class ReportPostApiController {
     private final ReportPostService reportPostService;
 
     @PostMapping("{postId}")
-    public ResponseEntity<ReportRes> reportPost(@Valid @PathVariable Long postId){
-        return ResponseEntity.ok(reportPostService.reportPost(postId));
+    public ResponseEntity<ReportRes> reportPost(@Valid @PathVariable Long postId, @Valid @RequestBody ReportReq dto){
+        return ResponseEntity.ok(reportPostService.reportPost(postId, dto));
     }
 }

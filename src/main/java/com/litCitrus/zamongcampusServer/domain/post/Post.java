@@ -32,8 +32,6 @@ public class Post extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private User user;
 
-    private String title;
-
     private String body;
 
     private int likeCount;
@@ -70,7 +68,6 @@ public class Post extends BaseEntity {
         /// ** postCategory는 ManyToMany이기에 여기서 선언.
         final Post post = Post.builder()
                 .user(user)
-                .title(postDto.getTitle())
                 .body(postDto.getBody())
                 .postCategories(postCategories)
                 .likeCount(0)

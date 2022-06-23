@@ -55,8 +55,8 @@ public class PostService {
     // READ : 전체 게시글 최신순
     public List<PostDtoRes.Res> getAllPostOrderByRecent(String nextPageToken){
         User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
-        Pageable page = PageRequest.of(Integer.parseInt(nextPageToken), 7); // 0번째부터 7개의 게시글
-        return postRepository.findAllByOrderByCreatedAtDesc(page).stream()
+        Pageable page = PageRequest.of(Integer.parseInt(nextPageToken), 10); // 0번째부터 10개의 게시글
+        return postRepository.findAllByDeletedFalseOrderByCreatedAtDesc(page).stream()
                 .filter(post -> post.isExposed())
                 .map(PostDtoRes.Res::new)
                 .collect(Collectors.toList());
@@ -64,34 +64,35 @@ public class PostService {
 
     // READ : 전체 게시글 인기순 (좋아요순)
     public List<PostDtoRes.Res> getAllPostOrderByMostLike(String nextPageToken){
-//        User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
-//        Pageable paging = PageRequest.of(Integer.parseInt(nextPageToken), 7, Sort.by("likedUsers").descending());
-//        return postRepository.findAll(paging).stream().map(PostDtoRes.Res::new)
-//                .collect(Collectors.toList());
-        // 나중에 필요할 수도 있기에 추석처리.
         User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
-        Pageable page = PageRequest.of(Integer.parseInt(nextPageToken), 7); // 0번째부터 7개의 게시글
-        return postRepository.findAllByOrderByCreatedAtDesc(page).stream()
+        Pageable page = PageRequest.of(Integer.parseInt(nextPageToken), 10); // 0번째부터 10개의 게시글
+        return postRepository.findAllByDeletedFalseOrderByLikeCountDescViewCountDescCreatedAtDesc(page).stream()
                 .filter(post -> post.isExposed())
                 .map(PostDtoRes.Res::new)
                 .collect(Collectors.toList());
     }
 
-    // READ 1개 : 자신이 쓴 게시글 최신순
+    // READ : 자신이 쓴 게시글 최신순
     public List<PostDtoRes.Res> getMyPostOrderByRecent(String nextPageToken){
         User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
-        Pageable page = PageRequest.of(Integer.parseInt(nextPageToken), 7); // 0번째부터 7개의 게시글
-        List<Post> posts =  postRepository.findByUser(user, page);
+        Pageable page = PageRequest.of(Integer.parseInt(nextPageToken), 10); // 0번째부터 10개의 게시글
+        List<Post> posts =  postRepository.findAllByUserAndDeletedFalse(user, page);
+        return posts.stream().map(PostDtoRes.Res::new).collect(Collectors.toList());
+    }
+
+    // READ : 북마크한 게시글
+    public List<PostDtoRes.Res> getBookmarkPosts(String nextPageToken){
+        User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
+        Pageable page = PageRequest.of(Integer.parseInt(nextPageToken), 10); // 0번째부터 10개의 게시글
+        List<Post> posts =  postRepository.findAllByBookMarkUsers_UserAndDeletedFalse(user, page);
         return posts.stream().map(PostDtoRes.Res::new).collect(Collectors.toList());
     }
 
     public PostIdDto getMyLikeBookMarkPostIds(){
         User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
-        List<Long> likePostIds = postRepository.findAllByLikedUsers_User(user).stream().map(post -> post.getId()).collect(Collectors.toList());
-        List<Long> bookMarkPostIds = postRepository.findAllByBookMarkUsers_User(user).stream().map(post -> post.getId()).collect(Collectors.toList());
-
+        List<Long> likePostIds = postRepository.findAllByLikedUsers_UserAndDeletedFalse(user).stream().map(post -> post.getId()).collect(Collectors.toList());
+        List<Long> bookMarkPostIds = postRepository.findAllByBookMarkUsers_UserAndDeletedFalse(user).stream().map(post -> post.getId()).collect(Collectors.toList());
         return new PostIdDto(likePostIds, bookMarkPostIds);
-
     }
 
     @Transactional

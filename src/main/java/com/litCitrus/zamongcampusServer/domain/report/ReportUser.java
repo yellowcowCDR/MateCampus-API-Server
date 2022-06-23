@@ -23,10 +23,13 @@ public class ReportUser {
     @ManyToOne(fetch = FetchType.LAZY)
     private User user;
 
-    public static ReportUser CreateReportUser(User reporter, User user){
+    private ReportType reportType;
+
+    public static ReportUser CreateReportUser(User reporter, User user, ReportType reportType){
         return ReportUser.builder()
                 .reporter(reporter)
                 .user(user)
+                .reportType(reportType)
                 .build();
     }
 }

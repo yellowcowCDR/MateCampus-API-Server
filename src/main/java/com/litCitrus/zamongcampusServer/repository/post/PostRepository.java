@@ -12,17 +12,13 @@ import java.util.List;
 @Repository
 public interface PostRepository extends PagingAndSortingRepository<Post, Long> {
 
-//    List<Post> findAllByDeletedFalseOrderByCreatedAtDesc(Pageable pageable);
-//    List<Post> findAllByDeletedFalseOrderByLikedUsersDesc(Pageable pageable);
-//    List<Post> findByUserAndDeletedFalseOrderByCreatedAtDesc(User user, Pageable pageable);
+    List<Post> findAllByLikedUsers_UserAndDeletedFalse(User user);
+    List<Post> findAllByBookMarkUsers_UserAndDeletedFalse(User user);
+    List<Post> findAllByBookMarkUsers_UserAndDeletedFalse(User user, Pageable page);
 
-    List<Post> findByUser(User user, Pageable page);
-    List<Post> findByUser(User user);
+    List<Post> findAllByUserAndDeletedFalse(User user, Pageable page); // 내 게시물
+    List<Post> findAllByDeletedFalseOrderByCreatedAtDesc(Pageable page); // 최신순
+    // 인기순: likeCount > viewCount > createDesc
+    List<Post> findAllByDeletedFalseOrderByLikeCountDescViewCountDescCreatedAtDesc(Pageable page);
 
-    List<Post> findAllByLikedUsers_User(User user);
-    List<Post> findAllByBookMarkUsers_User(User user);
-
-
-    @Query(value = "SELECT * From post where deleted = 0", nativeQuery = true)
-    List<Post> findAllByOrderByCreatedAtDesc(Pageable page);
 }

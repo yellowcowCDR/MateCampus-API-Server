@@ -1,7 +1,9 @@
 package com.litCitrus.zamongcampusServer.service.report;
 
+import com.litCitrus.zamongcampusServer.domain.report.ReportType;
 import com.litCitrus.zamongcampusServer.domain.report.ReportUser;
 import com.litCitrus.zamongcampusServer.domain.user.User;
+import com.litCitrus.zamongcampusServer.dto.report.ReportReq;
 import com.litCitrus.zamongcampusServer.dto.report.ReportRes;
 import com.litCitrus.zamongcampusServer.dto.report.ReportStatus;
 import com.litCitrus.zamongcampusServer.exception.user.UserNotFoundException;
@@ -21,11 +23,11 @@ public class ReportUserService {
     private final ReportUserRepository reportUserRepository;
 
     @Transactional
-    public ReportRes reportUser(String loginId){
+    public ReportRes reportUser(String loginId, ReportReq dto){
         User reporter = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
         User user = userRepository.findByLoginId(loginId).orElseThrow(UserNotFoundException::new);
         if(reportUserRepository.existsByReporterAndUser(reporter, user)) return new ReportRes(ReportStatus.DUPLICATE);
-        reportUserRepository.save(ReportUser.CreateReportUser(reporter, user));
+        reportUserRepository.save(ReportUser.CreateReportUser(reporter, user, ReportType.valueOf(dto.getReportType().toUpperCase())));
 
         if(reportUserRepository.countAllByUser(user) >= 10){
             user.updateActivated(false);

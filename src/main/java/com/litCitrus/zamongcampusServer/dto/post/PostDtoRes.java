@@ -38,7 +38,6 @@ public class PostDtoRes {
         private final long id;
         private final String loginId;
         private final String userNickname;
-        private final String title;
         private final String body;
         private final LocalDateTime createdAt;
         private final List<String> imageUrls;
@@ -51,7 +50,6 @@ public class PostDtoRes {
             this.id = post.getId();
             this.loginId = post.getUser().getLoginId();
             this.userNickname = post.getUser().getNickname();
-            this.title = post.getTitle();
             this.body = post.getBody();
             this.createdAt = post.getCreatedAt();
             this.imageUrls = post.getPictures().stream().map(postPicture -> postPicture.getStored_file_path()).collect(Collectors.toList());
