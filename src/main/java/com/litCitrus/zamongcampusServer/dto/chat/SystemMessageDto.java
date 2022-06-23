@@ -91,7 +91,7 @@ public class SystemMessageDto {
             this.id = user.getId();
             this.loginId = user.getLoginId();
             this.nickname = user.getNickname();
-            this.imageUrl = user.getPictures().get(0).getStored_file_path();
+            this.imageUrl = user.getPictures().isEmpty() ? null : user.getPictures().get(0).getStored_file_path();
         }
     }
 }

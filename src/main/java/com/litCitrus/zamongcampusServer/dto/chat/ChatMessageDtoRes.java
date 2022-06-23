@@ -85,7 +85,7 @@ public class ChatMessageDtoRes {
                         .roomId(modifiedChatInfo.getChatRoom().getRoomId())
                         .loginId(modifiedChatInfo.getModifiedUser().getLoginId())
                         .nickname(modifiedChatInfo.getModifiedUser().getNickname())
-                        .imageUrl(modifiedChatInfo.getModifiedUser().getPictures().get(0).getStored_file_path())
+                        .imageUrl(modifiedChatInfo.getModifiedUser().getPictures().isEmpty() ? null : modifiedChatInfo.getModifiedUser().getPictures().get(0).getStored_file_path())
                         .build();
             }else if(modifiedChatInfo.getMemberStatus().equals(ModifiedChatInfo.MemberStatus.EXIT)){
                 return SystemMessageDto.ExitDto.builder()
@@ -98,7 +98,7 @@ public class ChatMessageDtoRes {
                         .type(ModifiedChatInfo.MemberStatus.UPDATE)
                         .loginId(modifiedChatInfo.getModifiedUser().getLoginId())
                         .nickname(modifiedChatInfo.getModifiedUser().getNickname())
-                        .imageUrl(modifiedChatInfo.getModifiedUser().getPictures().get(0).getStored_file_path())
+                        .imageUrl(modifiedChatInfo.getModifiedUser().getPictures().isEmpty() ? null : modifiedChatInfo.getModifiedUser().getPictures().get(0).getStored_file_path())
                         .build();
             }else{
                 ChatRoom chatRoom = modifiedChatInfo.getChatRoom();
@@ -108,7 +108,7 @@ public class ChatMessageDtoRes {
                         chatRoom.getRoomId(), chatRoom.getType(), chatRoomTitleAndImage.get(0), chatRoomTitleAndImage.get(1));
                 List<SystemMessageDto.MemberInfo> memberInfos = members.stream()
                         .map(member -> new SystemMessageDto.MemberInfo(member.getId(),
-                                member.getLoginId(), member.getNickname(), member.getPictures().get(0).getStored_file_path())).collect(Collectors.toList());
+                                member.getLoginId(), member.getNickname(), member.getPictures().isEmpty() ? null : member.getPictures().get(0).getStored_file_path())).collect(Collectors.toList());
                 return SystemMessageDto.CreateDto.builder()
                         .type(ModifiedChatInfo.MemberStatus.CREATE)
                         .roomInfo(roomInfo)

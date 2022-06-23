@@ -195,7 +195,7 @@ public class UserService {
 
         /* 1. 변경 정보를 MySQL에 저장 */
         User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
-        String imageUrl = user.getPictures().isEmpty() ? "" : user.getPictures().get(0).getStored_file_path();
+        String imageUrl = user.getPictures().isEmpty() ? null : user.getPictures().get(0).getStored_file_path();
         /// TODO: user image 내용
         if(userUpdateDto.getProfileImage() != null){
             /* 1-1. profileImage: 기존 사진 url 삭제 후, 재 삽입. */

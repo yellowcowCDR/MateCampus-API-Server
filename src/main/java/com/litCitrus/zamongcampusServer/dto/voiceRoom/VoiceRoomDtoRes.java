@@ -34,7 +34,7 @@ public class VoiceRoomDtoRes {
             this.isFull = false;
             this.memberInfos = voiceRoom.getChatRoom().getUsers().stream()
                     .map(member -> new SystemMessageDto.MemberInfo(member.getId(),
-                            member.getLoginId(), member.getNickname(), member.getPictures().get(0).getStored_file_path())).collect(Collectors.toList());
+                            member.getLoginId(), member.getNickname(), member.getPictures().isEmpty() ? null : member.getPictures().get(0).getStored_file_path())).collect(Collectors.toList());
         }
 
         // 꽉찬 경우 (isFull)
@@ -53,7 +53,7 @@ public class VoiceRoomDtoRes {
         public Res(VoiceRoom voiceRoom){
             this.id = voiceRoom.getId();
             this.title = voiceRoom.getTitle();
-            this.userImageUrls = voiceRoom.getChatRoom().getUsers().stream().map(user -> user.getPictures().get(0).getStored_file_path()).collect(Collectors.toList());
+            this.userImageUrls = voiceRoom.getChatRoom().getUsers().stream().map(user -> user.getPictures().isEmpty() ? null : user.getPictures().get(0).getStored_file_path()).collect(Collectors.toList());
             this.voiceCategoryCodes = voiceRoom.getVoiceCategories().stream().map(voiceCategory -> voiceCategory.getVoiceCategoryCode().name()).collect(Collectors.toList());
         }
 
@@ -81,7 +81,7 @@ public class VoiceRoomDtoRes {
             this.type = type;
             this.loginId = user.getLoginId();
             this.nickname = user.getNickname();
-            this.imageUrl = user.getPictures().get(0).getStored_file_path();
+            this.imageUrl = user.getPictures().isEmpty() ? null : user.getPictures().get(0).getStored_file_path();
         }
     }
 }

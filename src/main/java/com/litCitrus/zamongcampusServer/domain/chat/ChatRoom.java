@@ -67,7 +67,7 @@ public class ChatRoom extends BaseEntity {
             // ChatRoom DB의 첫번째 사용자 사진과 닉네임 가져오기
             counterpart = this.getUsers().get(0);
         }
-        imageUrl = counterpart.getPictures().get(0).getStored_file_path();
+        imageUrl = counterpart.getPictures().isEmpty() ? null : counterpart.getPictures().get(0).getStored_file_path();
         title = counterpart.getNickname();
         return new ArrayList<>(Arrays.asList(title, imageUrl));
     }
