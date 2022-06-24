@@ -2,6 +2,7 @@ package com.litCitrus.zamongcampusServer.domain.user;
 
 import com.litCitrus.zamongcampusServer.domain.BaseEntity;
 import com.litCitrus.zamongcampusServer.domain.post.Post;
+import com.litCitrus.zamongcampusServer.domain.post.PostBookMark;
 import com.litCitrus.zamongcampusServer.domain.post.PostComment;
 import com.litCitrus.zamongcampusServer.domain.post.PostLike;
 import com.litCitrus.zamongcampusServer.domain.voiceRoom.VoiceRoom;
@@ -68,6 +69,9 @@ public class User extends BaseEntity {
 
     @OneToMany(mappedBy = "user")
     private Set<PostLike> likedPosts;
+
+    @OneToMany(mappedBy = "user")
+    private Set<PostBookMark> bookmarkPosts;
 
     @OneToMany(mappedBy = "user")
     private Set<Post> posts;

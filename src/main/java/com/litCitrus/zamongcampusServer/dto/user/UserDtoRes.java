@@ -18,11 +18,11 @@ public class UserDtoRes {
         private final long myPostCount;
         private final long myCommentCount;
 
-        public ResForMyPage(User me, long friendCount, long postCount, long commentCount){
+        public ResForMyPage(User me, long friendCount, long bookMarkCount, long postCount, long commentCount){
             super(me);
             this.interestCount = me.getUserInterests().stream().count();
             this.friendCount = friendCount;
-            this.bookMarkCount = 10;
+            this.bookMarkCount = bookMarkCount;
             this.myPostCount = postCount;
             this.myCommentCount = commentCount;
         }

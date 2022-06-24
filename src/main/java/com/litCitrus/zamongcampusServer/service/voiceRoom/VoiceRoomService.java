@@ -99,12 +99,15 @@ public class VoiceRoomService {
         if(voiceRoom.getChatRoom().getUsers().isEmpty()){
             voiceRoomRepository.delete(voiceRoom);
         }else{
-            // 2. 그게 아니면 stomp으로 exit 보내기 + 방 양도
-            VoiceRoomDtoRes.UpdateMemberInfo updateMemberInfo = new VoiceRoomDtoRes.UpdateMemberInfo(user, "exit");
-            messagingTemplate.convertAndSend("/sub/chat/room/" + voiceRoom.getChatRoom().getRoomId(), updateMemberInfo);
+            // 2. 그게 아니면 방 양도 + stomp으로 exit 보내기
+            String newOwnerLoginId = null;
             if(owner.getLoginId().equals(user.getLoginId())){
-                voiceRoom.updateOwner(voiceRoom.getChatRoom().getUsers().get(0));
+                User newOwner = voiceRoom.getChatRoom().getUsers().get(0);
+                voiceRoom.updateOwner(newOwner);
+                newOwnerLoginId = newOwner.getLoginId();
             }
+            VoiceRoomDtoRes.UpdateMemberInfo updateMemberInfo = new VoiceRoomDtoRes.UpdateMemberInfo(user, "exit", newOwnerLoginId);
+            messagingTemplate.convertAndSend("/sub/chat/room/" + voiceRoom.getChatRoom().getRoomId(), updateMemberInfo);
         }
     }
 
