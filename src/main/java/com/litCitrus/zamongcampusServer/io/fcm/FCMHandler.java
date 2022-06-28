@@ -13,9 +13,9 @@ import java.util.stream.Collectors;
 public class FCMHandler {
 
     private final FirebaseMessaging firebaseMessaging;
-    final String title = "자몽캠퍼스";
-    public void sendNotification(FCMDto fcmDto, String channelId, List<User> recipients) {
-
+    String title = "\uD83C\uDF4A자몽캠퍼스";
+    public void sendNotification(FCMDto fcmDto, String channelId, List<User> recipients, String newTitle) {
+        if(newTitle != null) title = newTitle;
         List<String> recipientTokens = recipients.stream().map(user -> user.getDeviceToken()).collect(Collectors.toList());
         Notification notification = Notification
                 .builder()

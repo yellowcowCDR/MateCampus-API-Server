@@ -62,7 +62,7 @@ public class ChatMessageService {
         /* 3. fcm(알림) 전송 */
         ChatRoom chatRoom = chatRoomRepository.findByRoomId(messageDto.getRoomId()).orElseThrow(ChatRoomNotFoundException::new);
         List<String> chatRoomTitleAndImage = chatRoom.getCounterpartChatRoomTitleAndImage(user.getLoginId());
-        FCMDto fcmDto = new FCMDto(user.getNickname() + " \n " + messageDto.getText(),
+        FCMDto fcmDto = new FCMDto(messageDto.getText(),
                 new HashMap<String,String>(){{
                     put("navigate","/chatDetail");
                     put("roomId", chatRoom.getRoomId());
@@ -73,7 +73,7 @@ public class ChatMessageService {
         }});
         List<User> recipientsExceptMe  = chatRoomRepository.findByRoomId(messageDto.getRoomId()).orElseThrow(ChatRoomNotFoundException::new)
                 .getUsers().stream().filter(recipient -> !recipient.getLoginId().equals(user.getLoginId())).collect(Collectors.toList());
-        fcmHandler.sendNotification(fcmDto, "fcm_message_channel",recipientsExceptMe);
+        fcmHandler.sendNotification(fcmDto, "fcm_message_channel",recipientsExceptMe, user.getNickname());
     }
 
     // READ: GET MESSAGE

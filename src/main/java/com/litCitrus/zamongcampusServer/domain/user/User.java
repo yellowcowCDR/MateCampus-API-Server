@@ -1,6 +1,7 @@
 package com.litCitrus.zamongcampusServer.domain.user;
 
 import com.litCitrus.zamongcampusServer.domain.BaseEntity;
+import com.litCitrus.zamongcampusServer.domain.notification.Notification;
 import com.litCitrus.zamongcampusServer.domain.post.Post;
 import com.litCitrus.zamongcampusServer.domain.post.PostBookMark;
 import com.litCitrus.zamongcampusServer.domain.post.PostComment;
@@ -90,6 +91,9 @@ public class User extends BaseEntity {
 
     @OneToMany(mappedBy = "recipient")
     private List<RecommendUser> recommendUsers;
+
+    @OneToMany(mappedBy = "user")
+    private List<Notification> notifications;
 
 
     public static User createUser(UserDtoReq.Create userDto, String encodedPassword, Authority authority) {
