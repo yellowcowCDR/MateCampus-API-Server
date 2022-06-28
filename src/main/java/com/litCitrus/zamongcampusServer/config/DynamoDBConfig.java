@@ -45,7 +45,7 @@ public class DynamoDBConfig {
                 .build();
         // 서버 시작할 때마다 테이블 재 생성
         // 실서버에 푸시하기 전에 주석할 것,!!!
-        createTable();
+//        createTable();
 
         // Enhanced Client 생성
         DynamoDbEnhancedClient enhancedClient = DynamoDbEnhancedClient.builder()
