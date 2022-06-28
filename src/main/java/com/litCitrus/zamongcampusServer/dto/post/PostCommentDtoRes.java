@@ -21,6 +21,7 @@ public class PostCommentDtoRes {
         private final LocalDateTime createdAt;
         private long parentId;
         private List<Res> children;
+        private long postId;
 
         public Res(PostComment postComment, List<PostParticipant> postParticipants){
             PostParticipant anonymityUser = postParticipants.stream()
@@ -41,6 +42,7 @@ public class PostCommentDtoRes {
 
         }
 
+        // Res myComments
         public Res(PostComment postComment){
             this.loginId = postComment.getUser().getLoginId();
             this.id = postComment.getId();
@@ -48,6 +50,7 @@ public class PostCommentDtoRes {
             this.deleted = postComment.isDeleted();
             this.exposed = postComment.isExposed();
             this.createdAt = postComment.getCreatedAt();
+            this.postId = postComment.getPost().getId();
         }
 
     }

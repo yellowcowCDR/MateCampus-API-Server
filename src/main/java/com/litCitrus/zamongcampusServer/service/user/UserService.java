@@ -172,7 +172,8 @@ public class UserService {
         Friend friendWhichUserIsRequestor = friendRepository.findByRequestorAndRecipient(user, other);
         Friend friendWhichUserIsRecipient = friendRepository.findByRequestorAndRecipient(other, user);
         if(friendWhichUserIsRequestor != null || friendWhichUserIsRecipient != null){
-            return new UserDtoRes.ResForDetailInfo(other, interests, Friend.Status.UNACCEPTED);
+
+            return new UserDtoRes.ResForDetailInfo(other, interests, friendWhichUserIsRequestor != null ? friendWhichUserIsRequestor.getStatus() : friendWhichUserIsRecipient.getStatus());
         }
         return new UserDtoRes.ResForDetailInfo(other, interests, Friend.Status.NONE);
 
@@ -183,8 +184,8 @@ public class UserService {
     public UserDtoRes.ResForMyPage getMyUserInfoInMyPage() {
         User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
         long friendsCount = friendRepository.findByRequestorOrRecipient(user, user).stream().filter(friend -> friend.getStatus() == Friend.Status.ACCEPTED).count();
-        long postsCount = user.getPosts().size();
-        long commentsCount = user.getComments().size();
+        long postsCount = user.getPosts().stream().filter(post -> !post.isDeleted() && post.isExposed()).count();
+        long commentsCount = user.getComments().stream().filter(comment -> !comment.isDeleted() && comment.isExposed()).count();
         long bookmarkPostsCount = user.getBookmarkPosts().size();
         return new UserDtoRes.ResForMyPage(user, friendsCount, bookmarkPostsCount, postsCount, commentsCount);
     }
