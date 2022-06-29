@@ -1,6 +1,7 @@
 package com.litCitrus.zamongcampusServer.service.voiceRoom;
 
 import com.litCitrus.zamongcampusServer.domain.chat.ChatRoom;
+import com.litCitrus.zamongcampusServer.domain.notification.Notification;
 import com.litCitrus.zamongcampusServer.domain.user.User;
 import com.litCitrus.zamongcampusServer.domain.chat.Participant;
 import com.litCitrus.zamongcampusServer.domain.voiceRoom.VoiceCategory;
@@ -16,6 +17,7 @@ import com.litCitrus.zamongcampusServer.io.agora.AgoraRepository;
 import com.litCitrus.zamongcampusServer.io.fcm.FCMDto;
 import com.litCitrus.zamongcampusServer.io.fcm.FCMHandler;
 import com.litCitrus.zamongcampusServer.repository.chat.ChatRoomRepository;
+import com.litCitrus.zamongcampusServer.repository.notification.NotificationRepository;
 import com.litCitrus.zamongcampusServer.repository.user.UserRepository;
 import com.litCitrus.zamongcampusServer.repository.voiceRoom.ParticipantRepository;
 import com.litCitrus.zamongcampusServer.repository.voiceRoom.VoiceCategoryRepository;
@@ -43,6 +45,7 @@ public class VoiceRoomService {
     private final SimpMessageSendingOperations messagingTemplate;
     private final FCMHandler fcmHandler;
     private final VoiceCategoryRepository voiceCategoryRepository;
+    private final NotificationRepository notificationRepository;
 
     public VoiceRoomDtoRes.DetailRes createVoiceRoom(
              VoiceRoomDtoReq.Create dto) {
@@ -120,14 +123,27 @@ public class VoiceRoomService {
     public void sendFcm(User actor, VoiceRoom voiceRoom, List<String> selectedMemberLoginIds){
         List<User> recipients = userRepository.findAllByLoginIdIsIn(selectedMemberLoginIds);
         if(!recipients.isEmpty()){
-            // voiceroomID만 넘기기. (voicedetail에 들어가면서 알아서 또 데이터 부르도록)
-            FCMDto fcmDto = new FCMDto(actor.getNickname() + "님이 \"" + voiceRoom.getTitle() + "\" 음성대화방에 초대했습니다! 참여해보세요!" ,
-                    new HashMap<String,String>(){{
-                        put("navigate","/voiceDetail");
-                        put("voiceRoomId", voiceRoom.getId().toString());
-                        put("validTime", "300"); // 300초가 초대 유효시간?
-                    }});
-            fcmHandler.sendNotification(fcmDto, "fcm_voiceroom_invite_channel", recipients);
+            String nickname = actor.getNickname();
+            String body = voiceRoom.getTitle();
+            String message = "";
+            if(body.length() < 18 - nickname.length()){
+                message = nickname + "님이 " + "\'" + body + "\'";
+            }else{
+                message = nickname + "님이 " + "\'" + body.substring(0, 18 - nickname.length()) + "...\'";
+            }
+            message = message + "\n\uD83C\uDF99음성대화방에 초대했습니다!";
+            // ** fcm send와 notificationList에도 값 더하기.
+            for(User recipient : recipients){
+                Notification newNotification = notificationRepository.save(Notification.CreateVoiceRoomNotification(recipient, voiceRoom, actor));
+                FCMDto fcmDto = new FCMDto(message,
+                        new HashMap<String,String>(){{
+                            put("navigate","/voiceDetail");
+                            put("voiceRoomId", voiceRoom.getId().toString());
+                            put("notificationId", newNotification.getId().toString());
+                            put("validTime", "300"); // 300초가 초대 유효시간?
+                        }});
+                fcmHandler.sendNotificationOne(fcmDto, "fcm_voiceroom_invite_channel", recipient, null);
+            }
         }
     }
 

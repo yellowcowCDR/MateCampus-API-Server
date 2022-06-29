@@ -2,13 +2,16 @@ package com.litCitrus.zamongcampusServer.domain.voiceRoom;
 
 import com.litCitrus.zamongcampusServer.domain.chat.ChatRoom;
 import com.litCitrus.zamongcampusServer.domain.chat.Participant;
+import com.litCitrus.zamongcampusServer.domain.notification.Notification;
 import com.litCitrus.zamongcampusServer.domain.post.PostCategory;
+import com.litCitrus.zamongcampusServer.domain.post.PostLike;
 import com.litCitrus.zamongcampusServer.domain.user.User;
 import com.litCitrus.zamongcampusServer.dto.voiceRoom.VoiceRoomDtoReq;
 import lombok.*;
 
 import javax.persistence.*;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -35,6 +38,9 @@ public class VoiceRoom {
     @NonNull
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private ChatRoom chatRoom;
+
+    @OneToMany(mappedBy = "voiceRoom", cascade = CascadeType.ALL)
+    private List<Notification> notifications;
 
 
     public static VoiceRoom createVoiceRoom(User owner, VoiceRoomDtoReq.Create dto, ChatRoom chatRoom, List<VoiceCategory> voiceCategoryList){
