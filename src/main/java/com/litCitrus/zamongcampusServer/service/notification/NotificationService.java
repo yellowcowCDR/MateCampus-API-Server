@@ -22,7 +22,7 @@ public class NotificationService {
 
     public List<NotificationDtoRes> getMyNotification(){
         User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
-        return notificationRepository.findAllByUser(user).stream()
+        return notificationRepository.findAllByUserOrderByCreatedAtDesc(user).stream()
                 .map(NotificationDtoRes::new).collect(Collectors.toList());
     }
 
