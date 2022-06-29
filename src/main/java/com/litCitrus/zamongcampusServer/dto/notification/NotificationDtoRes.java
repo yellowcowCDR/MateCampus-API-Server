@@ -17,6 +17,7 @@ public class NotificationDtoRes {
     private String nickname;
     private String title;
     private final LocalDateTime createdAt;
+    private final boolean unRead;
 
     public NotificationDtoRes(Notification notification){
         NotificationType type = notification.getType();
@@ -29,5 +30,6 @@ public class NotificationDtoRes {
         this.nickname = type.equals(NotificationType.POST) ? null : notification.getSender().getNickname();
         this.title = type.equals(NotificationType.FRIEND) ? null : (type.equals(NotificationType.POST) ? notification.getPostComment().getPost().getBody() : notification.getVoiceRoom().getTitle());
         this.createdAt = notification.getCreatedAt();
+        this.unRead = notification.isUnRead();
     }
 }

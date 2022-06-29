@@ -45,4 +45,38 @@ public class FCMHandler {
             System.out.println(response.getSuccessCount());
         }
     }
+
+    public void sendNotificationOne(FCMDto fcmDto, String channelId, User recipient, String newTitle) {
+        if(newTitle != null) title = newTitle;
+        String recipientToken = recipient.getDeviceToken();
+        Notification notification = Notification
+                .builder()
+                .setTitle(title)
+                .setBody(fcmDto.getBody())
+                .build();
+        AndroidNotification androidNotification = AndroidNotification.builder()
+                .setChannelId(channelId)
+                .build();
+        AndroidConfig androidConfig = AndroidConfig.builder()
+                .setNotification(androidNotification)
+                .build();
+        if(!recipientToken.isEmpty()){
+            Message message = Message
+                .builder()
+                .setToken(recipientToken)
+                .setNotification(notification)
+                .putAllData(fcmDto.getData())
+                .setAndroidConfig(androidConfig)
+                .putData("click_action", "FLUTTER_NOTIFICATION_CLICK")
+                .build();
+
+            String response = null;
+            try {
+                response = firebaseMessaging.send(message);
+            } catch (FirebaseMessagingException e) {
+                e.printStackTrace();
+            }
+            System.out.println(response);
+        }
+    }
 }

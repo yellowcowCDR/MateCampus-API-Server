@@ -22,6 +22,29 @@ public class NotificationController {
     public ResponseEntity<List<NotificationDtoRes>> getMyNotification(){
         return new ResponseEntity<>(notificationService.getMyNotification(), HttpStatus.OK);
     }
+
+    @GetMapping("/my/unread")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<?> getMyUnreadNoti(){
+        return new ResponseEntity<>(notificationService.getMyUnreadNoti(), HttpStatus.OK);
+    }
+
+    @PutMapping("/my/{notificationId}")
+    public ResponseEntity<Long> updateMyNotiRead(@Valid @PathVariable("notificationId") Long notificationId){
+        return ResponseEntity.ok(notificationService.updateMyNotiRead(notificationId));
+    }
+
+    @PutMapping("/my/all")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void updateAllMyNotiRead(){
+        notificationService.updateAllMyNotiRead();
+    }
+
+    @DeleteMapping("/my")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteMyNotification(@Valid @PathVariable("notificationId") Long notificationId){
+        notificationService.deleteMyNotification(notificationId);
+    }
 }
 
 

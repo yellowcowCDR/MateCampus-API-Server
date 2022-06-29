@@ -9,6 +9,7 @@ import com.litCitrus.zamongcampusServer.domain.voiceRoom.VoiceRoom;
 import lombok.*;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 
 @Entity
 @Getter
@@ -38,6 +39,10 @@ public class Notification extends BaseEntity{
     @ManyToOne(fetch = FetchType.LAZY)
     private VoiceRoom voiceRoom;
 
+    @Builder.Default
+    @NotNull
+    private boolean unRead = Boolean.TRUE;
+
     // sender 없음
     public static Notification CreatePostCommentNotification(User user, PostComment postComment){
         return Notification.builder()
@@ -65,6 +70,8 @@ public class Notification extends BaseEntity{
                 .build();
     }
 
-
+    public void changeRead(){
+        this.unRead = false;
+    }
 }
 

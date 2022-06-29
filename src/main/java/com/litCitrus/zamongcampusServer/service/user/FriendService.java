@@ -40,16 +40,19 @@ public class FriendService {
         Friend friend = friendRepository.save(Friend.createFriend(actor, target));
         // 2. 해당 상황을 실시간 알림과 NotificationList에 저장.
         // 신청 받는 사람.
-        // 2-1. fcm 알림
+        // 2-1. Notication에 저장
+        Notification newNotification = notificationRepository.save(Notification.CreateFriendNotification(target, friend, actor));
+
+        // 2-2. fcm 알림
         String body = actor.getNickname() + "님의 친구 신청이 도착했습니다!";
         FCMDto fcmDto = new FCMDto(body,
                 new HashMap<String,String>(){{
                     put("navigate","/friend");
+                    put("notificationId", newNotification.getId().toString());
                 }});
         List<User> targets = Arrays.asList(target);
         fcmHandler.sendNotification(fcmDto, "fcm_default_channel", targets, null);
-        // 2-2. Notication에 저장
-        notificationRepository.save(Notification.CreateFriendNotification(target, friend, actor));
+
     }
     // ** 친구목록 불러오기
     public List<FriendDtoRes.Res> getFriends(){

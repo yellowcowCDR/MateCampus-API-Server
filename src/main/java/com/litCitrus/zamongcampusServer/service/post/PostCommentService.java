@@ -62,8 +62,11 @@ public class PostCommentService {
         postCommentRepository.save(postComment);
         // 4. 해당 상황을 실시간 알림과 NotificationList에 저장.
         // 우선 방장에게만 전달. (방장이 댓글쓰면 자신에게 알림 x)
-        // 4-1. fcm 알림
+
         if(user.getLoginId() != post.getUser().getLoginId()){
+            // 4-1. Notication에 저장
+            Notification newNotification = notificationRepository.save(Notification.CreatePostCommentNotification(post.getUser(), postComment));
+            // 4-2. fcm 알림
             String message = post.getBody().replaceAll("\n", " ");
             // 여기서 \n를 rex해서 바꿔야해. 정규식으로.
             if(message.length() > 23){
@@ -75,12 +78,12 @@ public class PostCommentService {
             FCMDto fcmDto = new FCMDto(message,
                     new HashMap<String,String>(){{
                         put("navigate","/postDetail");
+                        put("notificationId", newNotification.getId().toString());
                         put("postId", post.getId().toString());
                     }});
             List<User> postOwner = Arrays.asList(post.getUser());
             fcmHandler.sendNotification(fcmDto, "fcm_default_channel", postOwner, null);
-            // 4-2. Notication에 저장
-            notificationRepository.save(Notification.CreatePostCommentNotification(post.getUser(), postComment));
+
         }
         return postComment;
     }
