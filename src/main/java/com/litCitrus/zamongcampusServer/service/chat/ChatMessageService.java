@@ -62,20 +62,22 @@ public class ChatMessageService {
         /* 3. fcm(알림) 전송 */
         ChatRoom chatRoom = chatRoomRepository.findByRoomId(messageDto.getRoomId()).orElseThrow(ChatRoomNotFoundException::new);
         /// TODO: 만약 multi방이면 알림 전송 x. (추후 single,multi,voice 이렇게 변경해서 voice를 안 보내도록 변경해야함)
-        if(chatRoom.getType() == "multi") return;
-        List<String> chatRoomTitleAndImage = chatRoom.getCounterpartChatRoomTitleAndImage(user.getLoginId());
-        FCMDto fcmDto = new FCMDto(messageDto.getText(),
-                new HashMap<String,String>(){{
-                    put("navigate","/chatDetail");
-                    put("roomId", chatRoom.getRoomId());
-                    put("title", user.getNickname());
-                    put("imageUrl", user.getPictures().isEmpty() ? null : user.getPictures().get(0).getStored_file_path());
-                    put("type", chatRoom.getType());
+        if(chatRoom.getType() != "multi"){
+            List<String> chatRoomTitleAndImage = chatRoom.getCounterpartChatRoomTitleAndImage(user.getLoginId());
+            FCMDto fcmDto = new FCMDto(messageDto.getText(),
+                    new HashMap<String,String>(){{
+                        put("navigate","/chatDetail");
+                        put("roomId", chatRoom.getRoomId());
+                        put("title", user.getNickname());
+                        put("imageUrl", user.getPictures().isEmpty() ? null : user.getPictures().get(0).getStored_file_path());
+                        put("type", chatRoom.getType());
 
-        }});
-        List<User> recipientsExceptMe  = chatRoomRepository.findByRoomId(messageDto.getRoomId()).orElseThrow(ChatRoomNotFoundException::new)
-                .getUsers().stream().filter(recipient -> !recipient.getLoginId().equals(user.getLoginId())).collect(Collectors.toList());
-        fcmHandler.sendNotification(fcmDto, "fcm_message_channel",recipientsExceptMe, user.getNickname());
+                    }});
+            List<User> recipientsExceptMe  = chatRoomRepository.findByRoomId(messageDto.getRoomId()).orElseThrow(ChatRoomNotFoundException::new)
+                    .getUsers().stream().filter(recipient -> !recipient.getLoginId().equals(user.getLoginId())).collect(Collectors.toList());
+            fcmHandler.sendNotification(fcmDto, "fcm_message_channel",recipientsExceptMe, user.getNickname());
+        }
+
     }
 
     // READ: GET MESSAGE
