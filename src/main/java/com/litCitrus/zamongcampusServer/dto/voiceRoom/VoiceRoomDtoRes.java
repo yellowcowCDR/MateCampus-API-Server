@@ -83,7 +83,7 @@ public class VoiceRoomDtoRes {
         // exit에서 사용
         public UpdateMemberInfo(User user, String type, String newOwnerLoginId){
             this.type = type;
-            this.id = id;
+            this.id = user.getId();
             this.loginId = user.getLoginId();
             this.nickname = user.getNickname();
             this.imageUrl = user.getPictures().isEmpty() ? null : user.getPictures().get(0).getStored_file_path();
@@ -93,7 +93,7 @@ public class VoiceRoomDtoRes {
         // enter에서 사용
         public UpdateMemberInfo(User user, String type){
             this.type = type;
-            this.id = id;
+            this.id = user.getId();
             this.loginId = user.getLoginId();
             this.nickname = user.getNickname();
             this.imageUrl = user.getPictures().isEmpty() ? null : user.getPictures().get(0).getStored_file_path();
