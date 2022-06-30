@@ -70,24 +70,30 @@ public class VoiceRoomDtoRes {
     }
 
 
+    /// enter, exit에 쓰이는 멤버Info
     @Getter
     public static class UpdateMemberInfo {
         private final String type;
+        private Long id;
         private final String loginId;
         private final String nickname;
         private String imageUrl;
         private String newOwnerLoginId;
 
+        // exit에서 사용
         public UpdateMemberInfo(User user, String type, String newOwnerLoginId){
             this.type = type;
+            this.id = id;
             this.loginId = user.getLoginId();
             this.nickname = user.getNickname();
             this.imageUrl = user.getPictures().isEmpty() ? null : user.getPictures().get(0).getStored_file_path();
             this.newOwnerLoginId = newOwnerLoginId;
         }
 
+        // enter에서 사용
         public UpdateMemberInfo(User user, String type){
             this.type = type;
+            this.id = id;
             this.loginId = user.getLoginId();
             this.nickname = user.getNickname();
             this.imageUrl = user.getPictures().isEmpty() ? null : user.getPictures().get(0).getStored_file_path();
