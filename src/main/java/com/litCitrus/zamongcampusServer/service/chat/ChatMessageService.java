@@ -62,7 +62,7 @@ public class ChatMessageService {
         /* 3. fcm(알림) 전송 */
         ChatRoom chatRoom = chatRoomRepository.findByRoomId(messageDto.getRoomId()).orElseThrow(ChatRoomNotFoundException::new);
         /// TODO: 만약 multi방이면 알림 전송 x. (추후 single,multi,voice 이렇게 변경해서 voice를 안 보내도록 변경해야함)
-        if(chatRoom.getType() != "multi"){
+        if(chatRoom.getType() != "multi" || !chatRoom.getType().equals("multi")){
             List<String> chatRoomTitleAndImage = chatRoom.getCounterpartChatRoomTitleAndImage(user.getLoginId());
             FCMDto fcmDto = new FCMDto(messageDto.getText(),
                     new HashMap<String,String>(){{
