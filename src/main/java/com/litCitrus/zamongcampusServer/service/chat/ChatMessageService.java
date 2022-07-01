@@ -53,16 +53,15 @@ public class ChatMessageService {
                 .roomId(messageDto.getRoomId())
                 .messageDto(messageDtoRes).build();
 
+        ChatRoom chatRoom = chatRoomRepository.findByRoomId(messageDto.getRoomId()).orElseThrow(ChatRoomNotFoundException::new);
         /* 1. 채팅 메시지를 채팅방에 소속된 사용자에게 전송 (roomId에 메세지 publish) */
         messagingTemplate.convertAndSend("/sub/chat/room/" + messageDto.getRoomId(), roomIdMessageBundleDto);
-
-        /* 2. 채팅 메시지 디비에 저장 */
-        dynamoDBHandler.putMessage(messageDto, user.getLoginId(), currentTime);
-
-        /* 3. fcm(알림) 전송 */
-        ChatRoom chatRoom = chatRoomRepository.findByRoomId(messageDto.getRoomId()).orElseThrow(ChatRoomNotFoundException::new);
-        /// TODO: 만약 multi방이면 알림 전송 x. (추후 single,multi,voice 이렇게 변경해서 voice를 안 보내도록 변경해야함)
         if(chatRoom.getType() != "multi" || !chatRoom.getType().equals("multi")){
+            /// TODO: 만약 multi방이면 알림 전송 x. (추후 single,multi,voice 이렇게 변경해서 voice를 안 보내도록 변경해야함)
+            // 현재는 multi면 dynamo 저장도 fcm도 전송 안하도록 구현 (voice는 실시간 기반이기에)
+            /* 2. 채팅 메시지 디비에 저장 */
+            dynamoDBHandler.putMessage(messageDto, user.getLoginId(), currentTime);
+            /* 3. fcm(알림) 전송 */
             List<String> chatRoomTitleAndImage = chatRoom.getCounterpartChatRoomTitleAndImage(user.getLoginId());
             FCMDto fcmDto = new FCMDto(messageDto.getText(),
                     new HashMap<String,String>(){{
