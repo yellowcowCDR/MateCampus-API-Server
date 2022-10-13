@@ -47,4 +47,24 @@ public class ReportPostService {
         return new ReportRes(ReportStatus.SUCCESS);
 
     }
+
+//    public ReportRes reportPost(Long postId, ReportReq dto){
+//        User reporter = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
+//        Post post = postRepository.findById(postId).orElseThrow(PostNotFoundException::new);
+//        User reportedUser = post.getUser();
+//        ReportType reportType = ReportType.valueOf(dto.getReportType().toUpperCase());
+//
+//        if(reportPostRepository.existsByReporterAndPost(reporter, post)) return new ReportRes(ReportStatus.DUPLICATE);
+//
+//        reportPostRepository.save(ReportPost.CreateReportPost(reporter, post, reportType));
+//        if(reportPostRepository.countAllByPost(post) >= 5){
+//            post.changeExposed(false);
+//        }
+//        reportUserRepository.save(ReportUser.CreateReportUser(reporter, reportedUser, reportType));
+//        if(reportUserRepository.countAllByUser(reportedUser) >= 10){
+//            reportedUser.updateActivated(false);
+//        }
+//        return new ReportRes(ReportStatus.SUCCESS);
+//
+//    }
 }
