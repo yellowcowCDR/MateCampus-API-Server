@@ -44,8 +44,11 @@ public class ChatMessageService {
     @Transactional
     public void sendMessage(ChatMessageDtoReq messageDto, String token){
         /* Dynamo Db에 저장 + 메시지를 채팅방(roomId)에게 Stomp으로 전송한다 */
+        //User 검증
         Authentication authentication = tokenProvider.getAuthentication(token.substring(7));
         User user = SecurityUtil.getCurrentUsername(authentication).flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
+
+        // 채팅 메세지 객체생성
         final String currentTime = LocalDateTime.now().toString();
         ChatMessageDtoRes.MessageDto messageDtoRes = new ChatMessageDtoRes.MessageDto(messageDto.getType(), user.getLoginId(), messageDto.getText(), currentTime);
         ChatMessageDtoRes.RealTimeMessageBundle roomIdMessageBundleDto = ChatMessageDtoRes.RealTimeMessageBundle.builder()

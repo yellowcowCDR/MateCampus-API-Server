@@ -4,6 +4,7 @@ import com.litCitrus.zamongcampusServer.domain.post.Post;
 import com.litCitrus.zamongcampusServer.domain.post.PostLike;
 import com.litCitrus.zamongcampusServer.domain.user.User;
 import com.litCitrus.zamongcampusServer.dto.post.PostLikeDtoRes;
+import com.litCitrus.zamongcampusServer.dto.user.UserDtoRes;
 import com.litCitrus.zamongcampusServer.exception.post.PostNotFoundException;
 import com.litCitrus.zamongcampusServer.exception.user.UserNotFoundException;
 import com.litCitrus.zamongcampusServer.repository.post.PostLikeRepository;
@@ -14,6 +15,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -36,5 +40,29 @@ public class PostLikeService {
             postLikeRepository.deleteById(postLike.getId());
         }
         return new PostLikeDtoRes(post);
+    }
+
+    @Transactional
+    public List<UserDtoRes.ResForPostLikedUsers> likedUsers(Long postId){
+        Post post = postRepository.findById(postId).orElseThrow(PostNotFoundException::new);
+        List<PostLike> postLikeList = postLikeRepository.findAllByPost(post);
+
+
+        List<UserDtoRes.ResForPostLikedUsers> postLikedUserList = new ArrayList<UserDtoRes.ResForPostLikedUsers>();
+
+        for(PostLike postLike : postLikeList){
+            User user = postLike.getUser();
+            UserDtoRes.ResForPostLikedUsers likedUser= new UserDtoRes.ResForPostLikedUsers(
+                    user.getLoginId(),
+                    user.getNickname(),
+                    user.getCollegeCode(),
+                    user.getMajorCode(),
+                    user.getPictures()
+            );
+            postLikedUserList.add(likedUser);
+        }
+
+
+        return postLikedUserList;
     }
 }

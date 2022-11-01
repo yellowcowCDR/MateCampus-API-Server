@@ -53,23 +53,44 @@ public class PostService {
     }
 
     // READ : 전체 게시글 최신순
-    public List<PostDtoRes.Res> getAllPostOrderByRecent(String nextPageToken){
+    public List<PostDtoRes.Res> getAllPostOrderByRecent(String nextPageToken, Boolean onlyOurCollege){
         User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
         Pageable page = PageRequest.of(Integer.parseInt(nextPageToken), 10); // 0번째부터 10개의 게시글
-        return postRepository.findAllByDeletedFalseOrderByCreatedAtDesc(page).stream()
-                .filter(post -> post.isExposed())
-                .map(PostDtoRes.Res::new)
-                .collect(Collectors.toList());
+
+        List<PostDtoRes.Res> postList;
+        if(onlyOurCollege) {
+            postList = postRepository.findAllByDeletedFalseOrderByCreatedAtDesc(page).stream()
+                    .filter(post -> post.isExposed())
+                    .filter(post -> post.getUser().getCollegeCode().equals(user.getCollegeCode()))
+                    .map(PostDtoRes.Res::new)
+                    .collect(Collectors.toList());
+        }else{
+            postList = postRepository.findAllByDeletedFalseOrderByCreatedAtDesc(page).stream()
+                    .filter(post -> post.isExposed())
+                    .map(PostDtoRes.Res::new)
+                    .collect(Collectors.toList());
+        }
+        return postList;
     }
 
     // READ : 전체 게시글 인기순 (좋아요순)
-    public List<PostDtoRes.Res> getAllPostOrderByMostLike(String nextPageToken){
+    public List<PostDtoRes.Res> getAllPostOrderByMostLike(String nextPageToken, Boolean onlyOurCollege){
         User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
         Pageable page = PageRequest.of(Integer.parseInt(nextPageToken), 10); // 0번째부터 10개의 게시글
-        return postRepository.findAllByDeletedFalseOrderByLikeCountDescViewCountDescCreatedAtDesc(page).stream()
-                .filter(post -> post.isExposed())
-                .map(PostDtoRes.Res::new)
-                .collect(Collectors.toList());
+        List<PostDtoRes.Res> postList;
+        if(onlyOurCollege){
+            postList = postRepository.findAllByDeletedFalseOrderByLikeCountDescViewCountDescCreatedAtDesc(page).stream()
+                    .filter(post -> post.isExposed())
+                    .filter(post -> post.getUser().getCollegeCode().equals(user.getCollegeCode()))
+                    .map(PostDtoRes.Res::new)
+                    .collect(Collectors.toList());
+        }else{
+            postList = postRepository.findAllByDeletedFalseOrderByLikeCountDescViewCountDescCreatedAtDesc(page).stream()
+                    .filter(post -> post.isExposed())
+                    .map(PostDtoRes.Res::new)
+                    .collect(Collectors.toList());
+        }
+        return postList;
     }
 
     // READ : 자신이 쓴 게시글 최신순

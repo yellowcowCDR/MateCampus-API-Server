@@ -12,6 +12,9 @@ import java.util.List;
 public interface PostLikeRepository extends JpaRepository<PostLike, Long> {
 
     PostLike findByUserAndPost(User user, Post post);
+
     boolean existsByUserAndPost(User user, Post post);
     List<PostLike> findAllByUser(User user);
+
+    List<PostLike> findAllByPost(Post post);
 }

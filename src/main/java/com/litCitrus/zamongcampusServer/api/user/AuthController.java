@@ -5,6 +5,8 @@ import com.litCitrus.zamongcampusServer.dto.user.TokenDto;
 import com.litCitrus.zamongcampusServer.security.jwt.JwtFilter;
 import com.litCitrus.zamongcampusServer.security.jwt.TokenProvider;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,10 +29,12 @@ public class AuthController {
     private final TokenProvider tokenProvider;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
 
+    private final Logger logger = LoggerFactory.getLogger(TokenProvider.class);
+
     /* 로그인 API */
     @PostMapping
     public ResponseEntity<TokenDto> authorize(@Valid @RequestBody LoginDtoReq loginDto) {
-
+        //logger.debug("[@AuthController, authorize] loginDto: "+ loginDto);
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(loginDto.getLoginId(), loginDto.getPassword());
 
@@ -40,12 +44,15 @@ public class AuthController {
         // (원래 return 값은 UserDetails지만, 내부 값에 의해 저렇게 리턴되는 것. 원래 함수를 override한 것이기에)
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
         SecurityContextHolder.getContext().setAuthentication(authentication); // securityContext에 저장
+        //세션에 저장
 
         String jwt = tokenProvider.createToken(authentication); // jwt 토큰 생성
 
+        //HTTP 헤더에 인증방식과 JWT토큰을 추가
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add(JwtFilter.AUTHORIZATION_HEADER, "Bearer " + jwt);
 
+        //JWT 토큰과 HTTP헤더와 함께 반환
         return new ResponseEntity<>(new TokenDto(jwt), httpHeaders, HttpStatus.OK);
     }
 

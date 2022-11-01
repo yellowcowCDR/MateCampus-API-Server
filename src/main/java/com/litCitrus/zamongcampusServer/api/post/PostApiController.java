@@ -4,9 +4,12 @@ import com.litCitrus.zamongcampusServer.domain.post.Post;
 import com.litCitrus.zamongcampusServer.dto.post.PostDtoRes;
 import com.litCitrus.zamongcampusServer.dto.post.PostDtoReq;
 import com.litCitrus.zamongcampusServer.dto.post.PostIdDto;
+import com.litCitrus.zamongcampusServer.security.jwt.TokenProvider;
 import com.litCitrus.zamongcampusServer.service.post.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +25,8 @@ public class PostApiController {
 
     private final PostService postService;
 
+    private final Logger logger = LoggerFactory.getLogger(PostApiController.class);
+
     @PostMapping
     public ResponseEntity<?> createPost(
             @Valid @ModelAttribute PostDtoReq.Create postDto) throws Exception {
@@ -32,21 +37,22 @@ public class PostApiController {
     // READ : 전체 게시글 최신순
     @GetMapping("/recent")
     @ResponseStatus(HttpStatus.OK)
-    public List<PostDtoRes.Res> getAllPostOrderByRecent(@RequestParam("nextPageToken") String nextPageToken){
-        return postService.getAllPostOrderByRecent(nextPageToken);
+    public List<PostDtoRes.Res> getAllPostOrderByRecent(@RequestParam("nextPageToken") String nextPageToken, @RequestParam("onlyOurCollege")Boolean onlyOurCollege){
+        logger.debug("onlyOurCollege: "+onlyOurCollege);
+        return postService.getAllPostOrderByRecent(nextPageToken, onlyOurCollege);
     }
 
     // READ : 전체 게시글 인기순
     @GetMapping("/popular")
-    public ResponseEntity<?> getAllPostOrderByMostLike(@RequestParam("nextPageToken") String nextPageToken){
-        ResponseEntity<?> response = new ResponseEntity<>(postService.getAllPostOrderByMostLike(nextPageToken), HttpStatus.OK);
+    public ResponseEntity<?> getAllPostOrderByMostLike(@RequestParam("nextPageToken") String nextPageToken, @RequestParam("onlyOurCollege")Boolean onlyOurCollege){
+        ResponseEntity<?> response = new ResponseEntity<>(postService.getAllPostOrderByMostLike(nextPageToken, onlyOurCollege), HttpStatus.OK);
         return response;
     }
 
     // READ : 전체 게시글 추천순 (변경 필요)
     @GetMapping("/recommend")
-    public ResponseEntity<?> getAllPostOrderByRecommend(@RequestParam("nextPageToken") String nextPageToken){
-        ResponseEntity<?> response = new ResponseEntity<>(postService.getAllPostOrderByMostLike(nextPageToken), HttpStatus.OK);
+    public ResponseEntity<?> getAllPostOrderByRecommend(@RequestParam("nextPageToken") String nextPageToken, @RequestParam("onlyOurCollege")Boolean onlyOurCollege){
+        ResponseEntity<?> response = new ResponseEntity<>(postService.getAllPostOrderByMostLike(nextPageToken, onlyOurCollege), HttpStatus.OK);
         return response;
     }
 

@@ -2,13 +2,17 @@ package com.litCitrus.zamongcampusServer.dto.post;
 
 import com.litCitrus.zamongcampusServer.domain.post.Post;
 import com.litCitrus.zamongcampusServer.domain.post.PostComment;
+import com.litCitrus.zamongcampusServer.domain.post.PostLike;
 import com.litCitrus.zamongcampusServer.domain.post.PostParticipant;
+import com.litCitrus.zamongcampusServer.domain.user.CollegeCode;
 import com.litCitrus.zamongcampusServer.domain.user.User;
+import com.litCitrus.zamongcampusServer.domain.user.UserPicture;
 import lombok.Getter;
 
 import javax.xml.stream.events.Comment;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class PostDtoRes {
@@ -38,6 +42,8 @@ public class PostDtoRes {
         private final long id;
         private final String loginId;
         private final String userNickname;
+        private final CollegeCode writerCollegeCode;
+        private final String writerProfileImageUrl;
         private final String body;
         private final LocalDateTime createdAt;
         private final List<String> imageUrls;
@@ -50,6 +56,9 @@ public class PostDtoRes {
             this.id = post.getId();
             this.loginId = post.getUser().getLoginId();
             this.userNickname = post.getUser().getNickname();
+            this.writerCollegeCode = post.getUser().getCollegeCode();
+            List<UserPicture> userProfileImages = post.getUser().getPictures();
+            this.writerProfileImageUrl = (userProfileImages==null || userProfileImages.size()<=0)? "":userProfileImages.get(0).getStored_file_path();
             this.body = post.getBody();
             this.createdAt = post.getCreatedAt();
             this.imageUrls = post.getPictures().stream().map(postPicture -> postPicture.getStored_file_path()).collect(Collectors.toList());
