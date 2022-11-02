@@ -16,6 +16,8 @@ public interface PostRepository extends PagingAndSortingRepository<Post, Long> {
     List<Post> findAllByBookMarkUsers_UserAndDeletedFalse(User user);
     List<Post> findAllByBookMarkUsers_UserAndDeletedFalse(User user, Pageable page);
 
+    Post findByIdAndDeletedFalse(Long id);
+
     List<Post> findAllByUserAndDeletedFalse(User user, Pageable page); // 내 게시물
     List<Post> findAllByDeletedFalseOrderByCreatedAtDesc(Pageable page); // 최신순
     // 인기순: likeCount > viewCount > createDesc

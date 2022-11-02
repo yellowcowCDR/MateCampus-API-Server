@@ -2,6 +2,7 @@ package com.litCitrus.zamongcampusServer.dto.post;
 
 import com.litCitrus.zamongcampusServer.domain.post.PostComment;
 import com.litCitrus.zamongcampusServer.domain.post.PostParticipant;
+import com.litCitrus.zamongcampusServer.domain.user.CollegeCode;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
@@ -15,6 +16,10 @@ public class PostCommentDtoRes {
         private final long id;
         private final String loginId;
         private String userNickname;
+
+        private CollegeCode writerCollegeCode;
+
+        private String writerProfileImageUrl;
         private final String body;
         private final boolean deleted;
         private final boolean exposed;
@@ -31,6 +36,8 @@ public class PostCommentDtoRes {
             this.loginId = postComment.getUser().getLoginId();
             this.id = postComment.getId();
             this.userNickname = anonymityUser.isAuthor() ? "글쓴이" : "익명" + anonymityUser.getParticipantIndex();
+            this.writerCollegeCode = anonymityUser.getUser().getCollegeCode();
+            this.writerProfileImageUrl = anonymityUser.getUser().getPictures().get(0).getStored_file_path();
             this.body = postComment.getBody();
             this.deleted = postComment.isDeleted();
             this.exposed = postComment.isExposed();

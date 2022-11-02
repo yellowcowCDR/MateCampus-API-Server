@@ -73,7 +73,7 @@ public class PostService {
         return postList;
     }
 
-    // READ : 전체 게시글 인기순 (좋아요순)
+    // READ : 전체 게시글 ™인기순 (좋아요순)
     public List<PostDtoRes.Res> getAllPostOrderByMostLike(String nextPageToken, Boolean onlyOurCollege){
         User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
         Pageable page = PageRequest.of(Integer.parseInt(nextPageToken), 10); // 0번째부터 10개의 게시글

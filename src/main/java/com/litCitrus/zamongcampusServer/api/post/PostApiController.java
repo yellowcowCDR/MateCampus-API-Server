@@ -30,6 +30,7 @@ public class PostApiController {
     @PostMapping
     public ResponseEntity<?> createPost(
             @Valid @ModelAttribute PostDtoReq.Create postDto) throws Exception {
+        logger.debug("postDto: " + postDto);
         Post post = postService.createPost(postDto);
         return new ResponseEntity<>("정상적인 접근: 게시물 생성", HttpStatus.OK);
     }
@@ -55,6 +56,7 @@ public class PostApiController {
         ResponseEntity<?> response = new ResponseEntity<>(postService.getAllPostOrderByMostLike(nextPageToken, onlyOurCollege), HttpStatus.OK);
         return response;
     }
+
 
     // READ : 자신이 쓴 게시글 최신순
     @GetMapping("/my")
