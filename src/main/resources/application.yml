@@ -33,6 +33,8 @@ jwt:
 
 logging:
   level:
+    com.litCitrus.zamongcampusServer: debug
+
     org:
       hibernate:
         type:

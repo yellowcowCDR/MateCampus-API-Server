@@ -35,7 +35,8 @@ public class PostCommentDtoRes {
 
             this.loginId = postComment.getUser().getLoginId();
             this.id = postComment.getId();
-            this.userNickname = anonymityUser.isAuthor() ? "글쓴이" : "익명" + anonymityUser.getParticipantIndex();
+            //this.userNickname = anonymityUser.isAuthor() ? "글쓴이" : "익명" + anonymityUser.getParticipantIndex();
+            this.userNickname = anonymityUser.getUser().getNickname();
             this.writerCollegeCode = anonymityUser.getUser().getCollegeCode();
             this.writerProfileImageUrl = anonymityUser.getUser().getPictures().get(0).getStored_file_path();
             this.body = postComment.getBody();
