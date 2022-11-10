@@ -127,8 +127,6 @@ public class UserDtoRes {
             this.imageUrl  = pictures.get(0).getStored_file_path();
         }
     }
-
-
 }
 
 
