@@ -242,4 +242,7 @@ public class UserService {
         return userRepository.findByLoginId(id).isPresent();
     }
 
+    public boolean checkNicknameDuplication(String nickname) {
+        return userRepository.findByNickname(nickname).isPresent();
+    }
 }

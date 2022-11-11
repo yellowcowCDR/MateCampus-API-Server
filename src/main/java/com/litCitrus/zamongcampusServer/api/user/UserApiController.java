@@ -58,6 +58,11 @@ public class UserApiController {
         return ResponseEntity.ok(userService.checkIdDuplication(id));
     }
 
+    @GetMapping("/signup/nickname/duplication/{nickname}")
+    public ResponseEntity<Boolean> checkNicknameDuplication(@PathVariable String nickname){
+        return ResponseEntity.ok(userService.checkNicknameDuplication(nickname));
+    }
+
     @PutMapping("/user")
     public ResponseEntity<?> updateUserInfo(@Valid @ModelAttribute UserDtoReq.Update dto) throws IOException {
         return ResponseEntity.ok(userService.updateUserInfo(dto));
