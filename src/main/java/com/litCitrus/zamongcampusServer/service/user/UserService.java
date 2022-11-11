@@ -237,4 +237,9 @@ public class UserService {
         user.updateActivated(true);
         return user;
     }
+
+    public boolean checkIdDuplication(String id) {
+        return userRepository.findByLoginId(id).isPresent();
+    }
+
 }
