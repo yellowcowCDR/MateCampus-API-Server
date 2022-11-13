@@ -65,7 +65,14 @@ public class PostApiController {
         return response;
     }
 
-    // READ : 자신이 쓴 게시글 최신순
+    // READ : 타인이 쓴 게시글 최신순
+    @GetMapping("/")
+    public ResponseEntity<?> getPostOrderByUserAndRecent(@RequestParam("userId") String userId, @RequestParam("nextPageToken") String nextPageToken){
+        ResponseEntity<?> response = new ResponseEntity<>(postService.getPostOrderByAndUserAndRecent(userId, nextPageToken), HttpStatus.OK);
+        return response;
+    }
+
+    // READ : 북마크한 게시글
     @GetMapping("/bookmark")
     public ResponseEntity<?> getBookmarkPosts(@RequestParam("nextPageToken") String nextPageToken){
         ResponseEntity<?> response = new ResponseEntity<>(postService.getBookmarkPosts(nextPageToken), HttpStatus.OK);
