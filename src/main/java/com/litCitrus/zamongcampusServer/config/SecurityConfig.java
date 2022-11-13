@@ -73,8 +73,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
                 .and()
                 .authorizeRequests()
-                .antMatchers("/api/authenticate").permitAll() // 로그인 API
-                .antMatchers("/api/signup").permitAll() // 회원가입 API
+                // /api/authenticate: 로그인 API, /api/signup/**: 회원가입, 아이디 및 닉네임 중복검사
+                .antMatchers("/api/authenticate", "/api/signup/**").permitAll()
                 .anyRequest().authenticated()
 
                 .and()
