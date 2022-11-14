@@ -10,7 +10,11 @@ public class CookieUtil {
     public static final String REFRESH_TOKEN_KEY = "refresh_token";
 
     public static Optional<String> readCookie(HttpServletRequest request, String key) {
-        return Arrays.stream((request).getCookies())
+        Cookie[] cookies = request.getCookies();
+        if (cookies == null) {
+            return Optional.empty();
+        }
+        return Arrays.stream(cookies)
                 .filter(cookie -> cookie.getName().equals(key))
                 .map(Cookie::getValue)
                 .findAny();

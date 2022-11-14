@@ -41,6 +41,14 @@ public class JwtToken {
         token.expiredDate = token.created.plusYears(1);
         return token;
     }
+
+    public boolean isValid() {
+        return LocalDateTime.now().isBefore(expiredDate) && status == JwtTokenStatus.VALID;
+    }
+
+    public void expire() {
+        status = JwtTokenStatus.EXPIRED;
+    }
 }
 
 enum JwtTokenStatus {
