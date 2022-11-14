@@ -25,11 +25,10 @@ public class TokenProvider implements InitializingBean {
 
     private final Logger logger = LoggerFactory.getLogger(TokenProvider.class);
 
-    private static final String AUTHORITIES_KEY = "auth"; // 이 친구 역할?
+    private static final String AUTHORITIES_KEY = "auth"; // JWT Claim Key
 
     private final String secret; // private secret key
     private final long tokenValidityInMilliseconds; // second를 millsecond로 바꾸기 위함
-
     private Key key; // secret 키값을 base64 decode한 값
 
 
