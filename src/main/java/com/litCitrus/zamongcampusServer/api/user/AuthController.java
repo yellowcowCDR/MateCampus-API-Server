@@ -4,6 +4,7 @@ import com.litCitrus.zamongcampusServer.dto.user.LoginDtoReq;
 import com.litCitrus.zamongcampusServer.dto.user.TokenDto;
 import com.litCitrus.zamongcampusServer.security.jwt.JwtFilter;
 import com.litCitrus.zamongcampusServer.security.jwt.TokenProvider;
+import com.litCitrus.zamongcampusServer.util.CookieUtil;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +27,7 @@ import javax.validation.Valid;
 @RequestMapping("/api/authenticate")
 @RequiredArgsConstructor
 public class AuthController {
+
     private final TokenProvider tokenProvider;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
 
@@ -44,13 +46,15 @@ public class AuthController {
         // (원래 return 값은 UserDetails지만, 내부 값에 의해 저렇게 리턴되는 것. 원래 함수를 override한 것이기에)
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
         SecurityContextHolder.getContext().setAuthentication(authentication); // securityContext에 저장
-        //세션에 저장
 
         String jwt = tokenProvider.createToken(authentication); // jwt 토큰 생성
+        String refreshToken = tokenProvider.createRefreshToken(jwt, loginDto.getLoginId());
 
         //HTTP 헤더에 인증방식과 JWT토큰을 추가
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add(JwtFilter.AUTHORIZATION_HEADER, "Bearer " + jwt);
+        //HttpOnly: XSS 공격방지, 31536000 sec = 1 year
+        httpHeaders.add("Set-Cookie", CookieUtil.REFRESH_TOKEN_KEY + "=" + refreshToken + "; HttpOnly; Max-Age=31536000");
 
         //JWT 토큰과 HTTP헤더와 함께 반환
         return new ResponseEntity<>(new TokenDto(jwt), httpHeaders, HttpStatus.OK);

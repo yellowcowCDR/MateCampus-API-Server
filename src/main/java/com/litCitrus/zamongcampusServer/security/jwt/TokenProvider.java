@@ -1,5 +1,8 @@
 package com.litCitrus.zamongcampusServer.security.jwt;
 
+import com.litCitrus.zamongcampusServer.domain.jwt.JwtToken;
+import com.litCitrus.zamongcampusServer.repository.jwt.JwtTokenRepository;
+import com.litCitrus.zamongcampusServer.repository.user.UserRepository;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -18,6 +21,7 @@ import java.security.Key;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Component
@@ -31,12 +35,18 @@ public class TokenProvider implements InitializingBean {
     private final long tokenValidityInMilliseconds; // second를 millsecond로 바꾸기 위함
     private Key key; // secret 키값을 base64 decode한 값
 
+    private JwtTokenRepository jwtTokenRepository;
+    private UserRepository userRepository;
 
     public TokenProvider(
             @Value("${jwt.secret}") String secret,
-            @Value("${jwt.token-validity-in-seconds}") long tokenValidityInSeconds) {
+            @Value("${jwt.token-validity-in-seconds}") long tokenValidityInSeconds,
+            UserRepository userRepository,
+            JwtTokenRepository jwtTokenRepository) {
         this.secret = secret;
         this.tokenValidityInMilliseconds = tokenValidityInSeconds * 1000;
+        this.userRepository = userRepository;
+        this.jwtTokenRepository = jwtTokenRepository;
     }
 
     @Override
@@ -106,5 +116,19 @@ public class TokenProvider implements InitializingBean {
             logger.info("JWT 토큰이 잘못되었습니다.");
         }
         return false;
+    }
+
+    public String createRefreshToken(String accessToken, String id) {
+        String refreshToken;
+
+        do {
+             refreshToken = UUID.randomUUID().toString();
+        } while (jwtTokenRepository.findByRefreshToken(refreshToken).isPresent());
+
+        com.litCitrus.zamongcampusServer.domain.user.User user =
+                userRepository.findByLoginId(id).orElseThrow(NullPointerException::new);
+        JwtToken token = JwtToken.createJwtToken(refreshToken, user, accessToken);
+        jwtTokenRepository.save(token);
+        return refreshToken;
     }
 }
