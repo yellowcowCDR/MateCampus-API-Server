@@ -1,10 +1,12 @@
 package com.litCitrus.zamongcampusServer.security.jwt;
 
-import lombok.RequiredArgsConstructor;
+import com.litCitrus.zamongcampusServer.repository.jwt.RefreshTokenRepository;
+import com.litCitrus.zamongcampusServer.util.CookieAndHeaderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.GenericFilterBean;
 
@@ -19,16 +21,17 @@ import java.io.IOException;
  * resolveToken은 header의 token을 꺼내는 역할
  * doFilter는 jwt 토큰 인증 정보를 현재 실행중인 스레드(securityContext, 41줄)에 저장.
  */
+@Component
 public class JwtFilter extends GenericFilterBean {
 
     private static final Logger logger = LoggerFactory.getLogger(JwtFilter.class);
 
-    public static final String AUTHORIZATION_HEADER = "Authorization";
+    private final TokenProvider tokenProvider;
+    private final RefreshTokenRepository refreshTokenRepository;
 
-    private TokenProvider tokenProvider;
-
-    public JwtFilter(TokenProvider tokenProvider) {
+    public JwtFilter(TokenProvider tokenProvider, RefreshTokenRepository refreshTokenRepository) {
         this.tokenProvider = tokenProvider;
+        this.refreshTokenRepository = refreshTokenRepository;
     }
 
     /**
