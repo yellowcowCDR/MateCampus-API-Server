@@ -137,16 +137,29 @@ public class TokenProvider implements InitializingBean {
         String refreshToken = createRefreshToken(accessToken, id);
         return getHeaderForRefreshToken(refreshToken);
     }
+
+    public HttpHeaders updateRefreshTokenAndGetHeader(RefreshToken jwtToken, String accessToken) {
+        jwtToken.expire();
+        String refreshToken = updateRefreshToken(jwtToken, accessToken);
+        return getHeaderForRefreshToken(refreshToken);
+    }
+
+    private String updateRefreshToken(RefreshToken jwtToken, String accessToken) {
+        jwtToken.expire();
+        return createRefreshToken(accessToken, jwtToken.getUser().getLoginId());
+    }
+
+    private String createRefreshToken(String accessToken, String id) {
         String refreshToken;
 
         do {
              refreshToken = UUID.randomUUID().toString();
-        } while (jwtTokenRepository.findByRefreshToken(refreshToken).isPresent());
+        } while (refreshTokenRepository.findByRefreshToken(refreshToken).isPresent());
 
         com.litCitrus.zamongcampusServer.domain.user.User user =
                 userRepository.findByLoginId(id).orElseThrow(NullPointerException::new);
-        JwtToken token = JwtToken.createJwtToken(refreshToken, user, accessToken);
-        jwtTokenRepository.save(token);
+        RefreshToken token = RefreshToken.createJwtToken(refreshToken, user, accessToken);
+        refreshTokenRepository.save(token);
         return refreshToken;
     }
 

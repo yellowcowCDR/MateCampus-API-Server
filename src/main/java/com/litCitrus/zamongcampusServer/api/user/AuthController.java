@@ -1,10 +1,10 @@
 package com.litCitrus.zamongcampusServer.api.user;
 
+import com.litCitrus.zamongcampusServer.domain.jwt.RefreshToken;
 import com.litCitrus.zamongcampusServer.dto.user.LoginDtoReq;
 import com.litCitrus.zamongcampusServer.dto.user.TokenDto;
-import com.litCitrus.zamongcampusServer.security.jwt.JwtFilter;
+import com.litCitrus.zamongcampusServer.repository.jwt.RefreshTokenRepository;
 import com.litCitrus.zamongcampusServer.security.jwt.TokenProvider;
-import com.litCitrus.zamongcampusServer.util.CookieUtil;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +20,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+
+import static com.litCitrus.zamongcampusServer.util.CookieAndHeaderUtil.*;
 
 
 @RestController
@@ -30,6 +33,7 @@ public class AuthController {
 
     private final TokenProvider tokenProvider;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     private final Logger logger = LoggerFactory.getLogger(TokenProvider.class);
 
@@ -65,5 +69,27 @@ public class AuthController {
     @PostMapping("/checkTokenValidation")
     public ResponseEntity<?> checkTokenValidation(){
         return new ResponseEntity<>(true, HttpStatus.OK);
+    }
+
+    @PostMapping("/refresh/jwt-token")
+    public ResponseEntity refreshAccessToken(HttpServletRequest request){
+        HttpHeaders httpHeaders;
+        String jwt;
+        try {
+            String refreshToken = readCookie(request, REFRESH_TOKEN_KEY)
+                    .orElseThrow(NullPointerException::new);
+            RefreshToken token = refreshTokenRepository.findByRefreshTokenAndAccessToken(refreshToken, resolveToken(request).orElse(""))
+                    .orElseThrow(NullPointerException::new);
+            if(!token.isValid()) {
+                throw new Exception("토큰이 유효하지 않습니다.");
+            }
+
+            jwt = tokenProvider.createToken(token.getUser());
+            httpHeaders = tokenProvider.updateRefreshTokenAndGetHeader(token, jwt);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+        return new ResponseEntity<>(jwt, httpHeaders, HttpStatus.OK);
     }
 }
