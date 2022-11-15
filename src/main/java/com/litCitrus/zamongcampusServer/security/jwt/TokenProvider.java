@@ -1,8 +1,10 @@
 package com.litCitrus.zamongcampusServer.security.jwt;
 
-import com.litCitrus.zamongcampusServer.domain.jwt.JwtToken;
-import com.litCitrus.zamongcampusServer.repository.jwt.JwtTokenRepository;
+import com.litCitrus.zamongcampusServer.domain.jwt.RefreshToken;
+import com.litCitrus.zamongcampusServer.domain.user.Authority;
+import com.litCitrus.zamongcampusServer.repository.jwt.RefreshTokenRepository;
 import com.litCitrus.zamongcampusServer.repository.user.UserRepository;
+import com.litCitrus.zamongcampusServer.util.CookieAndHeaderUtil;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -10,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -35,18 +38,18 @@ public class TokenProvider implements InitializingBean {
     private final long tokenValidityInMilliseconds; // second를 millsecond로 바꾸기 위함
     private Key key; // secret 키값을 base64 decode한 값
 
-    private JwtTokenRepository jwtTokenRepository;
+    private RefreshTokenRepository refreshTokenRepository;
     private UserRepository userRepository;
 
     public TokenProvider(
             @Value("${jwt.secret}") String secret,
             @Value("${jwt.token-validity-in-seconds}") long tokenValidityInSeconds,
             UserRepository userRepository,
-            JwtTokenRepository jwtTokenRepository) {
+            RefreshTokenRepository refreshTokenRepository) {
         this.secret = secret;
         this.tokenValidityInMilliseconds = tokenValidityInSeconds * 1000;
         this.userRepository = userRepository;
-        this.jwtTokenRepository = jwtTokenRepository;
+        this.refreshTokenRepository = refreshTokenRepository;
     }
 
     @Override
@@ -118,7 +121,10 @@ public class TokenProvider implements InitializingBean {
         return false;
     }
 
-    public String createRefreshToken(String accessToken, String id) {
+    public HttpHeaders createRefreshTokenAndGetHeader(String accessToken, String id) {
+        String refreshToken = createRefreshToken(accessToken, id);
+        return getHeaderForRefreshToken(refreshToken);
+    }
         String refreshToken;
 
         do {
@@ -130,5 +136,12 @@ public class TokenProvider implements InitializingBean {
         JwtToken token = JwtToken.createJwtToken(refreshToken, user, accessToken);
         jwtTokenRepository.save(token);
         return refreshToken;
+    }
+
+    private HttpHeaders getHeaderForRefreshToken(String refreshToken) {
+        HttpHeaders httpHeaders = new HttpHeaders();
+        //HttpOnly: XSS 공격방지, 31536000 sec = 1 year
+        httpHeaders.add("Set-Cookie", CookieAndHeaderUtil.REFRESH_TOKEN_KEY + "=" + refreshToken + "; HttpOnly; Max-Age=31536000; Path=/");
+        return httpHeaders;
     }
 }

@@ -48,13 +48,10 @@ public class AuthController {
         SecurityContextHolder.getContext().setAuthentication(authentication); // securityContext에 저장
 
         String jwt = tokenProvider.createToken(authentication); // jwt 토큰 생성
-        String refreshToken = tokenProvider.createRefreshToken(jwt, loginDto.getLoginId());
+        HttpHeaders httpHeaders = tokenProvider.createRefreshTokenAndGetHeader(jwt, loginDto.getLoginId());
 
         //HTTP 헤더에 인증방식과 JWT토큰을 추가
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.add(JwtFilter.AUTHORIZATION_HEADER, "Bearer " + jwt);
-        //HttpOnly: XSS 공격방지, 31536000 sec = 1 year
-        httpHeaders.add("Set-Cookie", CookieUtil.REFRESH_TOKEN_KEY + "=" + refreshToken + "; HttpOnly; Max-Age=31536000");
+        httpHeaders.add(AUTHORIZATION_HEADER, "Bearer " + jwt);
 
         //JWT 토큰과 HTTP헤더와 함께 반환
         return new ResponseEntity<>(new TokenDto(jwt), httpHeaders, HttpStatus.OK);
