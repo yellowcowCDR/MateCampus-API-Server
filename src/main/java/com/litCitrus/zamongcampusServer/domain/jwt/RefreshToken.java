@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class JwtToken {
+public class RefreshToken {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
@@ -31,8 +31,8 @@ public class JwtToken {
 
     LocalDateTime expiredDate;
 
-    public static JwtToken createJwtToken(String refreshToken, User user, String accessToken) {
-        JwtToken token = new JwtToken();
+    public static RefreshToken createJwtToken(String refreshToken, User user, String accessToken) {
+        RefreshToken token = new RefreshToken();
         token.refreshToken = refreshToken;
         token.user = user;
         token.accessToken = accessToken;
