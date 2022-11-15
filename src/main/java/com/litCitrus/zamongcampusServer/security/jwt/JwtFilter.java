@@ -41,14 +41,24 @@ public class JwtFilter extends GenericFilterBean {
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
             throws IOException, ServletException {
         HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest;
-        String jwt = resolveToken(httpServletRequest);
         String requestURI = httpServletRequest.getRequestURI();
+        String jwt = CookieAndHeaderUtil.resolveToken(httpServletRequest).orElse(null);
 
-        if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
-            // token 값이 정상인지 확
-            Authentication authentication = tokenProvider.getAuthentication(jwt);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-            logger.debug("Security Context에 '{}' 인증 정보를 저장했습니다, uri: {}", authentication.getName(), requestURI);
+        if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) { // token 값이 정상인지 확인
+            logger.debug("jwt가 유효합니다.");
+
+            CookieAndHeaderUtil.readCookie((HttpServletRequest) servletRequest, CookieAndHeaderUtil.REFRESH_TOKEN_KEY)
+                    .ifPresent(refreshToken -> {
+                        refreshTokenRepository.findByRefreshTokenAndAccessToken(refreshToken, jwt)
+                                .ifPresent(jwtToken -> {
+                                            if (jwtToken.isValid()) {
+                                                Authentication authentication = tokenProvider.getAuthentication(jwt);
+                                                SecurityContextHolder.getContext().setAuthentication(authentication);
+                                                logger.debug("Security Context에 '{}' 인증 정보를 저장했습니다, uri: {}", authentication.getName(), requestURI);
+                                            }
+                                        }
+                                );
+                    });
         } else {
             logger.debug("유효한 JWT 토큰이 없습니다, uri: {}", requestURI);
         }
