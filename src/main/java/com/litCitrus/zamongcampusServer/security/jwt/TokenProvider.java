@@ -59,19 +59,31 @@ public class TokenProvider implements InitializingBean {
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }
 
-    /**
-     * 만료시간과 키로 token를 만든다.
-     */
     public String createToken(Authentication authentication) {
         String authorities = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
 
+        return createToken(authentication.getName(), authorities);
+    }
+
+    public String createToken(com.litCitrus.zamongcampusServer.domain.user.User user) {
+        String authorities = user.getAuthorities().stream()
+                .map(Authority::getAuthorityName)
+                .collect(Collectors.joining(","));
+
+        return createToken(user.getLoginId(), authorities);
+    }
+
+    /**
+     * 만료시간과 키로 token를 만든다.
+     */
+    private String createToken(String subject, String authorities) {
         long now = (new Date()).getTime();
         Date validity = new Date(now + this.tokenValidityInMilliseconds);
 
         return Jwts.builder()
-                .setSubject(authentication.getName())
+                .setSubject(subject)
                 .claim(AUTHORITIES_KEY, authorities)
                 .signWith(key, SignatureAlgorithm.HS512)
                 .setExpiration(validity)
