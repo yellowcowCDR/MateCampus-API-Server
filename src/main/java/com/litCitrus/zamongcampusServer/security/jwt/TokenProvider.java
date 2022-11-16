@@ -1,5 +1,12 @@
 package com.litCitrus.zamongcampusServer.security.jwt;
 
+import com.litCitrus.zamongcampusServer.domain.jwt.RefreshToken;
+import com.litCitrus.zamongcampusServer.domain.user.Authority;
+import com.litCitrus.zamongcampusServer.domain.user.User;
+import com.litCitrus.zamongcampusServer.repository.jwt.RefreshTokenRepository;
+import com.litCitrus.zamongcampusServer.repository.user.UserRepository;
+import com.litCitrus.zamongcampusServer.security.CustomUserDetails;
+import com.litCitrus.zamongcampusServer.util.CookieAndHeaderUtil;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -7,17 +14,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Key;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Component
@@ -25,19 +35,24 @@ public class TokenProvider implements InitializingBean {
 
     private final Logger logger = LoggerFactory.getLogger(TokenProvider.class);
 
-    private static final String AUTHORITIES_KEY = "auth"; // 이 친구 역할?
+    private static final String AUTHORITIES_KEY = "auth"; // JWT Claim Key
 
     private final String secret; // private secret key
     private final long tokenValidityInMilliseconds; // second를 millsecond로 바꾸기 위함
-
     private Key key; // secret 키값을 base64 decode한 값
 
+    private RefreshTokenRepository refreshTokenRepository;
+    private UserRepository userRepository;
 
     public TokenProvider(
             @Value("${jwt.secret}") String secret,
-            @Value("${jwt.token-validity-in-seconds}") long tokenValidityInSeconds) {
+            @Value("${jwt.token-validity-in-seconds}") long tokenValidityInSeconds,
+            UserRepository userRepository,
+            RefreshTokenRepository refreshTokenRepository) {
         this.secret = secret;
         this.tokenValidityInMilliseconds = tokenValidityInSeconds * 1000;
+        this.userRepository = userRepository;
+        this.refreshTokenRepository = refreshTokenRepository;
     }
 
     @Override
@@ -47,19 +62,31 @@ public class TokenProvider implements InitializingBean {
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }
 
-    /**
-     * 만료시간과 키로 token를 만든다.
-     */
     public String createToken(Authentication authentication) {
         String authorities = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
 
+        return createToken(authentication.getName(), authorities);
+    }
+
+    public String createToken(com.litCitrus.zamongcampusServer.domain.user.User user) {
+        String authorities = user.getAuthorities().stream()
+                .map(Authority::getAuthorityName)
+                .collect(Collectors.joining(","));
+
+        return createToken(user.getLoginId(), authorities);
+    }
+
+    /**
+     * 만료시간과 키로 token를 만든다.
+     */
+    private String createToken(String subject, String authorities) {
         long now = (new Date()).getTime();
         Date validity = new Date(now + this.tokenValidityInMilliseconds);
 
         return Jwts.builder()
-                .setSubject(authentication.getName())
+                .setSubject(subject)
                 .claim(AUTHORITIES_KEY, authorities)
                 .signWith(key, SignatureAlgorithm.HS512)
                 .setExpiration(validity)
@@ -83,7 +110,8 @@ public class TokenProvider implements InitializingBean {
                         .map(SimpleGrantedAuthority::new)
                         .collect(Collectors.toList());
 
-        User principal = new User(claims.getSubject(), "", authorities); // security core의 user (not domain)
+        User user = userRepository.findByLoginId(claims.getSubject()).orElseThrow(NullPointerException::new);
+        CustomUserDetails principal = new CustomUserDetails(claims.getSubject(), "", authorities, user); // security core의 user (not domain)
 
         return new UsernamePasswordAuthenticationToken(principal, token, authorities);
     }
@@ -107,5 +135,47 @@ public class TokenProvider implements InitializingBean {
             logger.info("JWT 토큰이 잘못되었습니다.");
         }
         return false;
+    }
+
+    public HttpHeaders createRefreshTokenAndGetHeader(String accessToken) {
+        String refreshToken = createRefreshToken(accessToken);
+        return getHeaderForRefreshToken(refreshToken);
+    }
+
+    @Transactional
+    public HttpHeaders updateRefreshTokenAndGetHeader(String refreshToken, String accessToken, String newAccessToken) throws Exception {
+        RefreshToken token = refreshTokenRepository.findByRefreshTokenAndAccessToken(refreshToken, accessToken)
+                .orElseThrow(NullPointerException::new);
+        if(!token.isValid()) {
+            throw new Exception("토큰이 유효하지 않습니다.");
+        }
+
+        String updatedToken = updateRefreshToken(token, newAccessToken);
+        return getHeaderForRefreshToken(updatedToken);
+    }
+
+    private String updateRefreshToken(RefreshToken jwtToken, String accessToken) {
+        jwtToken.expire();
+        return createRefreshToken(accessToken);
+    }
+
+    private String createRefreshToken(String accessToken) {
+        String refreshToken;
+
+        do {
+             refreshToken = UUID.randomUUID().toString();
+        } while (refreshTokenRepository.findByRefreshToken(refreshToken).isPresent());
+
+        CustomUserDetails principal = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        RefreshToken token = RefreshToken.createJwtToken(refreshToken, principal.getUser(), accessToken);
+        refreshTokenRepository.save(token);
+        return refreshToken;
+    }
+
+    private HttpHeaders getHeaderForRefreshToken(String refreshToken) {
+        HttpHeaders httpHeaders = new HttpHeaders();
+        //HttpOnly: XSS 공격방지, 31536000 sec = 1 year
+        httpHeaders.add("Set-Cookie", CookieAndHeaderUtil.REFRESH_TOKEN_KEY + "=" + refreshToken + "; HttpOnly; Max-Age=31536000; Path=/");
+        return httpHeaders;
     }
 }

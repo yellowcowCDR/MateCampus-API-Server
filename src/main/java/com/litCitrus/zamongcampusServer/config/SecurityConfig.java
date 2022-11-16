@@ -1,9 +1,6 @@
 package com.litCitrus.zamongcampusServer.config;
 
-import com.litCitrus.zamongcampusServer.security.jwt.JwtAccessDeniedHandler;
-import com.litCitrus.zamongcampusServer.security.jwt.JwtAuthenticationEntryPoint;
-import com.litCitrus.zamongcampusServer.security.jwt.JwtSecurityConfig;
-import com.litCitrus.zamongcampusServer.security.jwt.TokenProvider;
+import com.litCitrus.zamongcampusServer.security.jwt.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -24,9 +21,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 @RequiredArgsConstructor
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
-    private final TokenProvider tokenProvider;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
+    private final JwtSecurityConfig jwtSecurityConfig;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -74,11 +71,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .authorizeRequests()
                 // /api/authenticate: 로그인 API, /api/signup/**: 회원가입, 아이디 및 닉네임 중복검사
-                .antMatchers("/api/authenticate", "/api/signup/**").permitAll()
+                .antMatchers("/api/authenticate", "/api/authenticate/refresh/jwt-token", "/api/signup/**").permitAll()
                 .anyRequest().authenticated()
 
                 .and()
-                .apply(new JwtSecurityConfig(tokenProvider));
+                .apply(jwtSecurityConfig);
     }
 
 }
