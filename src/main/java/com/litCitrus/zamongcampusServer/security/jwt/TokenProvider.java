@@ -21,6 +21,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Key;
 import java.util.Arrays;
@@ -141,15 +142,21 @@ public class TokenProvider implements InitializingBean {
         return getHeaderForRefreshToken(refreshToken);
     }
 
-    public HttpHeaders updateRefreshTokenAndGetHeader(RefreshToken jwtToken, String accessToken) {
-        jwtToken.expire();
-        String refreshToken = updateRefreshToken(jwtToken, accessToken);
-        return getHeaderForRefreshToken(refreshToken);
+    @Transactional
+    public HttpHeaders updateRefreshTokenAndGetHeader(String refreshToken, String accessToken, String newAccessToken) throws Exception {
+        RefreshToken token = refreshTokenRepository.findByRefreshTokenAndAccessToken(refreshToken, accessToken)
+                .orElseThrow(NullPointerException::new);
+        if(!token.isValid()) {
+            throw new Exception("토큰이 유효하지 않습니다.");
+        }
+
+        String updatedToken = updateRefreshToken(token, newAccessToken);
+        return getHeaderForRefreshToken(updatedToken);
     }
 
     private String updateRefreshToken(RefreshToken jwtToken, String accessToken) {
         jwtToken.expire();
-        return createRefreshToken(accessToken, jwtToken.getUser().getLoginId());
+        return createRefreshToken(accessToken);
     }
 
     private String createRefreshToken(String accessToken) {

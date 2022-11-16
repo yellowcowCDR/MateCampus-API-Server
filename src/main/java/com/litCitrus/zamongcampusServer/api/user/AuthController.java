@@ -71,22 +71,19 @@ public class AuthController {
     @PostMapping("/refresh/jwt-token")
     public ResponseEntity refreshAccessToken(HttpServletRequest request){
         HttpHeaders httpHeaders;
-        String jwt;
+        String newAccessToken;
         try {
             String refreshToken = readCookie(request, REFRESH_TOKEN_KEY)
                     .orElseThrow(NullPointerException::new);
-            RefreshToken token = refreshTokenRepository.findByRefreshTokenAndAccessToken(refreshToken, resolveToken(request).orElse(""))
-                    .orElseThrow(NullPointerException::new);
-            if(!token.isValid()) {
-                throw new Exception("토큰이 유효하지 않습니다.");
-            }
+            String accessToken = resolveToken(request).orElse("");
 
-            jwt = tokenProvider.createToken(token.getUser());
-            httpHeaders = tokenProvider.updateRefreshTokenAndGetHeader(token, jwt);
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            newAccessToken = tokenProvider.createToken(authentication);
+            httpHeaders = tokenProvider.updateRefreshTokenAndGetHeader(refreshToken, accessToken, newAccessToken);
         } catch (Exception e) {
             e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
-        return new ResponseEntity<>(jwt, httpHeaders, HttpStatus.OK);
+        return new ResponseEntity<>(new TokenDto(newAccessToken), httpHeaders, HttpStatus.OK);
     }
 }
