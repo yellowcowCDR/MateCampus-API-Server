@@ -52,7 +52,7 @@ public class AuthController {
         SecurityContextHolder.getContext().setAuthentication(authentication); // securityContext에 저장
 
         String jwt = tokenProvider.createToken(authentication); // jwt 토큰 생성
-        HttpHeaders httpHeaders = tokenProvider.createRefreshTokenAndGetHeader(jwt, loginDto.getLoginId());
+        HttpHeaders httpHeaders = tokenProvider.createRefreshTokenAndGetHeader(jwt);
 
         //HTTP 헤더에 인증방식과 JWT토큰을 추가
         httpHeaders.add(AUTHORIZATION_HEADER, "Bearer " + jwt);

@@ -136,8 +136,8 @@ public class TokenProvider implements InitializingBean {
         return false;
     }
 
-    public HttpHeaders createRefreshTokenAndGetHeader(String accessToken, String id) {
-        String refreshToken = createRefreshToken(accessToken, id);
+    public HttpHeaders createRefreshTokenAndGetHeader(String accessToken) {
+        String refreshToken = createRefreshToken(accessToken);
         return getHeaderForRefreshToken(refreshToken);
     }
 
@@ -152,16 +152,15 @@ public class TokenProvider implements InitializingBean {
         return createRefreshToken(accessToken, jwtToken.getUser().getLoginId());
     }
 
-    private String createRefreshToken(String accessToken, String id) {
+    private String createRefreshToken(String accessToken) {
         String refreshToken;
 
         do {
              refreshToken = UUID.randomUUID().toString();
         } while (refreshTokenRepository.findByRefreshToken(refreshToken).isPresent());
 
-        com.litCitrus.zamongcampusServer.domain.user.User user =
-                userRepository.findByLoginId(id).orElseThrow(NullPointerException::new);
-        RefreshToken token = RefreshToken.createJwtToken(refreshToken, user, accessToken);
+        CustomUserDetails principal = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        RefreshToken token = RefreshToken.createJwtToken(refreshToken, principal.getUser(), accessToken);
         refreshTokenRepository.save(token);
         return refreshToken;
     }
