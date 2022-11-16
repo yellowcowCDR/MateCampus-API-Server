@@ -2,8 +2,10 @@ package com.litCitrus.zamongcampusServer.security.jwt;
 
 import com.litCitrus.zamongcampusServer.domain.jwt.RefreshToken;
 import com.litCitrus.zamongcampusServer.domain.user.Authority;
+import com.litCitrus.zamongcampusServer.domain.user.User;
 import com.litCitrus.zamongcampusServer.repository.jwt.RefreshTokenRepository;
 import com.litCitrus.zamongcampusServer.repository.user.UserRepository;
+import com.litCitrus.zamongcampusServer.security.CustomUserDetails;
 import com.litCitrus.zamongcampusServer.util.CookieAndHeaderUtil;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
@@ -17,7 +19,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
@@ -107,7 +109,8 @@ public class TokenProvider implements InitializingBean {
                         .map(SimpleGrantedAuthority::new)
                         .collect(Collectors.toList());
 
-        User principal = new User(claims.getSubject(), "", authorities); // security core의 user (not domain)
+        User user = userRepository.findByLoginId(claims.getSubject()).orElseThrow(NullPointerException::new);
+        CustomUserDetails principal = new CustomUserDetails(claims.getSubject(), "", authorities, user); // security core의 user (not domain)
 
         return new UsernamePasswordAuthenticationToken(principal, token, authorities);
     }
