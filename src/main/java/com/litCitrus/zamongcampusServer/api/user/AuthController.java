@@ -1,9 +1,7 @@
 package com.litCitrus.zamongcampusServer.api.user;
 
-import com.litCitrus.zamongcampusServer.domain.jwt.RefreshToken;
 import com.litCitrus.zamongcampusServer.dto.user.LoginDtoReq;
 import com.litCitrus.zamongcampusServer.dto.user.TokenDto;
-import com.litCitrus.zamongcampusServer.repository.jwt.RefreshTokenRepository;
 import com.litCitrus.zamongcampusServer.security.jwt.TokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -33,7 +31,6 @@ public class AuthController {
 
     private final TokenProvider tokenProvider;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
-    private final RefreshTokenRepository refreshTokenRepository;
 
     private final Logger logger = LoggerFactory.getLogger(TokenProvider.class);
 
