@@ -15,10 +15,10 @@ public interface ReportRepository extends JpaRepository<Report, Long> {
             +"and (:#{#searchInfo.reportedUserId} is null or r.reportedUser.loginId = :#{#searchInfo.reportedUserId})"
             +"and (:#{#searchInfo.targetUserId} is null or r.targetUser.loginId = :#{#searchInfo.targetUserId})"
             +"and (:#{#searchInfo.reportContent} is null or r.reportContent LIKE %:#{#searchInfo.reportContent}%)"
-            +"and (:#{#searchInfo.createdDateStart} is null or r.createdAt >= :#{#searchInfo.createdDateStart})"
-            +"and (:#{#searchInfo.createdDateEnd} is null or r.createdAt <= :#{#searchInfo.createdDateEnd})"
+            +"and (:#{#searchInfo._createdDateStart} is null or r.createdAt >= :#{#searchInfo._createdDateStart})"
+            +"and (:#{#searchInfo._createdDateEnd} is null or r.createdAt <= :#{#searchInfo._createdDateEnd})"
     )
     List<Report> findAllByReportCategoryAndReportedUserIdAndTargetUserIdAndReportContentAndCreatedAtAfterAndCreatedAtBefore(
-           @Param("searchInfo")ReportReq.Search searchInfo
+            @Param("searchInfo")ReportReq.Search searchInfo
     );
 }
