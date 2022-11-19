@@ -1,13 +1,8 @@
 package com.litCitrus.zamongcampusServer.dto.report;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.litCitrus.zamongcampusServer.domain.report.ReportCategory;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.stereotype.Service;
-
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 @Getter
@@ -30,10 +25,10 @@ public class ReportReq {
         private String targetUserId;
         private String reportContent;
         private ReportCategory reportCategory;
-        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "Asia/Seoul")
-        private LocalDateTime createdDateStart;
-        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "Asia/Seoul")
-        private LocalDateTime createdDateEnd;
+        private String createdDateStart;
+        private String createdDateEnd;
+        private LocalDateTime _createdDateStart;
+        private LocalDateTime _createdDateEnd;
     }
 
 }
