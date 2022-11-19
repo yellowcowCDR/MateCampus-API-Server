@@ -1,6 +1,7 @@
 package com.litCitrus.zamongcampusServer.security.jwt;
 
-import lombok.RequiredArgsConstructor;
+import com.litCitrus.zamongcampusServer.repository.jwt.RefreshTokenRepository;
+import com.litCitrus.zamongcampusServer.util.CookieAndHeaderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
@@ -23,12 +24,12 @@ public class JwtFilter extends GenericFilterBean {
 
     private static final Logger logger = LoggerFactory.getLogger(JwtFilter.class);
 
-    public static final String AUTHORIZATION_HEADER = "Authorization";
+    private final TokenProvider tokenProvider;
+    private final RefreshTokenRepository refreshTokenRepository;
 
-    private TokenProvider tokenProvider;
-
-    public JwtFilter(TokenProvider tokenProvider) {
+    public JwtFilter(TokenProvider tokenProvider, RefreshTokenRepository refreshTokenRepository) {
         this.tokenProvider = tokenProvider;
+        this.refreshTokenRepository = refreshTokenRepository;
     }
 
     /**
@@ -38,29 +39,28 @@ public class JwtFilter extends GenericFilterBean {
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
             throws IOException, ServletException {
         HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest;
-        String jwt = resolveToken(httpServletRequest);
         String requestURI = httpServletRequest.getRequestURI();
+        String jwt = CookieAndHeaderUtil.resolveToken(httpServletRequest).orElse(null);
 
-        if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
-            // token 값이 정상인지 확
-            Authentication authentication = tokenProvider.getAuthentication(jwt);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-            logger.debug("Security Context에 '{}' 인증 정보를 저장했습니다, uri: {}", authentication.getName(), requestURI);
+        if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) { // token 값이 정상인지 확인
+            logger.debug("jwt가 유효합니다.");
+
+            CookieAndHeaderUtil.readCookie((HttpServletRequest) servletRequest, CookieAndHeaderUtil.REFRESH_TOKEN_KEY)
+                    .ifPresent(refreshToken -> {
+                        refreshTokenRepository.findByRefreshTokenAndAccessToken(refreshToken, jwt)
+                                .ifPresent(jwtToken -> {
+                                            if (jwtToken.isValid()) {
+                                                Authentication authentication = tokenProvider.getAuthentication(jwt);
+                                                SecurityContextHolder.getContext().setAuthentication(authentication);
+                                                logger.debug("Security Context에 '{}' 인증 정보를 저장했습니다, uri: {}", authentication.getName(), requestURI);
+                                            }
+                                        }
+                                );
+                    });
         } else {
             logger.debug("유효한 JWT 토큰이 없습니다, uri: {}", requestURI);
         }
 
         filterChain.doFilter(servletRequest, servletResponse);
-    }
-
-    /**
-     * resolveToken은 request header의 token을 꺼내는 역할
-     */
-    private String resolveToken(HttpServletRequest request) {
-        String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
-        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring(7);
-        }
-        return null;
     }
 }

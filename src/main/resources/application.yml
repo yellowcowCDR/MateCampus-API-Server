@@ -3,8 +3,10 @@ spring:
     group:
       "dev": "dev-db"
       "prod": "prod-db"
+    active: "dev"
   jpa:
     # 서버 작동 시, table 계속 create 하도록 설정
+    database: mysql
     hibernate:
       ddl-auto: create
     # sql 관련 log
