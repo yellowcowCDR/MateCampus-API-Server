@@ -145,11 +145,22 @@ public class TokenProvider implements InitializingBean {
         return getHeaderForRefreshToken(refreshToken);
     }
 
-    @Transactional
     public HttpHeaders updateRefreshTokenAndGetHeader(String refreshToken, String accessToken, String newAccessToken) throws Exception {
+        // RefreshToken이 중복되어 jwt 재발급 실패한 경우, 재시도
+        while (true) {
+            try {
+                return _updateRefreshTokenAndGetHeader(refreshToken, accessToken, newAccessToken);
+            } catch (RefreshTokenDuplicatedException e) {
+                continue;
+            }
+        }
+    }
+
+    @Transactional
+    protected HttpHeaders _updateRefreshTokenAndGetHeader(String refreshToken, String accessToken, String newAccessToken) throws Exception {
         RefreshToken token = refreshTokenRepository.findByRefreshTokenAndAccessToken(refreshToken, accessToken)
                 .orElseThrow(NullPointerException::new);
-        if(!token.isValid()) {
+        if (!token.isValid()) {
             throw new Exception("토큰이 유효하지 않습니다.");
         }
 
