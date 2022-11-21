@@ -2,6 +2,7 @@ package com.litCitrus.zamongcampusServer.api.user;
 
 import com.litCitrus.zamongcampusServer.dto.user.LoginDtoReq;
 import com.litCitrus.zamongcampusServer.dto.user.TokenDto;
+import com.litCitrus.zamongcampusServer.exception.jwt.RefreshTokenDuplicatedException;
 import com.litCitrus.zamongcampusServer.security.jwt.TokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -70,7 +71,13 @@ public class AuthController {
 
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             newAccessToken = tokenProvider.createToken(authentication);
-            httpHeaders = tokenProvider.updateRefreshTokenAndGetHeader(refreshToken, accessToken, newAccessToken);
+            // RefreshToken이 중복되어 jwt 재발급 실패한 경우, 재시도
+            while (true) {
+                try {
+                    httpHeaders = tokenProvider.updateRefreshTokenAndGetHeader(refreshToken, accessToken, newAccessToken);
+                    break;
+                } catch (RefreshTokenDuplicatedException e) {}
+            }
         } catch (Exception e) {
             e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);

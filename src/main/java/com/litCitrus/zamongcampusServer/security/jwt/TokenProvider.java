@@ -24,6 +24,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.security.Key;
 import java.sql.SQLIntegrityConstraintViolationException;
@@ -43,8 +44,8 @@ public class TokenProvider implements InitializingBean {
     private final long tokenValidityInMilliseconds; // second를 millsecond로 바꾸기 위함
     private Key key; // secret 키값을 base64 decode한 값
 
-    private RefreshTokenRepository refreshTokenRepository;
-    private UserRepository userRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
+    private final UserRepository userRepository;
 
     public TokenProvider(
             @Value("${jwt.secret}") String secret,
@@ -145,19 +146,8 @@ public class TokenProvider implements InitializingBean {
         return getHeaderForRefreshToken(refreshToken);
     }
 
-    public HttpHeaders updateRefreshTokenAndGetHeader(String refreshToken, String accessToken, String newAccessToken) throws Exception {
-        // RefreshToken이 중복되어 jwt 재발급 실패한 경우, 재시도
-        while (true) {
-            try {
-                return _updateRefreshTokenAndGetHeader(refreshToken, accessToken, newAccessToken);
-            } catch (RefreshTokenDuplicatedException e) {
-                continue;
-            }
-        }
-    }
-
     @Transactional
-    protected HttpHeaders _updateRefreshTokenAndGetHeader(String refreshToken, String accessToken, String newAccessToken) throws Exception {
+    public HttpHeaders updateRefreshTokenAndGetHeader(String refreshToken, String accessToken, String newAccessToken) throws Exception {
         RefreshToken token = refreshTokenRepository.findByRefreshTokenAndAccessToken(refreshToken, accessToken)
                 .orElseThrow(NullPointerException::new);
         if (!token.isValid()) {
@@ -175,16 +165,24 @@ public class TokenProvider implements InitializingBean {
 
     private String createRefreshToken(String accessToken, User user) {
         RefreshToken token = RefreshToken.createJwtToken(user, accessToken);
-        try {
-            refreshTokenRepository.save(token);
-        } catch (DataIntegrityViolationException e) {
-            Throwable cause = e.getCause().getCause();
-            if (cause instanceof SQLIntegrityConstraintViolationException
-                    && cause.getMessage().contains("Duplicate entry '" + token.getRefreshToken() + "' for key")) {
-                throw new RefreshTokenDuplicatedException();
+        boolean transactional = TransactionSynchronizationManager.isActualTransactionActive();
+        do {
+            try {
+                refreshTokenRepository.save(token);
+                break;
+            } catch (DataIntegrityViolationException e) {
+                Throwable cause = e.getCause().getCause();
+                if (cause instanceof SQLIntegrityConstraintViolationException
+                        && cause.getMessage().contains("Duplicate entry '" + token.getRefreshToken() + "' for key")) {
+                    if (transactional) {
+                        throw new RefreshTokenDuplicatedException();
+                    } else {
+                        continue;
+                    }
+                }
+                throw e;
             }
-            throw e;
-        }
+        } while (true);
         return token.getRefreshToken();
     }
 
