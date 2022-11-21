@@ -3,6 +3,7 @@ package com.litCitrus.zamongcampusServer.security.jwt;
 import com.litCitrus.zamongcampusServer.domain.jwt.RefreshToken;
 import com.litCitrus.zamongcampusServer.domain.user.Authority;
 import com.litCitrus.zamongcampusServer.domain.user.User;
+import com.litCitrus.zamongcampusServer.exception.jwt.RefreshTokenDuplicatedException;
 import com.litCitrus.zamongcampusServer.repository.jwt.RefreshTokenRepository;
 import com.litCitrus.zamongcampusServer.repository.user.UserRepository;
 import com.litCitrus.zamongcampusServer.security.CustomUserDetails;
@@ -14,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -22,12 +24,13 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.security.Key;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Component
@@ -41,8 +44,8 @@ public class TokenProvider implements InitializingBean {
     private final long tokenValidityInMilliseconds; // second를 millsecond로 바꾸기 위함
     private Key key; // secret 키값을 base64 decode한 값
 
-    private RefreshTokenRepository refreshTokenRepository;
-    private UserRepository userRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
+    private final UserRepository userRepository;
 
     public TokenProvider(
             @Value("${jwt.secret}") String secret,
@@ -138,7 +141,8 @@ public class TokenProvider implements InitializingBean {
     }
 
     public HttpHeaders createRefreshTokenAndGetHeader(String accessToken) {
-        String refreshToken = createRefreshToken(accessToken);
+        CustomUserDetails principal = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String refreshToken = createRefreshToken(accessToken, principal.getUser());
         return getHeaderForRefreshToken(refreshToken);
     }
 
@@ -146,7 +150,7 @@ public class TokenProvider implements InitializingBean {
     public HttpHeaders updateRefreshTokenAndGetHeader(String refreshToken, String accessToken, String newAccessToken) throws Exception {
         RefreshToken token = refreshTokenRepository.findByRefreshTokenAndAccessToken(refreshToken, accessToken)
                 .orElseThrow(NullPointerException::new);
-        if(!token.isValid()) {
+        if (!token.isValid()) {
             throw new Exception("토큰이 유효하지 않습니다.");
         }
 
@@ -156,20 +160,30 @@ public class TokenProvider implements InitializingBean {
 
     private String updateRefreshToken(RefreshToken jwtToken, String accessToken) {
         jwtToken.expire();
-        return createRefreshToken(accessToken);
+        return createRefreshToken(accessToken, jwtToken.getUser());
     }
 
-    private String createRefreshToken(String accessToken) {
-        String refreshToken;
-
+    private String createRefreshToken(String accessToken, User user) {
+        RefreshToken token = RefreshToken.createJwtToken(user, accessToken);
+        boolean transactional = TransactionSynchronizationManager.isActualTransactionActive();
         do {
-             refreshToken = UUID.randomUUID().toString();
-        } while (refreshTokenRepository.findByRefreshToken(refreshToken).isPresent());
-
-        CustomUserDetails principal = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        RefreshToken token = RefreshToken.createJwtToken(refreshToken, principal.getUser(), accessToken);
-        refreshTokenRepository.save(token);
-        return refreshToken;
+            try {
+                refreshTokenRepository.save(token);
+                break;
+            } catch (DataIntegrityViolationException e) {
+                Throwable cause = e.getCause().getCause();
+                if (cause instanceof SQLIntegrityConstraintViolationException
+                        && cause.getMessage().contains("Duplicate entry '" + token.getRefreshToken() + "' for key")) {
+                    if (transactional) {
+                        throw new RefreshTokenDuplicatedException();
+                    } else {
+                        continue;
+                    }
+                }
+                throw e;
+            }
+        } while (true);
+        return token.getRefreshToken();
     }
 
     private HttpHeaders getHeaderForRefreshToken(String refreshToken) {

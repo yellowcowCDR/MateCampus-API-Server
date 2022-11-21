@@ -2,6 +2,7 @@ package com.litCitrus.zamongcampusServer.api.user;
 
 import com.litCitrus.zamongcampusServer.dto.user.LoginDtoReq;
 import com.litCitrus.zamongcampusServer.dto.user.TokenDto;
+import com.litCitrus.zamongcampusServer.exception.jwt.RefreshTokenDuplicatedException;
 import com.litCitrus.zamongcampusServer.security.jwt.TokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -58,15 +59,6 @@ public class AuthController {
         return new ResponseEntity<>(new TokenDto(jwt), httpHeaders, HttpStatus.OK);
     }
 
-    /**
-     * token 유효한지 확인하고 맞으면 true, 아니면 false로 반환.
-     * client에서 token를 담아보내면 알아서 유효성 검사 하니까, 현재는 따로 로직 존재 안함.
-     * 나중에 반드시 refreshToken 로직으로 변경할 것.
-     * */
-    @PostMapping("/checkTokenValidation")
-    public ResponseEntity<?> checkTokenValidation(){
-        return new ResponseEntity<>(true, HttpStatus.OK);
-    }
 
     @PostMapping("/refresh/jwt-token")
     public ResponseEntity refreshAccessToken(HttpServletRequest request){
@@ -79,7 +71,13 @@ public class AuthController {
 
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             newAccessToken = tokenProvider.createToken(authentication);
-            httpHeaders = tokenProvider.updateRefreshTokenAndGetHeader(refreshToken, accessToken, newAccessToken);
+            // RefreshToken이 중복되어 jwt 재발급 실패한 경우, 재시도
+            while (true) {
+                try {
+                    httpHeaders = tokenProvider.updateRefreshTokenAndGetHeader(refreshToken, accessToken, newAccessToken);
+                    break;
+                } catch (RefreshTokenDuplicatedException e) {}
+            }
         } catch (Exception e) {
             e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);

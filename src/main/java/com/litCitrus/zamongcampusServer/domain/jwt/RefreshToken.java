@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Getter
@@ -31,15 +32,19 @@ public class RefreshToken {
 
     LocalDateTime expiredDate;
 
-    public static RefreshToken createJwtToken(String refreshToken, User user, String accessToken) {
+    public static RefreshToken createJwtToken(User user, String accessToken) {
         RefreshToken token = new RefreshToken();
-        token.refreshToken = refreshToken;
+        token.issueRefreshToken();
         token.user = user;
         token.accessToken = accessToken;
         token.status = JwtTokenStatus.VALID;
         token.created = LocalDateTime.now();
         token.expiredDate = token.created.plusYears(1);
         return token;
+    }
+
+    public void issueRefreshToken() {
+        refreshToken = UUID.randomUUID().toString();
     }
 
     public boolean isValid() {
