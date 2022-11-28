@@ -71,7 +71,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .authorizeRequests()
                 // /api/authenticate: 로그인 API, /api/signup/**: 회원가입, 아이디 및 닉네임 중복검사
-                .antMatchers("/api/authenticate", "/api/authenticate/refresh/jwt-token", "/api/signup/**").permitAll()
+                .antMatchers("/api/authenticate", "/api/authenticate/refresh/jwt-token", "/api/signup/**",
+                        "/api/signup").permitAll()
                 .anyRequest().authenticated()
 
                 .and()
