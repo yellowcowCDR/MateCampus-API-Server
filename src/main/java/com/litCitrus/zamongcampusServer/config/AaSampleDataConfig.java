@@ -7,9 +7,7 @@ import com.litCitrus.zamongcampusServer.domain.user.UserPicture;
 import com.litCitrus.zamongcampusServer.dto.user.UserDtoReq;
 import com.litCitrus.zamongcampusServer.exception.user.UserNotFoundException;
 import com.litCitrus.zamongcampusServer.io.dynamodb.service.DynamoDBHandler;
-import com.litCitrus.zamongcampusServer.repository.interest.InterestRepository;
 import com.litCitrus.zamongcampusServer.repository.user.FriendRepository;
-import com.litCitrus.zamongcampusServer.repository.user.UserInterestRepository;
 import com.litCitrus.zamongcampusServer.repository.user.UserPictureRepository;
 import com.litCitrus.zamongcampusServer.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -57,6 +55,9 @@ class AaSampleDataConfig {
                         null,
                         null,
                         "관리자입니다.",
+                        null,
+                        0,
+                        true,
                         null
                 );
                 Authority authority = Authority.builder()
@@ -95,6 +96,9 @@ class AaSampleDataConfig {
                         null,
                         null,
                         "테스트 유저 " + Integer.toString(i) + "번 입니다!",
+                        null,
+                        1,
+                        false,
                         null
                         );
                 Authority authority = Authority.builder()
