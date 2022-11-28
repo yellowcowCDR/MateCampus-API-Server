@@ -1,11 +1,12 @@
 package com.litCitrus.zamongcampusServer.dto.user;
 
 import lombok.*;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
+import java.time.LocalDate;
 import java.util.List;
 
 
@@ -42,6 +43,15 @@ public class UserDtoReq {
 
         private List<String> interestCodes;
 
+        @NotNull(message = "학년(grade)이 비어있습니다.")
+        private Integer grade;
+
+        @NotNull(message = "성별(gender)이 비어있습니다.")
+        private Boolean gender;
+
+        @NotNull(message = "생년월일(birth)이 비어있습니다.")
+        @DateTimeFormat(pattern = "yyyy-MM-dd")
+        private LocalDate birth;
     }
 
     @Getter
