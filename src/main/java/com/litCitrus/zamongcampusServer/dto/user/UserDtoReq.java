@@ -16,22 +16,22 @@ public class UserDtoReq {
     @AllArgsConstructor
     public static class Create {
 
-        @NotBlank(message = "로그인ID(loginId)가 비워있습니다.")
+        @NotBlank(message = "로그인ID(loginId)가 비어있습니다.")
         private String loginId;
 
-        @NotBlank(message = "패스워드(password)가 비워있습니다.")
+        @NotBlank(message = "패스워드(password)가 비어있습니다.")
         private String password;
 
-        @NotBlank(message = "닉네임(nickname)이 비워있습니다.")
+        @NotBlank(message = "닉네임(nickname)이 비어있습니다.")
         private String nickname;
 
-        @NotBlank(message = "devicetoken(deviceToken)가 비워있습니다.")
+        @NotBlank(message = "devicetoken(deviceToken)가 비어있습니다.")
         private String deviceToken;
 
-        @NotBlank(message = "학교(collegeCode)가 비워있습니다.")
+        @NotBlank(message = "학교(collegeCode)가 비어있습니다.")
         private String collegeCode;
 
-        @NotBlank(message = "학과(majorCode)이 비워있습니다.")
+        @NotBlank(message = "학과(majorCode)이 비어있습니다.")
         private String majorCode;
 
         private MultipartFile studentIdImg;
