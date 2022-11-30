@@ -1,7 +1,6 @@
 package com.litCitrus.zamongcampusServer.repository.voiceRoom;
 
 import com.litCitrus.zamongcampusServer.domain.chat.Participant;
-import com.litCitrus.zamongcampusServer.domain.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -12,5 +11,5 @@ public interface ParticipantRepository extends JpaRepository<Participant, Long> 
 
     List<Participant> findByUsers_loginId(String loginId);
 //    Participant findByUsersIn(List<User> users);
-    Participant findByHashCode(int hashCode);
+    Participant findByHashCode(long hashCode);
 }
