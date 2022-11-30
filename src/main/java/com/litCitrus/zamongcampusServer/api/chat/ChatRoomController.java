@@ -3,7 +3,9 @@ package com.litCitrus.zamongcampusServer.api.chat;
 import com.litCitrus.zamongcampusServer.dto.chat.ChatRoomDtoReq;
 import com.litCitrus.zamongcampusServer.dto.chat.ChatRoomDtoRes;
 import com.litCitrus.zamongcampusServer.service.chat.ChatRoomService;
+import com.litCitrus.zamongcampusServer.service.user.BlockedUserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,10 +19,20 @@ public class ChatRoomController {
 
     final private ChatRoomService chatRoomService;
 
+    @Autowired
+    final private BlockedUserService blockedUserService;
+
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    ChatRoomDtoRes createOrGetChatRoom(@Valid @RequestBody ChatRoomDtoReq.Create chatRoomDto){
-        return chatRoomService.createOrGetChatRoom(chatRoomDto);
+    //@ResponseStatus(HttpStatus.CREATED)
+    // ChatRoomDtoRes createOrGetChatRoom(@Valid @RequestBody ChatRoomDtoReq.Create chatRoomDto){
+    ResponseEntity<ChatRoomDtoRes> createOrGetChatRoom(@Valid @RequestBody ChatRoomDtoReq.Create chatRoomDto){
+        String otherLoginUser = chatRoomDto.getOtherLoginId();
+        if(blockedUserService.isBlockedUser(otherLoginUser)){
+            return new ResponseEntity<ChatRoomDtoRes>(new ChatRoomDtoRes(), HttpStatus.FORBIDDEN);
+        }else{
+            ChatRoomDtoRes ChatRoomInfo = chatRoomService.createOrGetChatRoom(chatRoomDto);
+            return new ResponseEntity<ChatRoomDtoRes>(ChatRoomInfo, HttpStatus.CREATED);
+        }
     }
 
     /// 단톡방 만드는 api 반드시 따로 만들 것
@@ -37,8 +49,8 @@ public class ChatRoomController {
 
     @PutMapping("{chatRoomId}/exit")
     @ResponseStatus(HttpStatus.OK)
-    void exitChatRoom(@Valid @PathVariable("chatRoomId") Long chatRoomId){
-        chatRoomService.exitChatRoom(chatRoomId);
+    void exitChatRoom(@Valid @PathVariable("chatRoomId") String roomId){
+        chatRoomService.exitChatRoom(roomId);
     }
 
 }

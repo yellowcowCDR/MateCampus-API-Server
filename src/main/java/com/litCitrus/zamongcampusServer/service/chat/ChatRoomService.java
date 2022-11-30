@@ -15,9 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -64,14 +62,27 @@ public class ChatRoomService {
         systemMessageComponent.sendSaveEnterSystemMessage(user, chatRoom);
     }
 
-    @Transactional
+    /*@Transactional
     public void exitChatRoom(Long chatRoomId){
-        /* 1. 멤버 삭제 */
+        *//* 1. 멤버 삭제 *//*
         User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId).orElseThrow(ChatRoomNotFoundException::new);
         chatRoom.deleteUser(user);
 
-        /* 2. exit 실시간 전송 + 메세지 저장 */
+        *//* 2. exit 실시간 전송 + 메세지 저장 *//*
+        systemMessageComponent.sendSaveExitSystemMessage(user, chatRoom);
+    }*/
+
+    @Transactional
+    public void exitChatRoom(String roomId){
+        User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
+        //참석자 삭제
+        ChatRoom chatRoom = chatRoomRepository.findByRoomId(roomId).orElseThrow(ChatRoomNotFoundException::new);
+        chatRoom.deleteUser(user);
+
+        //참석자 해시코드 수정
+        chatRoom.getParticipant().removeUserFromHashcode(user);
+
         systemMessageComponent.sendSaveExitSystemMessage(user, chatRoom);
     }
 }
