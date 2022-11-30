@@ -7,19 +7,17 @@ import com.litCitrus.zamongcampusServer.domain.post.PostBookMark;
 import com.litCitrus.zamongcampusServer.domain.post.PostComment;
 import com.litCitrus.zamongcampusServer.domain.post.PostLike;
 import com.litCitrus.zamongcampusServer.domain.voiceRoom.VoiceRoom;
-import com.litCitrus.zamongcampusServer.dto.post.PostDtoReq;
 import com.litCitrus.zamongcampusServer.dto.user.UserDtoReq;
 import lombok.*;
 import org.hibernate.annotations.SQLDelete;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.*;
-import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
+import java.time.LocalDate;
 
 @Entity
 @Getter
@@ -50,6 +48,9 @@ public class User extends BaseEntity {
     private String introduction;
     private boolean activated;
     private String studentIdImageUrl;
+    private Integer grade;
+    private boolean gender;
+    private LocalDate birth;
 
     @Builder.Default
     private boolean emailAuthentication = Boolean.FALSE;
@@ -107,6 +108,9 @@ public class User extends BaseEntity {
                 .collegeCode(CollegeCode.valueOf(userDto.getCollegeCode()))
                 .majorCode(MajorCode.valueOf(userDto.getMajorCode()))
                 .introduction(userDto.getIntroduce())
+                .grade(userDto.getGrade())
+                .gender(userDto.getGender())
+                .birth(userDto.getBirth())
 //                .activated(true)  // 이거 활성화시키면 회원가입만 하면 우리 서비스 바로 사용 가능.
                 .build();
         return user;
