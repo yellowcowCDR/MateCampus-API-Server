@@ -55,7 +55,6 @@ public class UserService {
         if (userRepository.findOneWithAuthoritiesByLoginId(userDto.getLoginId()).orElse(null) != null) {
             throw new RuntimeException("이미 가입되어 있는 유저입니다.");
         }
-        System.out.println(userDto.getInterestCodes());
         Authority authority = Authority.builder()
                 .authorityName("ROLE_USER")
                 .build();
