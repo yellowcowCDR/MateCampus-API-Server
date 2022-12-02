@@ -30,6 +30,7 @@ import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.litCitrus.zamongcampusServer.util.SecurityUtil.getUser;
@@ -102,6 +103,10 @@ public class TokenProvider implements InitializingBean {
      * 자동로그인할 때 사용할 함수
      */
     public Authentication getAuthentication(String token) {
+        return getAuthentication(token, Optional.empty());
+    }
+
+    public Authentication getAuthentication(String token, Optional<User> optionalUser) {
         Claims claims = Jwts
                 .parserBuilder()
                 .setSigningKey(key)
@@ -114,7 +119,7 @@ public class TokenProvider implements InitializingBean {
                         .map(SimpleGrantedAuthority::new)
                         .collect(Collectors.toList());
 
-        User user = userRepository.findByLoginId(claims.getSubject()).orElseThrow(NullPointerException::new);
+        User user = optionalUser.orElseGet(() -> userRepository.findByLoginId(claims.getSubject()).orElseThrow(NullPointerException::new));
         CustomUserDetails principal = new CustomUserDetails(claims.getSubject(), "", authorities, user); // security core의 user (not domain)
 
         return new UsernamePasswordAuthenticationToken(principal, token, authorities);

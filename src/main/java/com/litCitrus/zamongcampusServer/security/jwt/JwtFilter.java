@@ -15,6 +15,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.util.Optional;
 
 /**
  * resolveToken은 header의 token을 꺼내는 역할
@@ -47,10 +48,10 @@ public class JwtFilter extends GenericFilterBean {
 
             CookieAndHeaderUtil.readCookie((HttpServletRequest) servletRequest, CookieAndHeaderUtil.REFRESH_TOKEN_KEY)
                     .ifPresent(refreshToken -> {
-                        refreshTokenRepository.findByRefreshTokenAndAccessToken(refreshToken, jwt)
+                        refreshTokenRepository.findUserByRefreshTokenAndAccessToken(refreshToken, jwt)
                                 .ifPresent(jwtToken -> {
                                             if (jwtToken.isValid()) {
-                                                Authentication authentication = tokenProvider.getAuthentication(jwt);
+                                                Authentication authentication = tokenProvider.getAuthentication(jwt, Optional.of(jwtToken.getUser()));
                                                 SecurityContextHolder.getContext().setAuthentication(authentication);
                                                 logger.debug("Security Context에 '{}' 인증 정보를 저장했습니다, uri: {}", authentication.getName(), requestURI);
                                             }
