@@ -23,4 +23,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     List<User> findAllByLoginIdIsIn(List<String> loginIds);
 
     Optional<User> findByNickname(String nickname);
+
+    @EntityGraph(attributePaths = {"pictures", "major"})
+    Optional<User> findMj$IC$PicById(Long id);
 }
