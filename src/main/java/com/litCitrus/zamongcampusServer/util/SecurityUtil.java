@@ -1,5 +1,8 @@
 package com.litCitrus.zamongcampusServer.util;
 
+import com.litCitrus.zamongcampusServer.domain.user.User;
+import com.litCitrus.zamongcampusServer.exception.user.UserNotFoundException;
+import com.litCitrus.zamongcampusServer.security.CustomUserDetails;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.slf4j.Logger;
@@ -48,5 +51,23 @@ public class SecurityUtil {
         }
 
         return Optional.ofNullable(username);
+    }
+
+    public static Optional<User> getOptionalUser() {
+        try {
+            CustomUserDetails principal = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            return Optional.of(principal.getUser());
+        } catch (Exception e) {
+            return Optional.empty();
+        }
+    }
+
+    public static User getUser() throws UserNotFoundException {
+        try {
+            CustomUserDetails principal = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            return principal.getUser();
+        } catch (Exception e) {
+            throw new UserNotFoundException();
+        }
     }
 }
