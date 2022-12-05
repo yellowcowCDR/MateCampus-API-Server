@@ -23,6 +23,7 @@ public class FriendDtoRes {
             this.collegeCode = other.getCollegeCode().name();
             this.majorCode = other.getMajor().getName();
             this.introduction = other.getIntroduction();
+            // TODO: 1:N 관계라서 별도 Query 작성해야 함
             this.interests = other.getUserInterests().stream().map(InterestDtoRes::new).collect(Collectors.toList());
         }
     }
