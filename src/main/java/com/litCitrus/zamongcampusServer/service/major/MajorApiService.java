@@ -5,5 +5,5 @@ import com.litCitrus.zamongcampusServer.domain.major.Major;
 import java.util.Optional;
 
 public interface MajorApiService {
-    Optional<Major> searchMajor(int majorSeq, String mName);
+    Optional<Major> searchMajor(long majorSeq, String mName);
 }

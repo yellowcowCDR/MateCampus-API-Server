@@ -36,7 +36,7 @@ public class UserDtoReq {
         private String mClass;
 
         @NotNull(message = "학과번호(majorSeq)가 비어있습니다.")
-        private Integer majorSeq;
+        private Long majorSeq;
 
         private MultipartFile studentIdImg;
 

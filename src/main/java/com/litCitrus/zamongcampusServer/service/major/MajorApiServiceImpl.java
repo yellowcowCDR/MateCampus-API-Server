@@ -14,7 +14,7 @@ public class MajorApiServiceImpl implements MajorApiService {
     private final MajorRepository majorRepository;
 
     @Override
-    public Optional<Major> searchMajor(int majorSeq, String mName) {
+    public Optional<Major> searchMajor(long majorSeq, String mName) {
 
         return Optional.empty();
     }
