@@ -18,8 +18,12 @@ public class BlockedUserApiController {
 
     @PostMapping
     public ResponseEntity addBlockedUser(String blockedUserLoginId){
-        blockedUserService.addBlockedUser(blockedUserLoginId);
-        return new ResponseEntity<>("user blocked.", HttpStatus.CREATED);
+        if(blockedUserService.isBlockedUser(blockedUserLoginId)){
+            return new ResponseEntity<>("user blocked already.", HttpStatus.ACCEPTED);
+        }else{
+            blockedUserService.addBlockedUser(blockedUserLoginId);
+            return new ResponseEntity<>("user blocked.", HttpStatus.CREATED);
+        }
     }
 
     @GetMapping("/list")

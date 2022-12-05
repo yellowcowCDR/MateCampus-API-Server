@@ -11,8 +11,9 @@ import java.util.Optional;
 
 @Repository
 public interface BlockedUserRepository extends JpaRepository<BlockedUser, Long> {
-    @EntityGraph(attributePaths = "major")
+    @EntityGraph(attributePaths = "blockedUser.major")
     List<BlockedUser> findByRequestedUser(User requestedUser);
+    @EntityGraph(attributePaths = "blockedUser.major")
     Optional<BlockedUser> findByRequestedUserAndBlockedUser(User requestedUser, User blockedUser);
     Boolean existsByRequestedUserAndBlockedUser(User requestedUser, User blockedUser);
 }
