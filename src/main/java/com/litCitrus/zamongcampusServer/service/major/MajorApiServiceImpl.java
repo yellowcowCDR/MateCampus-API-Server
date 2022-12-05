@@ -2,6 +2,7 @@ package com.litCitrus.zamongcampusServer.service.major;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.litCitrus.zamongcampusServer.domain.major.Major;
+import com.litCitrus.zamongcampusServer.exception.major.MajorException;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -30,6 +31,8 @@ public class MajorApiServiceImpl implements MajorApiService {
     @Override
     public Optional<Major> searchMajor(long majorSeq, String mName) {
         CloseableHttpClient client = HttpClients.createDefault();
+        boolean isMatched = true;
+
         try(client) {
             HttpGet httpGet = new HttpGet(majorSearchUrl + majorSeq);
             CloseableHttpResponse response = client.execute(httpGet);
@@ -40,13 +43,16 @@ public class MajorApiServiceImpl implements MajorApiService {
                     String result = EntityUtils.toString(entity);
                     String major = new JSONObject(result).getJSONObject("dataSearch").getJSONArray("content")
                             .getJSONObject(0).getString("major");
-                    if (major.equals(mName)) {
+                    if (isMatched = major.equals(mName)) {
                         return Optional.of(Major.createMajor(majorSeq, mName));
                     }
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
+        }
+        if(!isMatched) {
+            throw MajorException.NOT_MATCHED;
         }
         return Optional.empty();
     }
