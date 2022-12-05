@@ -90,3 +90,7 @@ INSERT INTO voice_category (ID, VOICE_CATEGORY_CODE) values (6, 5);
 INSERT INTO voice_category (ID, VOICE_CATEGORY_CODE) values (7, 6);
 
 -- CREATEAT(필요하면): 2022-05-03 20:40:15.943059
+
+--major 생성
+INSERT INTO MAJOR (MAJOR_SEQ, NAME) values (-1, '빈값');
+INSERT INTO MAJOR (MAJOR_SEQ, NAME) values (174, '물리교육과');
