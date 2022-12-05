@@ -21,7 +21,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
@@ -31,7 +30,10 @@ import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static com.litCitrus.zamongcampusServer.util.SecurityUtil.getUser;
 
 @Component
 public class TokenProvider implements InitializingBean {
@@ -101,6 +103,10 @@ public class TokenProvider implements InitializingBean {
      * 자동로그인할 때 사용할 함수
      */
     public Authentication getAuthentication(String token) {
+        return getAuthentication(token, Optional.empty());
+    }
+
+    public Authentication getAuthentication(String token, Optional<User> optionalUser) {
         Claims claims = Jwts
                 .parserBuilder()
                 .setSigningKey(key)
@@ -113,7 +119,7 @@ public class TokenProvider implements InitializingBean {
                         .map(SimpleGrantedAuthority::new)
                         .collect(Collectors.toList());
 
-        User user = userRepository.findByLoginId(claims.getSubject()).orElseThrow(NullPointerException::new);
+        User user = optionalUser.orElseGet(() -> userRepository.findByLoginId(claims.getSubject()).orElseThrow(NullPointerException::new));
         CustomUserDetails principal = new CustomUserDetails(claims.getSubject(), "", authorities, user); // security core의 user (not domain)
 
         return new UsernamePasswordAuthenticationToken(principal, token, authorities);
@@ -141,8 +147,7 @@ public class TokenProvider implements InitializingBean {
     }
 
     public HttpHeaders createRefreshTokenAndGetHeader(String accessToken) {
-        CustomUserDetails principal = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        String refreshToken = createRefreshToken(accessToken, principal.getUser());
+        String refreshToken = createRefreshToken(accessToken, getUser());
         return getHeaderForRefreshToken(refreshToken);
     }
 

@@ -1,6 +1,7 @@
 package com.litCitrus.zamongcampusServer.domain.user;
 
 import com.litCitrus.zamongcampusServer.domain.BaseEntity;
+import com.litCitrus.zamongcampusServer.domain.major.Major;
 import com.litCitrus.zamongcampusServer.domain.notification.Notification;
 import com.litCitrus.zamongcampusServer.domain.post.Post;
 import com.litCitrus.zamongcampusServer.domain.post.PostBookMark;
@@ -16,8 +17,11 @@ import javax.validation.constraints.NotNull;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.*;
 import java.time.LocalDate;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -44,7 +48,6 @@ public class User extends BaseEntity {
     private String deviceToken;
 
     private CollegeCode collegeCode;
-    private MajorCode majorCode;
     private String introduction;
     private boolean activated;
     private String studentIdImageUrl;
@@ -58,6 +61,9 @@ public class User extends BaseEntity {
     @Builder.Default
     @NotNull
     private boolean deleted = Boolean.FALSE;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Major major;
 
     @ManyToMany
     @JoinTable(
@@ -97,7 +103,7 @@ public class User extends BaseEntity {
     private List<Notification> notifications;
 
 
-    public static User createUser(UserDtoReq.Create userDto, String encodedPassword, Authority authority) {
+    public static User createUser(UserDtoReq.Create userDto, String encodedPassword, Major major, Authority authority) {
         //빌더 객체를 사용할 경우
         final User user = User.builder()
                 .loginId(userDto.getLoginId())
@@ -106,7 +112,7 @@ public class User extends BaseEntity {
                 .deviceToken(userDto.getDeviceToken())
                 .nickname(userDto.getNickname())
                 .collegeCode(CollegeCode.valueOf(userDto.getCollegeCode()))
-                .majorCode(MajorCode.valueOf(userDto.getMajorCode()))
+                .major(major)
                 .introduction(userDto.getIntroduce())
                 .grade(userDto.getGrade())
                 .gender(userDto.getGender())
@@ -116,7 +122,7 @@ public class User extends BaseEntity {
         return user;
     }
 
-    public static User createAdmin(UserDtoReq.Create userDto, String encodedPassword, List<Authority> authorities) {
+    public static User createAdmin(UserDtoReq.Create userDto, String encodedPassword, Major major, List<Authority> authorities) {
         //빌더 객체를 사용할 경우
         final User user = User.builder()
                 .loginId(userDto.getLoginId())
@@ -125,7 +131,7 @@ public class User extends BaseEntity {
                 .deviceToken(userDto.getDeviceToken())
                 .nickname(userDto.getNickname())
                 .collegeCode(CollegeCode.valueOf(userDto.getCollegeCode()))
-                .majorCode(MajorCode.valueOf(userDto.getMajorCode()))
+                .major(major)
                 .introduction(userDto.getIntroduce())
 //                .activated(true)  // 이거 활성화시키면 회원가입만 하면 우리 서비스 바로 사용 가능.
                 .build();

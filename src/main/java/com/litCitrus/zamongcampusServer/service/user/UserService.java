@@ -4,17 +4,17 @@ import com.google.common.collect.Iterables;
 import com.litCitrus.zamongcampusServer.domain.chat.Participant;
 import com.litCitrus.zamongcampusServer.domain.interest.Interest;
 import com.litCitrus.zamongcampusServer.domain.interest.InterestCode;
-import com.litCitrus.zamongcampusServer.domain.post.PostPicture;
+import com.litCitrus.zamongcampusServer.domain.major.Major;
 import com.litCitrus.zamongcampusServer.domain.user.*;
 import com.litCitrus.zamongcampusServer.dto.user.UserDtoReq;
 import com.litCitrus.zamongcampusServer.dto.user.UserDtoRes;
 import com.litCitrus.zamongcampusServer.exception.user.UserNotFoundException;
 import com.litCitrus.zamongcampusServer.repository.interest.InterestRepository;
-import com.litCitrus.zamongcampusServer.repository.post.PostRepository;
 import com.litCitrus.zamongcampusServer.repository.user.*;
 import com.litCitrus.zamongcampusServer.repository.voiceRoom.ParticipantRepository;
 import com.litCitrus.zamongcampusServer.service.chat.SystemMessageComponent;
 import com.litCitrus.zamongcampusServer.service.image.S3Uploader;
+import com.litCitrus.zamongcampusServer.service.major.MajorService;
 import com.litCitrus.zamongcampusServer.util.SecurityUtil;
 import com.litCitrus.zamongcampusServer.util.UserComparatorForSort;
 import lombok.RequiredArgsConstructor;
@@ -42,9 +42,8 @@ public class UserService {
     private final UserInterestRepository userInterestRepository;
     private final InterestRepository interestRepository;
     private final FriendRepository friendRepository;
-    private final PostRepository postRepository;
     private final S3Uploader s3Uploader;
-
+    private final MajorService majorService;
 
     /** 회원가입
      * 자동으로 ROLE_USER의 권한을 가진다.
@@ -58,7 +57,9 @@ public class UserService {
         Authority authority = Authority.builder()
                 .authorityName("ROLE_USER")
                 .build();
-        User user = User.createUser(userDto, passwordEncoder.encode(userDto.getPassword()), authority);
+
+        Major major = majorService.findByNameAndSeq(userDto.getMajorSeq(), userDto.getMClass());
+        User user = User.createUser(userDto, passwordEncoder.encode(userDto.getPassword()), major, authority);
         userRepository.save(user);
         if(userDto.getStudentIdImg() != null){
             String uploadImageUrl = s3Uploader.uploadOne(userDto.getStudentIdImg(), "2022/userIdImage");
@@ -70,7 +71,6 @@ public class UserService {
             userPictureRepository.save(userPicture);
         }
         if(!userDto.getInterestCodes().isEmpty()){
-            List<UserInterest> userInterests = new ArrayList<>();
             for(String interestCode : userDto.getInterestCodes()) {
                 Interest interest = interestRepository.findByInterestCode(InterestCode.valueOf(interestCode));
                 userInterestRepository.save(UserInterest.createUserInterest(user, interest));

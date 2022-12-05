@@ -56,7 +56,7 @@ public class PostLikeService {
                     user.getLoginId(),
                     user.getNickname(),
                     user.getCollegeCode(),
-                    user.getMajorCode(),
+                    user.getMajor().getName(),
                     user.getPictures()
             );
             postLikedUserList.add(likedUser);

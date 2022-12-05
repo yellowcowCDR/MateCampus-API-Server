@@ -1,5 +1,6 @@
 package com.litCitrus.zamongcampusServer.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.litCitrus.zamongcampusServer.repository.jwt.RefreshTokenRepository;
 import com.litCitrus.zamongcampusServer.security.jwt.JwtFilter;
 import com.litCitrus.zamongcampusServer.security.jwt.JwtSecurityConfig;
@@ -12,5 +13,10 @@ public class BeanConfig {
     @Bean
     JwtSecurityConfig jwtSecurityConfig(TokenProvider tokenProvider, RefreshTokenRepository refreshTokenRepository) {
         return new JwtSecurityConfig(new JwtFilter(tokenProvider, refreshTokenRepository));
+    }
+
+    @Bean
+    ObjectMapper objectMapper() {
+        return new ObjectMapper();
     }
 }

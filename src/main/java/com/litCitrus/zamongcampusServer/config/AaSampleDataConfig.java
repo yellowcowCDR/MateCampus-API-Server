@@ -6,7 +6,7 @@ import com.litCitrus.zamongcampusServer.domain.user.User;
 import com.litCitrus.zamongcampusServer.domain.user.UserPicture;
 import com.litCitrus.zamongcampusServer.dto.user.UserDtoReq;
 import com.litCitrus.zamongcampusServer.exception.user.UserNotFoundException;
-import com.litCitrus.zamongcampusServer.io.dynamodb.service.DynamoDBHandler;
+import com.litCitrus.zamongcampusServer.repository.major.MajorRepository;
 import com.litCitrus.zamongcampusServer.repository.user.FriendRepository;
 import com.litCitrus.zamongcampusServer.repository.user.UserPictureRepository;
 import com.litCitrus.zamongcampusServer.repository.user.UserRepository;
@@ -35,7 +35,7 @@ class AaSampleDataConfig {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserPictureRepository userPictureRepository;
-    private final DynamoDBHandler dynamoDBHandler;
+    private final MajorRepository majorRepository;
     private final FriendRepository friendRepository;
 
     @Bean
@@ -51,7 +51,8 @@ class AaSampleDataConfig {
                         "관리자",
                         "sampledeviceToken",
                         "COLLEGE0000",
-                        "MAJOR0000",
+                        "전자공학과",
+                        120L,
                         null,
                         null,
                         "관리자입니다.",
@@ -68,7 +69,7 @@ class AaSampleDataConfig {
                         .build(), Authority.builder()
                         .authorityName("ROLE_ADMIN")
                         .build());
-                User user = User.createAdmin(dto, passwordEncoder.encode(adminKey), authorities);
+                User user = User.createAdmin(dto, passwordEncoder.encode(adminKey), majorRepository.getOne(1L), authorities);
                 user.updateActivated(true);
                 userRepository.save(user);
 
@@ -92,7 +93,8 @@ class AaSampleDataConfig {
                         nicknames.get(i - 1),
                         "sampledeviceToken",
                         "COLLEGE000" + Integer.toString((random.nextInt(4) + 1)),
-                        "MAJOR000" + Integer.toString((random.nextInt(4) + 1)),
+                        "전자공학과",
+                        120L,
                         null,
                         null,
                         "테스트 유저 " + Integer.toString(i) + "번 입니다!",
@@ -104,7 +106,7 @@ class AaSampleDataConfig {
                 Authority authority = Authority.builder()
                         .authorityName("ROLE_USER")
                         .build();
-                User user = User.createUser(dto, passwordEncoder.encode(generalKey), authority);
+                User user = User.createUser(dto, passwordEncoder.encode(generalKey), majorRepository.getOne(2L), authority);
                 user.updateActivated(true);
                 userRepository.save(user);
 

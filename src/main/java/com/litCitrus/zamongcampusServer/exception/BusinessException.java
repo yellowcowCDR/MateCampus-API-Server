@@ -17,4 +17,9 @@ public class BusinessException extends RuntimeException {
         this.message = message;
     }
 
+    protected void updateErrorInfo(HttpStatus httpStatus, String errorCode, String message) {
+        this.httpStatus = httpStatus;
+        this.errorCode = errorCode;
+        this.message = message;
+    }
 }

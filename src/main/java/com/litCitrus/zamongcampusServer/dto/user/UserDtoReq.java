@@ -32,8 +32,11 @@ public class UserDtoReq {
         @NotBlank(message = "학교(collegeCode)가 비어있습니다.")
         private String collegeCode;
 
-        @NotBlank(message = "학과(majorCode)이 비어있습니다.")
-        private String majorCode;
+        @NotBlank(message = "학과명(mClass)이 비어있습니다.")
+        private String mClass;
+
+        @NotNull(message = "학과번호(majorSeq)가 비어있습니다.")
+        private Long majorSeq;
 
         private MultipartFile studentIdImg;
 
