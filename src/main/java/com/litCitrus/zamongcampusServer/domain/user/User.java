@@ -103,7 +103,7 @@ public class User extends BaseEntity {
     private List<Notification> notifications;
 
 
-    public static User createUser(UserDtoReq.Create userDto, String encodedPassword, Authority authority) {
+    public static User createUser(UserDtoReq.Create userDto, String encodedPassword, Major major, Authority authority) {
         //빌더 객체를 사용할 경우
         final User user = User.builder()
                 .loginId(userDto.getLoginId())
@@ -112,7 +112,7 @@ public class User extends BaseEntity {
                 .deviceToken(userDto.getDeviceToken())
                 .nickname(userDto.getNickname())
                 .collegeCode(CollegeCode.valueOf(userDto.getCollegeCode()))
-//                .majorCode(MajorCode.valueOf(userDto.getMajorCode()))
+                .major(major)
                 .introduction(userDto.getIntroduce())
                 .grade(userDto.getGrade())
                 .gender(userDto.getGender())
@@ -122,7 +122,7 @@ public class User extends BaseEntity {
         return user;
     }
 
-    public static User createAdmin(UserDtoReq.Create userDto, String encodedPassword, List<Authority> authorities) {
+    public static User createAdmin(UserDtoReq.Create userDto, String encodedPassword, Major major, List<Authority> authorities) {
         //빌더 객체를 사용할 경우
         final User user = User.builder()
                 .loginId(userDto.getLoginId())
@@ -131,7 +131,7 @@ public class User extends BaseEntity {
                 .deviceToken(userDto.getDeviceToken())
                 .nickname(userDto.getNickname())
                 .collegeCode(CollegeCode.valueOf(userDto.getCollegeCode()))
-//                .majorCode(MajorCode.valueOf(userDto.getMajorCode()))
+                .major(major)
                 .introduction(userDto.getIntroduce())
 //                .activated(true)  // 이거 활성화시키면 회원가입만 하면 우리 서비스 바로 사용 가능.
                 .build();
