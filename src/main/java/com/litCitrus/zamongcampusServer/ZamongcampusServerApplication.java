@@ -5,17 +5,13 @@ import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.messaging.FirebaseMessaging;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.annotation.Bean;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 import javax.annotation.PostConstruct;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.TimeZone;
 
 @SpringBootApplication
@@ -45,6 +41,7 @@ public class ZamongcampusServerApplication {
 
 	public static final String APPLICATION_LOCATIONS = "spring.config.location="
 			+ "classpath:application.yml,"
+			+ "/app/config/zamongcampus-server/application.yml,"
 			+ "/app/config/zamongcampus-server/application-dev.yml,"
 			+ "/app/config/zamongcampus-server/application-prod.yml,"
 			+ "/app/config/zamongcampus-server/dummy-data.yml,"
