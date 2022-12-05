@@ -46,10 +46,10 @@ public class BlockedUserService {
             String loginId = blockedUserInfo.getLoginId();
             String nickname = blockedUserInfo.getNickname();
             CollegeCode collegeCode = blockedUserInfo.getCollegeCode();
-            MajorCode majorCode = blockedUserInfo.getMajorCode();
+            String major = blockedUserInfo.getMajor().getName();
             List<UserPicture> userPictures  = blockedUserInfo.getPictures();
             String requestUserLoginId = requestedUser.getLoginId();
-            BlockedUserDtoRes.Res blockedUserRes = new BlockedUserDtoRes.Res(userId, loginId, nickname, collegeCode, majorCode, userPictures, requestUserLoginId);
+            BlockedUserDtoRes.Res blockedUserRes = new BlockedUserDtoRes.Res(userId, loginId, nickname, collegeCode, major, userPictures, requestUserLoginId);
 
             blockedUserResList.add(blockedUserRes);
         }
