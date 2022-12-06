@@ -1,5 +1,8 @@
 package com.litCitrus.zamongcampusServer.dto.chat;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.litCitrus.zamongcampusServer.domain.chat.ChatRoom;
 import com.litCitrus.zamongcampusServer.domain.user.ModifiedChatInfo;
 import com.litCitrus.zamongcampusServer.domain.user.User;
@@ -37,6 +40,8 @@ public class ChatMessageDtoRes {
         private String type;
         private String loginId;
         private String text;
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern="yyyy-MM-dd'T'HH:mm:ss.SSSSS")
+        @JsonSerialize(using = LocalDateTimeSerializer.class)
         private String createdAt;
         public MessageDto(ChatMessage message){
             this.type = message.getType();
