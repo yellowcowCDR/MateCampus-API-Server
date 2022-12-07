@@ -7,7 +7,6 @@ import com.litCitrus.zamongcampusServer.domain.post.PostParticipant;
 import com.litCitrus.zamongcampusServer.domain.user.User;
 import com.litCitrus.zamongcampusServer.dto.post.PostCommentDtoReq;
 import com.litCitrus.zamongcampusServer.dto.post.PostCommentDtoRes;
-import com.litCitrus.zamongcampusServer.exception.chat.ChatRoomNotFoundException;
 import com.litCitrus.zamongcampusServer.exception.post.PostCommentNotFoundException;
 import com.litCitrus.zamongcampusServer.exception.post.PostCommentOwnerNotMatchException;
 import com.litCitrus.zamongcampusServer.exception.post.PostNotFoundException;
@@ -63,7 +62,33 @@ public class PostCommentService {
         // 4. 해당 상황을 실시간 알림과 NotificationList에 저장.
         // 우선 방장에게만 전달. (방장이 댓글쓰면 자신에게 알림 x)
 
-        if(user.getLoginId() != post.getUser().getLoginId()){
+        if(postCommentDto.getParentId()!=null){
+            Long parentId = postCommentDto.getParentId();
+            PostComment parentComment = postCommentRepository.findById(parentId).orElseThrow(PostCommentNotFoundException::new);
+            String parentCommentWriterId = parentComment.getUser().getLoginId();
+            if(user.getLoginId()!=parentCommentWriterId){
+                // 4-1. Notication에 저장
+                Notification newNotification = notificationRepository.save(Notification.CreatePostCommentNotification(parentComment.getUser(), postComment));
+                // 4-2. fcm 알림
+                String message = post.getBody().replaceAll("\n", " ");
+                // 여기서 \n를 rex해서 바꿔야해. 정규식으로.
+                if(message.length() > 23){
+                    message = "\'" + message.substring(0, 23)+ "...\'";
+                }else{
+                    message = "\'" + message + "\'";
+                }
+                message = message + "\n내 댓글에 대댓글\uD83D\uDCAC이 달렸습니다!";
+                FCMDto fcmDto = new FCMDto(message,
+                        new HashMap<String,String>(){{
+                            put("navigate","/postDetail");
+                            put("notificationId", newNotification.getId().toString());
+                            put("postId", post.getId().toString());
+                        }});
+                List<User> postCommentOwner = Arrays.asList(parentComment.getUser());
+                fcmHandler.sendNotification(fcmDto, "fcm_default_channel", postCommentOwner, null);
+            }
+
+        }else if(user.getLoginId() != post.getUser().getLoginId()){
             // 4-1. Notication에 저장
             Notification newNotification = notificationRepository.save(Notification.CreatePostCommentNotification(post.getUser(), postComment));
             // 4-2. fcm 알림
