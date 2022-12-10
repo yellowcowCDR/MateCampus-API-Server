@@ -1,8 +1,10 @@
 package com.litCitrus.zamongcampusServer.api.user;
 
+import com.litCitrus.zamongcampusServer.domain.jwt.RefreshToken;
 import com.litCitrus.zamongcampusServer.dto.user.LoginDtoReq;
 import com.litCitrus.zamongcampusServer.dto.user.TokenDto;
 import com.litCitrus.zamongcampusServer.exception.jwt.RefreshTokenDuplicatedException;
+import com.litCitrus.zamongcampusServer.repository.jwt.RefreshTokenRepository;
 import com.litCitrus.zamongcampusServer.security.jwt.TokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -32,6 +34,7 @@ public class AuthController {
 
     private final TokenProvider tokenProvider;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     private final Logger logger = LoggerFactory.getLogger(TokenProvider.class);
 
@@ -65,12 +68,20 @@ public class AuthController {
         HttpHeaders httpHeaders;
         String newAccessToken;
         try {
+            //User 정보는 SecurityContext에서 얻어오면 안 됨. User 정보는 반드시 DB 조회
+            //이유 > 1. RefreshToken의 만료여부 검사. 2. 만료된 token이 넘어오는 경우 SecurityContext에서 user를 받아오는데 실패함
+            String accessToken = resolveToken(request).orElse("");
             String refreshToken = readCookie(request, REFRESH_TOKEN_KEY)
                     .orElseThrow(NullPointerException::new);
-            String accessToken = resolveToken(request).orElse("");
+            RefreshToken token = refreshTokenRepository.findUserByRefreshTokenAndAccessToken(refreshToken, resolveToken(request).orElse(""))
+                    .orElseThrow(NullPointerException::new);
+            if(!token.isValid()) {
+                throw new Exception("토큰이 유효하지 않습니다.");
+            }
+            //refreshtoken에 저장된 User를 기준으로 새로운 token 발급
+            newAccessToken = tokenProvider.createToken(token.getUser());
 
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            newAccessToken = tokenProvider.createToken(authentication);
+
             // RefreshToken이 중복되어 jwt 재발급 실패한 경우, 재시도
             while (true) {
                 try {
