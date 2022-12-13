@@ -68,7 +68,7 @@ public class PostCommentService {
             String parentCommentWriterId = parentComment.getUser().getLoginId();
             if(user.getLoginId()!=parentCommentWriterId){
                 // 4-1. Notication에 저장
-                Notification newNotification = notificationRepository.save(Notification.CreatePostCommentNotification(parentComment.getUser(), postComment));
+                Notification newNotification = notificationRepository.save(Notification.CreatePostSubCommentNotification(parentComment.getUser(), postComment, postComment.getUser()));
                 // 4-2. fcm 알림
                 String message = post.getBody().replaceAll("\n", " ");
                 // 여기서 \n를 rex해서 바꿔야해. 정규식으로.

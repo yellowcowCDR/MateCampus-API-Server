@@ -34,5 +34,4 @@ public class ChatMessageController {
         // 메시지 가져오는 부분
         return chatMessageService.getChatMessageDynamo(createdAt);
     }
-
 }
