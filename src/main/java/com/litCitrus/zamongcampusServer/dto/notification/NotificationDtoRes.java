@@ -31,9 +31,9 @@ public class NotificationDtoRes {
         this.imageUrl = type.equals(NotificationType.POST) || type.equals(NotificationType.POSTLIKE)||type.equals(NotificationType.POSTSUBCOMMENT)? null:
                 (notification.getSender().getPictures().isEmpty() ? null : notification.getSender().getPictures().get(0).getStored_file_path());
         this.voiceRoomId = type.equals(NotificationType.VOICEROOM) ? notification.getVoiceRoom().getId() : null;
-        this.postId = type.equals(NotificationType.POST) || type.equals(NotificationType.POSTLIKE)||type.equals(NotificationType.POSTSUBCOMMENT) ? notification.getPostComment().getPost().getId() :null;
+        this.postId = type.equals(NotificationType.POST) ||type.equals(NotificationType.POSTSUBCOMMENT) ? notification.getPostComment().getPost().getId() : type.equals(NotificationType.POSTLIKE)? notification.getPost().getId() : null;
         this.nickname = type.equals(NotificationType.POST)? null : type.equals(NotificationType.POSTLIKE)||type.equals(NotificationType.POSTSUBCOMMENT)? notification.getSender().getNickname():null;
-        this.title = type.equals(NotificationType.FRIEND) ? null : (type.equals(NotificationType.POST)|| type.equals(NotificationType.POSTLIKE)||type.equals(NotificationType.POSTSUBCOMMENT) ? notification.getPostComment().getPost().getBody() : notification.getVoiceRoom().getTitle());
+        this.title = type.equals(NotificationType.FRIEND) ? null : (type.equals(NotificationType.POST)|| type.equals(NotificationType.POSTSUBCOMMENT) ? notification.getPostComment().getPost().getBody() : type.equals(NotificationType.POSTLIKE)? notification.getPost().getBody():notification.getVoiceRoom().getTitle());
         this.createdAt = notification.getCreatedAt();
         this.unRead = notification.isUnRead();
     }

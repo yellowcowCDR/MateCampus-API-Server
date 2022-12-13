@@ -52,7 +52,8 @@ public class Notification extends BaseEntity{
 
     public static Notification CreatePostLikeNotification(User user, Post post){
         return Notification.builder()
-                .user(user)
+                .user(post.getUser())
+                .sender(user)
                 .type(NotificationType.POSTLIKE)
                 .post(post)
                 .build();
@@ -93,6 +94,7 @@ public class Notification extends BaseEntity{
                 .sender(sender)
                 .build();
     }
+
 
     public static Notification CreateFirstChatMessageNotification(User user, ChatRoom chatRoom, User sender){
         return Notification.builder()
