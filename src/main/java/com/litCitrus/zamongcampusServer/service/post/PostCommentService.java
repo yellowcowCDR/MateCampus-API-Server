@@ -90,7 +90,7 @@ public class PostCommentService {
 
         }else if(user.getLoginId() != post.getUser().getLoginId()){
             // 4-1. Notication에 저장
-            Notification newNotification = notificationRepository.save(Notification.CreatePostCommentNotification(post.getUser(), postComment));
+            Notification newNotification = notificationRepository.save(Notification.CreatePostCommentNotification(post.getUser(), postComment, user));
             // 4-2. fcm 알림
             String message = post.getBody().replaceAll("\n", " ");
             // 여기서 \n를 rex해서 바꿔야해. 정규식으로.

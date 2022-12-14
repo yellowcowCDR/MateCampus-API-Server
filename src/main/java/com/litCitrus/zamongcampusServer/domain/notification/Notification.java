@@ -60,9 +60,10 @@ public class Notification extends BaseEntity{
     }
 
     // sender 없음
-    public static Notification CreatePostCommentNotification(User user, PostComment postComment){
+    public static Notification CreatePostCommentNotification(User user, PostComment postComment, User sender){
         return Notification.builder()
                 .user(user)
+                .sender(sender)
                 .type(NotificationType.POST)
                 .postComment(postComment)
                 .build();
