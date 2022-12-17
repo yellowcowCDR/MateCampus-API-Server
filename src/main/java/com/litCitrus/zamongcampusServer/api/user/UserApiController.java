@@ -85,6 +85,7 @@ public class UserApiController {
                 .map(u -> new UserDtoRes.ResForCheckMember(u.getId()
                         , u.getNickname()
                         , u.getCollegeCode().getKorName()
+                        , u.isActivated()
                         , u.getPictures().stream().map(up -> up.getStored_file_path()).collect(Collectors.toList())))
                 .collect(Collectors.toList()));
     }

@@ -126,6 +126,7 @@ public class UserDtoRes {
         Long id;
         String name;
         String college;
+        Boolean activate;
         List<String> pictures;
     }
 }
