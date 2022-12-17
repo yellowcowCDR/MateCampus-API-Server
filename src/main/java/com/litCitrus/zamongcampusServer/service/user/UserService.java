@@ -244,4 +244,8 @@ public class UserService {
     public boolean checkNicknameDuplication(String nickname) {
         return userRepository.findByNickname(nickname).isPresent();
     }
+
+    public List<User> findAll() {
+        return userRepository.findAll();
+    }
 }

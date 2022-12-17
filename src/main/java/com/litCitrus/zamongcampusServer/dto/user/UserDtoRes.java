@@ -6,6 +6,7 @@ import com.litCitrus.zamongcampusServer.domain.user.Friend;
 import com.litCitrus.zamongcampusServer.domain.user.User;
 import com.litCitrus.zamongcampusServer.domain.user.UserPicture;
 import com.litCitrus.zamongcampusServer.dto.interest.InterestDtoRes;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 
@@ -117,6 +118,15 @@ public class UserDtoRes {
 //            }
             this.imageUrl  = pictures.get(0).getStored_file_path();
         }
+    }
+
+    @Getter
+    @AllArgsConstructor
+    public static class ResForCheckMember {
+        Long id;
+        String name;
+        String college;
+        List<String> pictures;
     }
 }
 

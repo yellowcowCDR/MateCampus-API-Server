@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
@@ -75,6 +76,17 @@ public class UserApiController {
     @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<User> getUserInfoByAdmin(@PathVariable String username) {
         return ResponseEntity.ok(userService.getUserWithAuthorities(username).get());
+    }
+
+    @GetMapping("/users")
+    @PreAuthorize("hasAnyRole('ADMIN')")
+    public ResponseEntity<List<UserDtoRes.ResForCheckMember>> getUsers() {
+        return ResponseEntity.ok(userService.findAll().stream()
+                .map(u -> new UserDtoRes.ResForCheckMember(u.getId()
+                        , u.getNickname()
+                        , u.getCollegeCode().getKorName()
+                        , u.getPictures().stream().map(up -> up.getStored_file_path()).collect(Collectors.toList())))
+                .collect(Collectors.toList()));
     }
 
     @PostMapping("/user/activate")
