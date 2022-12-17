@@ -133,7 +133,7 @@ public class User extends BaseEntity {
                 .collegeCode(CollegeCode.valueOf(userDto.getCollegeCode()))
                 .major(major)
                 .introduction(userDto.getIntroduce())
-//                .activated(true)  // 이거 활성화시키면 회원가입만 하면 우리 서비스 바로 사용 가능.
+                .activated(true)  // 이거 활성화시키면 회원가입만 하면 서비스 바로 사용 가능.
                 .build();
         return user;
     }
