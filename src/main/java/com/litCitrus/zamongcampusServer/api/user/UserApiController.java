@@ -89,10 +89,10 @@ public class UserApiController {
                 .collect(Collectors.toList()));
     }
 
-    @PostMapping("/user/activate")
+    @PatchMapping("/user/activate/{id}")
     @PreAuthorize("hasAnyRole('ADMIN')")
-    public ResponseEntity<?> activateUser(@RequestParam("loginId") String loginId) {
-        User user = userService.activateUser(loginId);
-        return ResponseEntity.ok("정상접근: " + user.getLoginId() + " 활성화 완료");
+    public ResponseEntity<?> updateUserActivation(@PathVariable("id") Long userId, boolean activated) {
+        User user = userService.activateUser(userId, activated);
+        return ResponseEntity.ok("정상접근: " + user.getLoginId() + " 활성화 상태 "+ activated +"로 설정 완료");
     }
 }
