@@ -1,24 +1,15 @@
 package com.litCitrus.zamongcampusServer.dto.user;
 
 import com.litCitrus.zamongcampusServer.domain.interest.Interest;
-import com.litCitrus.zamongcampusServer.domain.notification.Notification;
-import com.litCitrus.zamongcampusServer.domain.post.Post;
-import com.litCitrus.zamongcampusServer.domain.post.PostBookMark;
-import com.litCitrus.zamongcampusServer.domain.post.PostComment;
-import com.litCitrus.zamongcampusServer.domain.post.PostLike;
-import com.litCitrus.zamongcampusServer.domain.user.*;
-import com.litCitrus.zamongcampusServer.domain.voiceRoom.VoiceRoom;
+import com.litCitrus.zamongcampusServer.domain.user.CollegeCode;
+import com.litCitrus.zamongcampusServer.domain.user.Friend;
+import com.litCitrus.zamongcampusServer.domain.user.User;
+import com.litCitrus.zamongcampusServer.domain.user.UserPicture;
 import com.litCitrus.zamongcampusServer.dto.interest.InterestDtoRes;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 public class UserDtoRes {
@@ -73,7 +64,7 @@ public class UserDtoRes {
         public ResWithMajorCollege(User user){
             super(user);
             this.collegeCode = user.getCollegeCode().name();
-            this.majorCode = user.getMajorCode().name();
+            this.majorCode = user.getMajor().getName();
         }
     }
 
@@ -110,16 +101,16 @@ public class UserDtoRes {
         private CollegeCode collegeCode;
 
 
-        private MajorCode majorCode;
+        private String major;
 
         //private List<String> imageUrls;
         private String imageUrl;
 
-        public ResForPostLikedUsers(String loginId, String nickname, CollegeCode collegeCode, MajorCode majorCode, List<UserPicture> pictures){
+        public ResForPostLikedUsers(String loginId, String nickname, CollegeCode collegeCode, String major, List<UserPicture> pictures){
             this.loginId = loginId;
             this.nickname = nickname;
             this.collegeCode = collegeCode;
-            this.majorCode = majorCode;
+            this.major = major;
 //            this.imageUrls = new ArrayList<String>();
 //            for(UserPicture picture : pictures){
 //                this.imageUrls.add(picture.getStored_file_path());

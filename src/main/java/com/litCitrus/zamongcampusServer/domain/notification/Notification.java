@@ -1,6 +1,7 @@
 package com.litCitrus.zamongcampusServer.domain.notification;
 
 import com.litCitrus.zamongcampusServer.domain.BaseEntity;
+import com.litCitrus.zamongcampusServer.domain.chat.ChatRoom;
 import com.litCitrus.zamongcampusServer.domain.post.Post;
 import com.litCitrus.zamongcampusServer.domain.post.PostComment;
 import com.litCitrus.zamongcampusServer.domain.user.Friend;
@@ -30,10 +31,16 @@ public class Notification extends BaseEntity{
     private NotificationType type;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    private Post post;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     private PostComment postComment;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Friend friend;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private ChatRoom chatRoom;
 
     // TODO: body 값을 넣거나, 아니면 nullable로 변경해야할듯.
     @ManyToOne(fetch = FetchType.LAZY)
@@ -43,11 +50,30 @@ public class Notification extends BaseEntity{
     @NotNull
     private boolean unRead = Boolean.TRUE;
 
+    public static Notification CreatePostLikeNotification(User user, Post post){
+        return Notification.builder()
+                .user(post.getUser())
+                .sender(user)
+                .type(NotificationType.POSTLIKE)
+                .post(post)
+                .build();
+    }
+
     // sender 없음
-    public static Notification CreatePostCommentNotification(User user, PostComment postComment){
+    public static Notification CreatePostCommentNotification(User user, PostComment postComment, User sender){
         return Notification.builder()
                 .user(user)
+                .sender(sender)
                 .type(NotificationType.POST)
+                .postComment(postComment)
+                .build();
+    }
+
+    public static Notification CreatePostSubCommentNotification(User user, PostComment postComment, User sender){
+        return Notification.builder()
+                .user(user)
+                .sender(sender)
+                .type(NotificationType.POSTSUBCOMMENT)
                 .postComment(postComment)
                 .build();
     }
@@ -66,6 +92,16 @@ public class Notification extends BaseEntity{
                 .user(user)
                 .type(NotificationType.VOICEROOM)
                 .voiceRoom(voiceRoom)
+                .sender(sender)
+                .build();
+    }
+
+
+    public static Notification CreateFirstChatMessageNotification(User user, ChatRoom chatRoom, User sender){
+        return Notification.builder()
+                .user(user)
+                .type(NotificationType.FIRSTCHATMESSAGE)
+                .chatRoom(chatRoom)
                 .sender(sender)
                 .build();
     }

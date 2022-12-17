@@ -4,7 +4,11 @@ import lombok.Getter;
 @Getter
 public enum NotificationType {
     POST,
+    POSTLIKE,
+    POSTSUBCOMMENT,
     FRIEND,
-    VOICEROOM;
+    VOICEROOM,
+    FIRSTCHATMESSAGE
+    ;
 }
 

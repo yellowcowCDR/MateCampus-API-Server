@@ -1,7 +1,10 @@
 package com.litCitrus.zamongcampusServer.dto.chat;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.litCitrus.zamongcampusServer.domain.user.ModifiedChatInfo;
 import com.litCitrus.zamongcampusServer.domain.user.User;
 import lombok.AllArgsConstructor;
@@ -40,6 +43,8 @@ public class SystemMessageDto {
         private String loginId;
         private String nickname;
         private String imageUrl;
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern="yyyy-MM-dd'T'HH:mm:ss.SSSSS")
+        @JsonSerialize(using = LocalDateTimeSerializer.class)
         private String createdAt;
         private String body;
     }
@@ -50,6 +55,8 @@ public class SystemMessageDto {
         private String roomId;
         private String loginId;
         private String nickname;
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern="yyyy-MM-dd'T'HH:mm:ss.SSSSS")
+        @JsonSerialize(using = LocalDateTimeSerializer.class)
         private String createdAt;
         private String body;
     }

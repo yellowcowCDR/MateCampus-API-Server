@@ -1,18 +1,16 @@
 package com.litCitrus.zamongcampusServer.dto.post;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.litCitrus.zamongcampusServer.domain.post.Post;
-import com.litCitrus.zamongcampusServer.domain.post.PostComment;
-import com.litCitrus.zamongcampusServer.domain.post.PostLike;
 import com.litCitrus.zamongcampusServer.domain.post.PostParticipant;
 import com.litCitrus.zamongcampusServer.domain.user.CollegeCode;
-import com.litCitrus.zamongcampusServer.domain.user.User;
 import com.litCitrus.zamongcampusServer.domain.user.UserPicture;
 import lombok.Getter;
 
-import javax.xml.stream.events.Comment;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 public class PostDtoRes {
@@ -45,6 +43,8 @@ public class PostDtoRes {
         private final CollegeCode writerCollegeCode;
         private final String writerProfileImageUrl;
         private final String body;
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern="yyyy-MM-dd'T'HH:mm:ss.SSSSS")
+        @JsonSerialize(using = LocalDateTimeSerializer.class)
         private final LocalDateTime createdAt;
         private final List<String> imageUrls;
         private final int likedCount;

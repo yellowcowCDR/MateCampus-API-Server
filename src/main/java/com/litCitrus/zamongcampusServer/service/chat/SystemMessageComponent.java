@@ -4,12 +4,10 @@ import com.litCitrus.zamongcampusServer.domain.chat.ChatRoom;
 import com.litCitrus.zamongcampusServer.domain.user.ModifiedChatInfo;
 import com.litCitrus.zamongcampusServer.domain.user.User;
 import com.litCitrus.zamongcampusServer.dto.chat.ChatMessageDtoReq;
-import com.litCitrus.zamongcampusServer.dto.chat.ChatMessageDtoRes;
 import com.litCitrus.zamongcampusServer.dto.chat.SystemMessageDto;
 import com.litCitrus.zamongcampusServer.io.dynamodb.service.DynamoDBHandler;
 import com.litCitrus.zamongcampusServer.repository.user.ModifiedChatInfoRepository;
 import lombok.AllArgsConstructor;
-import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Component;
 
@@ -47,7 +45,7 @@ public class SystemMessageComponent {
         messagingTemplate.convertAndSend("/sub/chat/room/" + chatRoom.getRoomId(), enterDto);
 
         /* 2. 입장메세지(일반) dynamodb에 message 저장 */
-        ChatMessageDtoReq messageDto = new ChatMessageDtoReq(chatRoom.getRoomId(), newMember.getNickname()+"님이 입장하셨습니다.", "ENTER", chatRoom.getType());
+        ChatMessageDtoReq messageDto = new ChatMessageDtoReq(chatRoom.getRoomId(), newMember.getNickname()+"님이 입장하셨습니다.", "ENTER", chatRoom.getType(), newMember.getLoginId());
         dynamoDBHandler.putMessage(messageDto, null, currentTime);
 
         /* 3. 각 유저의 modifiedChatInfos에 저장 */
@@ -75,7 +73,7 @@ public class SystemMessageComponent {
         messagingTemplate.convertAndSend("/sub/chat/room/" + chatRoom.getRoomId(), exitDto);
 
         /* 2. 퇴장메세지(일반) dynamodb에 message 저장 */
-        ChatMessageDtoReq messageDto = new ChatMessageDtoReq(chatRoom.getRoomId(), exitMember.getNickname()+"님이 퇴장하셨습니다.", "EXIT", chatRoom.getType());
+        ChatMessageDtoReq messageDto = new ChatMessageDtoReq(chatRoom.getRoomId(), exitMember.getNickname()+"님이 퇴장하셨습니다.", "EXIT", chatRoom.getType(), exitMember.getLoginId());
         dynamoDBHandler.putMessage(messageDto, null, currentTime);
 
         /* 3. 각 유저의 modifiedChatInfos에 저장 */

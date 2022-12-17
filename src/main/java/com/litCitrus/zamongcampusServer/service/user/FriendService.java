@@ -1,11 +1,12 @@
 package com.litCitrus.zamongcampusServer.service.user;
 
-import com.litCitrus.zamongcampusServer.domain.interest.Interest;
 import com.litCitrus.zamongcampusServer.domain.notification.Notification;
 import com.litCitrus.zamongcampusServer.domain.user.Friend;
 import com.litCitrus.zamongcampusServer.domain.user.User;
 import com.litCitrus.zamongcampusServer.dto.user.FriendDtoReq;
 import com.litCitrus.zamongcampusServer.dto.user.FriendDtoRes;
+import com.litCitrus.zamongcampusServer.exception.friend.FriendException;
+import com.litCitrus.zamongcampusServer.exception.friend.FriendExceptionType;
 import com.litCitrus.zamongcampusServer.exception.user.UserNotFoundException;
 import com.litCitrus.zamongcampusServer.io.fcm.FCMDto;
 import com.litCitrus.zamongcampusServer.io.fcm.FCMHandler;
@@ -74,13 +75,24 @@ public class FriendService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public FriendDtoRes.ResWithDetail getFriend(String friendId){
-        User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
-        Friend friend = friendRepository.findById(Long.parseLong(friendId)).get();
-        User other = friend.getRequestor().equals(user) ? friend.getRecipient() : friend.getRequestor();
-        List<Interest> otherInterests = interestRepository.findAllByUserInterests_User(other);
-        return new FriendDtoRes.ResWithDetail(other, friend, otherInterests);
+        User user = SecurityUtil.getUser();
+        Friend friend = friendRepository.findById(Long.parseLong(friendId)).orElseThrow(() -> new FriendException(FriendExceptionType.NOT_FOUND));
+
+        Long otherId;
+        if (friend.getRequestor().getId() == user.getId()) {
+            otherId = friend.getRecipient().getId();
+        } else if(friend.getRecipient().getId() == user.getId()) {
+            otherId = friend.getRequestor().getId();
+        } else {
+            throw new FriendException(FriendExceptionType.NOT_FRIEND);
+        }
+
+        User other = userRepository.findMj$IC$PicById(otherId).orElseThrow();
+        return new FriendDtoRes.ResWithDetail(other, friend);
     }
+
     // ** 친구수락
     @Transactional
     public Friend approveFriend(FriendDtoReq.Update dto){
