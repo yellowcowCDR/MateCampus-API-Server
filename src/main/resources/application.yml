@@ -51,8 +51,12 @@ spring:
   config:
     activate:
       on-profile: "dev"
+cors:
+  url: "http://localhost:3000"
 ---
 spring:
   config:
     activate:
       on-profile: "prod"
+cors:
+  url: "http://43.201.34.37:3000"

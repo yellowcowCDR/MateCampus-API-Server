@@ -53,6 +53,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
+                .cors().and() //mate 관리자 서버를 위해 cors 허용
                 .csrf().disable()
 
                 .exceptionHandling()

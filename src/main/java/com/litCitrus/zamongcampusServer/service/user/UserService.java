@@ -231,9 +231,9 @@ public class UserService {
     }
 
     @Transactional
-    public User activateUser(String loginId){
-        User user = userRepository.findOneWithAuthoritiesByLoginId(loginId).orElseThrow(UserNotFoundException::new);
-        user.updateActivated(true);
+    public User activateUser(Long userId, boolean activated){
+        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        user.updateActivated(activated);
         return user;
     }
 
@@ -243,5 +243,9 @@ public class UserService {
 
     public boolean checkNicknameDuplication(String nickname) {
         return userRepository.findByNickname(nickname).isPresent();
+    }
+
+    public List<User> findAll() {
+        return userRepository.findAll();
     }
 }

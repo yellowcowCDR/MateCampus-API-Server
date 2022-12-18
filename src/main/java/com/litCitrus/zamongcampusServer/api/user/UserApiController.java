@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
@@ -77,10 +78,22 @@ public class UserApiController {
         return ResponseEntity.ok(userService.getUserWithAuthorities(username).get());
     }
 
-    @PostMapping("/user/activate")
+    @GetMapping("/users")
     @PreAuthorize("hasAnyRole('ADMIN')")
-    public ResponseEntity<?> activateUser(@RequestParam("loginId") String loginId) {
-        User user = userService.activateUser(loginId);
-        return ResponseEntity.ok("정상접근: " + user.getLoginId() + " 활성화 완료");
+    public ResponseEntity<List<UserDtoRes.ResForCheckMember>> getUsers() {
+        return ResponseEntity.ok(userService.findAll().stream()
+                .map(u -> new UserDtoRes.ResForCheckMember(u.getId()
+                        , u.getNickname()
+                        , u.getCollegeCode().getKorName()
+                        , u.isActivated()
+                        , u.getPictures().stream().map(up -> up.getStored_file_path()).collect(Collectors.toList())))
+                .collect(Collectors.toList()));
+    }
+
+    @PatchMapping("/user/activate/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN')")
+    public ResponseEntity<?> updateUserActivation(@PathVariable("id") Long userId, boolean activated) {
+        User user = userService.activateUser(userId, activated);
+        return ResponseEntity.ok("정상접근: " + user.getLoginId() + " 활성화 상태 "+ activated +"로 설정 완료");
     }
 }

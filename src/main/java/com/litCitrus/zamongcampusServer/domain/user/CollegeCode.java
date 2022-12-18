@@ -5,10 +5,10 @@ import lombok.Getter;
 @Getter
 public enum CollegeCode {
     COLLEGE0000("빈값"),
-    COLLEGE0001("단국대학교"),
-    COLLEGE0002("건국대학교"),
-    COLLEGE0003("동국대학교"),
-    COLLEGE0004("홍익대학교"),
+    COLLEGE0001("가톨릭대학교"),
+    COLLEGE0002("강서대학교"),
+    COLLEGE0003("건국대학교"),
+    COLLEGE0004("경기대학교"),
     COLLEGE0005("경희대학교"),
     COLLEGE0006("고려대학교"),
     COLLEGE0007("광운대학교"),
