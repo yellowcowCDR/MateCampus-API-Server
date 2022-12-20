@@ -58,11 +58,11 @@ public class ChatMessageService {
         ChatRoom chatRoom = chatRoomRepository.findByRoomId(messageDto.getRoomId()).orElseThrow(ChatRoomNotFoundException::new);
         /* 1. 채팅 메시지를 채팅방에 소속된 사용자에게 전송 (roomId에 메세지 publish) */
         messagingTemplate.convertAndSend("/sub/chat/room/" + messageDto.getRoomId(), roomIdMessageBundleDto);
-        if(chatRoom.getType() != "multi" || !chatRoom.getType().equals("multi")){
+        if(chatRoom.getType().equals("single")){
             /// TODO: 만약 multi방이면 알림 전송 x. (추후 single,multi,voice 이렇게 변경해서 voice를 안 보내도록 변경해야함)
             // 현재는 multi면 dynamo 저장도 fcm도 전송 안하도록 구현 (voice는 실시간 기반이기에)
             // 첫 채팅메세지 전송 시, 상대방에게 알림전송
-            ChatMessageDtoRes.ChatBundle messageInfoFromDNDB = getChatMessageDynamo(currentTime);
+            ChatMessageDtoRes.ChatBundle messageInfoFromDNDB = getChatMessageDynamo(currentTime, user);
             if(messageInfoFromDNDB.getRoomMessageBundles()==null || messageInfoFromDNDB.getRoomMessageBundles().size()<1){
                 List<String> chatRoomTitleAndImage = chatRoom.getCounterpartChatRoomTitleAndImage(user.getLoginId());
                 String message = user.getNickname()+"님이 나에게 첫 채팅을 걸었습니다!";
@@ -100,9 +100,10 @@ public class ChatMessageService {
     }
 
     // READ: GET MESSAGE
-    public ChatMessageDtoRes.ChatBundle getChatMessageDynamo(String createdAfter){
+    @Transactional
+    public ChatMessageDtoRes.ChatBundle getChatMessageDynamo(String createdAfter, User user){
         /* 1. 참여한 모든 방 찾기 */
-        User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
+        //User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
         List<ChatRoom> chatRooms = chatRoomRepository.findAllByParticipant_Users(user);
 
         /* 2. 각 채팅 roomId 기준으로 DynamoDB에서 메시지 가져오고 dto로 변환 */
