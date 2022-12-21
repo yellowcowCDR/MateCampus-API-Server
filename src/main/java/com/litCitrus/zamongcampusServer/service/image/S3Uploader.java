@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -83,6 +82,8 @@ public class S3Uploader {
     private Optional<List<File>> convert(List<MultipartFile> multipartFiles, String dirname) throws IOException {
         List<File> files = new ArrayList<>();
         String path = new File("").getAbsolutePath() + "/images/";
+        log.debug("[@S3Uploader, convert] path: "+ path);
+
         for (MultipartFile file : multipartFiles) {
             String new_file_name = Long.toString(System.nanoTime()) + file.getOriginalFilename();
             File convertFile = new File(path + new_file_name);
