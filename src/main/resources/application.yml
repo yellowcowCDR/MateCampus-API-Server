@@ -8,8 +8,8 @@ spring:
     # 서버 작동 시, table 계속 create 하도록 설정
     database: mysql
     hibernate:
-#      ddl-auto: create
-      ddl-auto: none
+      ddl-auto: create
+#      ddl-auto: none
     # sql 관련 log
     properties:
       hibernate:
@@ -20,8 +20,8 @@ spring:
 
   # .sql 파일 실행하도록 하는 설정.
   datasource:
-#    initialization-mode: always
-    initialization-mode: never
+    initialization-mode: always
+#    initialization-mode: never
   # image size 최대 크기 조정
   servlet:
     multipart:
