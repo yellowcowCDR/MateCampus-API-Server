@@ -13,8 +13,8 @@ import javax.validation.constraints.NotEmpty;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class PostPicture extends BaseEntity {
     @Id
-    @GeneratedValue
-    private Integer ID;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Post post;

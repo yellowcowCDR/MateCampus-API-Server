@@ -12,6 +12,7 @@ import com.litCitrus.zamongcampusServer.repository.user.UserRepository;
 import com.litCitrus.zamongcampusServer.service.image.S3Uploader;
 import com.litCitrus.zamongcampusServer.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -23,6 +24,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PostService {
@@ -45,6 +47,9 @@ public class PostService {
 
         if(postDto.getFiles() != null){
             List<String> uploadImageUrls = s3Uploader.upload(postDto.getFiles(), "2022/post");
+            for(String uploadImageUrl: uploadImageUrls){
+                log.debug("[@PostService, createPost] uploadImageUrl: " + uploadImageUrl);
+            }
             List<PostPicture> postPictures = uploadImageUrls.stream().map(url -> PostPicture.createPostPicture(post, url)).collect(Collectors.toList());
             postPictureRepository.saveAll(postPictures);
         }
