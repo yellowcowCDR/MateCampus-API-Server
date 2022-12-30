@@ -12,9 +12,11 @@ import com.litCitrus.zamongcampusServer.io.dynamodb.service.DynamoDBHandler;
 import com.litCitrus.zamongcampusServer.io.fcm.FCMDto;
 import com.litCitrus.zamongcampusServer.io.fcm.FCMHandler;
 import com.litCitrus.zamongcampusServer.repository.chat.ChatRoomRepository;
+import com.litCitrus.zamongcampusServer.repository.user.BlockedUserRepository;
 import com.litCitrus.zamongcampusServer.repository.user.ModifiedChatInfoRepository;
 import com.litCitrus.zamongcampusServer.repository.user.UserRepository;
 import com.litCitrus.zamongcampusServer.security.jwt.TokenProvider;
+import com.litCitrus.zamongcampusServer.service.user.BlockedUserService;
 import com.litCitrus.zamongcampusServer.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
@@ -40,6 +42,10 @@ public class ChatMessageService {
     private final TokenProvider tokenProvider;
     private final FCMHandler fcmHandler;
 
+    private final BlockedUserRepository blockedUserRepository;
+
+    private final BlockedUserService blockedUserService;
+
     @Transactional
     public void sendMessage(ChatMessageDtoReq messageDto, String token){
         /* Dynamo Db에 저장 + 메시지를 채팅방(roomId)에게 Stomp으로 전송한다 */
@@ -62,23 +68,7 @@ public class ChatMessageService {
             /// TODO: 만약 multi방이면 알림 전송 x. (추후 single,multi,voice 이렇게 변경해서 voice를 안 보내도록 변경해야함)
             // 현재는 multi면 dynamo 저장도 fcm도 전송 안하도록 구현 (voice는 실시간 기반이기에)
             // 첫 채팅메세지 전송 시, 상대방에게 알림전송
-            ChatMessageDtoRes.ChatBundle messageInfoFromDNDB = getChatMessageDynamo(currentTime, user);
-            if(messageInfoFromDNDB.getRoomMessageBundles()==null || messageInfoFromDNDB.getRoomMessageBundles().size()<1){
-                List<String> chatRoomTitleAndImage = chatRoom.getCounterpartChatRoomTitleAndImage(user.getLoginId());
-                String message = user.getNickname()+"님이 나에게 첫 채팅을 걸었습니다!";
-                FCMDto fcmDto = new FCMDto(messageDto.getText(),
-                        new HashMap<String,String>(){{
-                            put("navigate","/chatDetail");
-                            put("roomId", chatRoom.getRoomId());
-                            put("title", user.getNickname());
-                            put("imageUrl", user.getPictures().isEmpty() ? null : user.getPictures().get(0).getStored_file_path());
-                            put("type", chatRoom.getType());
 
-                        }});
-                List<User> recipientsExceptMe  = chatRoomRepository.findByRoomId(messageDto.getRoomId()).orElseThrow(ChatRoomNotFoundException::new)
-                        .getUsers().stream().filter(recipient -> !recipient.getLoginId().equals(user.getLoginId())).collect(Collectors.toList());
-                fcmHandler.sendNotification(fcmDto, "fcm_message_channel",recipientsExceptMe, user.getNickname());
-            }
             /* 2. 채팅 메시지 디비에 저장 */
             dynamoDBHandler.putMessage(messageDto, user.getLoginId(), currentTime);
             /* 3. fcm(알림) 전송 */
@@ -94,7 +84,10 @@ public class ChatMessageService {
                     }});
             List<User> recipientsExceptMe  = chatRoomRepository.findByRoomId(messageDto.getRoomId()).orElseThrow(ChatRoomNotFoundException::new)
                     .getUsers().stream().filter(recipient -> !recipient.getLoginId().equals(user.getLoginId())).collect(Collectors.toList());
-            fcmHandler.sendNotification(fcmDto, "fcm_message_channel",recipientsExceptMe, user.getNickname());
+            recipientsExceptMe = recipientsExceptMe.stream().filter((recipientExceptMe)->!blockedUserRepository.existsByRequestedUserAndBlockedUser(recipientExceptMe, user)).collect(Collectors.toList());
+            if(recipientsExceptMe!=null && recipientsExceptMe.size()>0) {
+                fcmHandler.sendNotification(fcmDto, "fcm_message_channel", recipientsExceptMe, user.getNickname());
+            }
         }
 
     }

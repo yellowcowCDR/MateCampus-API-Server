@@ -1,6 +1,5 @@
 package com.litCitrus.zamongcampusServer.io.dynamodb.service;
 
-import com.litCitrus.zamongcampusServer.domain.user.User;
 import com.litCitrus.zamongcampusServer.dto.chat.ChatMessageDtoReq;
 import com.litCitrus.zamongcampusServer.io.dynamodb.model.ChatMessage;
 import lombok.RequiredArgsConstructor;
@@ -12,8 +11,6 @@ import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 import software.amazon.awssdk.enhanced.dynamodb.model.PageIterable;
 import software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional;
 import software.amazon.awssdk.services.dynamodb.model.DynamoDbException;
-
-import java.time.LocalDateTime;
 
 @RequiredArgsConstructor
 @Component
