@@ -1,6 +1,5 @@
 package com.litCitrus.zamongcampusServer.io.dynamodb.service;
 
-import com.litCitrus.zamongcampusServer.domain.user.User;
 import com.litCitrus.zamongcampusServer.dto.chat.ChatMessageDtoReq;
 import com.litCitrus.zamongcampusServer.io.dynamodb.model.ChatMessage;
 import lombok.RequiredArgsConstructor;
@@ -12,8 +11,6 @@ import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 import software.amazon.awssdk.enhanced.dynamodb.model.PageIterable;
 import software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional;
 import software.amazon.awssdk.services.dynamodb.model.DynamoDbException;
-
-import java.time.LocalDateTime;
 
 @RequiredArgsConstructor
 @Component
@@ -77,5 +74,25 @@ public class DynamoDBHandler {
             return null;
         }
 
+    }
+
+    public PageIterable<ChatMessage> getMessages(String roomId){
+        try {
+            // 테이블 세팅
+            DynamoDbTable<ChatMessage> chatMessageTable = enhancedClient.table("ChatMessage", TableSchema.fromBean(ChatMessage.class));
+
+            // 검색할 프라이머리키 생성
+            Key startKey = Key.builder()
+                    .partitionValue(roomId)
+                    .build();
+            QueryConditional queryConditional = QueryConditional.sortGreaterThan(startKey);
+
+            // 키로 아이템 가져오기
+            return chatMessageTable.query(queryConditional);
+
+        } catch (DynamoDbException e) {
+            System.err.println(e.getMessage());
+            return null;
+        }
     }
 }
