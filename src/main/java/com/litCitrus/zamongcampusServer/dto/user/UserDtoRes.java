@@ -124,10 +124,12 @@ public class UserDtoRes {
     @AllArgsConstructor
     public static class ResForCheckMember {
         Long id;
+        String loginId;
         String name;
         String college;
+        String major;
         Boolean activate;
-        List<String> pictures;
+        String picture;
     }
 }
 
