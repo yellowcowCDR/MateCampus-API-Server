@@ -83,10 +83,12 @@ public class UserApiController {
     public ResponseEntity<List<UserDtoRes.ResForCheckMember>> getUsers() {
         return ResponseEntity.ok(userService.findAll().stream()
                 .map(u -> new UserDtoRes.ResForCheckMember(u.getId()
+                        , u.getLoginId()
                         , u.getNickname()
                         , u.getCollegeCode().getKorName()
+                        , u.getMajor().getName()
                         , u.isActivated()
-                        , u.getPictures().stream().map(up -> up.getStored_file_path()).collect(Collectors.toList())))
+                        , u.getStudentIdImageUrl()))
                 .collect(Collectors.toList()));
     }
 

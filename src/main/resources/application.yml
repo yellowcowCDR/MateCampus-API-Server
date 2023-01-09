@@ -1,9 +1,10 @@
 spring:
   profiles:
     group:
-      "dev": "dev-db"
+      "dev": "dev-db,sample-data"
+      "dev-no-db-initialization": "dev-db"
       "prod": "prod-db"
-    active: "dev"
+    active: "dev-no-db-initialization"
   jpa:
     # 서버 작동 시, table 계속 create 하도록 설정
     database: mysql
@@ -53,6 +54,21 @@ spring:
       on-profile: "dev"
 cors:
   url: "http://localhost:3000"
+---
+spring:
+  config:
+    activate:
+      on-profile: "dev-no-db-initialization"
+  jpa:
+    # 서버 작동 시, table 검사만 실행
+    hibernate:
+      ddl-auto: validate
+  # .sql 파일 실행하지 않도록 설정
+  datasource:
+    initialization-mode: never
+cors:
+  url: "http://localhost:3000"
+
 ---
 spring:
   config:

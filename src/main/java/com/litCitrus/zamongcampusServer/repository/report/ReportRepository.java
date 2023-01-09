@@ -16,7 +16,7 @@ public interface ReportRepository extends JpaRepository<Report, Long> {
             +"and (:#{#searchInfo.targetUserId} is null or r.targetUser.loginId = :#{#searchInfo.targetUserId})"
             +"and (:#{#searchInfo.reportContent} is null or r.reportContent LIKE %:#{#searchInfo.reportContent}%)"
             +"and (:#{#searchInfo._createdDateStart} is null or r.createdAt >= :#{#searchInfo._createdDateStart})"
-            +"and (:#{#searchInfo._createdDateEnd} is null or r.createdAt <= :#{#searchInfo._createdDateEnd})"
+            +"and (:#{#searchInfo._createdDateEnd} is null or r.createdAt <= :#{#searchInfo._createdDateEnd}) order by r.createdAt desc"
     )
     List<Report> findAllByReportCategoryAndReportedUserIdAndTargetUserIdAndReportContentAndCreatedAtAfterAndCreatedAtBefore(
             @Param("searchInfo")ReportReq.Search searchInfo
