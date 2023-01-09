@@ -58,10 +58,10 @@ spring:
     activate:
       on-profile: "dev-no-db-initialization"
   jpa:
-    # 서버 작동 시, table 계속 create 하도록 설정
+    # 서버 작동 시, table 검사만 실행
     hibernate:
       ddl-auto: validate
-  # .sql 파일 실행하도록 하는 설정.
+  # .sql 파일 실행하지 않도록 설정
   datasource:
     initialization-mode: never
 cors:
