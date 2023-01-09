@@ -116,7 +116,7 @@ public class UserDtoRes {
 //            for(UserPicture picture : pictures){
 //                this.imageUrls.add(picture.getStored_file_path());
 //            }
-            this.imageUrl  = pictures.get(0).getStored_file_path();
+            this.imageUrl  = pictures.size() == 0 ? "" : pictures.get(0).getStored_file_path();
         }
     }
 
