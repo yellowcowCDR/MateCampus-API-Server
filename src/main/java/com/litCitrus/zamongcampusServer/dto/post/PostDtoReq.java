@@ -16,7 +16,6 @@ public class PostDtoReq {
     public static class Create {
 
         @NotBlank(message = "게시물 내용이 비워있습니다")
-        @Size(min = 5, message = "게시물 글자 수는 5자 이상입니다")
         private String body;
 
         private List<MultipartFile> files;
