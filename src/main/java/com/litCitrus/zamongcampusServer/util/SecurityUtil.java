@@ -62,6 +62,7 @@ public class SecurityUtil {
         }
     }
 
+    //비회원 접근 시 401 에러 발생해도 상관없는 경우에만 해당 메서드 사용할 것
     public static User getUser() throws UserNotFoundException {
         try {
             CustomUserDetails principal = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();

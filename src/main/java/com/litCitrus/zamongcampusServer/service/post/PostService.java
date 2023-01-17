@@ -62,7 +62,7 @@ public class PostService {
 
     // READ : 전체 게시글 최신순
     public List<PostDtoRes.Res> getAllPostOrderByRecent(String nextPageToken, Boolean onlyOurCollege){
-        User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
+        User user = SecurityUtil.getUser();
         Pageable page = PageRequest.of(Integer.parseInt(nextPageToken), 10); // 0번째부터 10개의 게시글
 
         List<PostDtoRes.Res> postList;
