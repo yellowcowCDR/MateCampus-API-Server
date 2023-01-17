@@ -48,6 +48,11 @@ dependencies {
 	//json
 	implementation group: 'org.json', name: 'json', version: '20220924'
 
+	//querydsl
+	implementation 'com.querydsl:querydsl-jpa'
+	annotationProcessor("com.querydsl:querydsl-apt:${dependencyManagement.importedProperties['querydsl.version']}:jpa")
+	annotationProcessor("jakarta.persistence:jakarta.persistence-api")
+	annotationProcessor("jakarta.annotation:jakarta.annotation-api")
 }
 
 // 이거 나중에 폴더 나눠서 원하는 것만 컴파일 가능.
