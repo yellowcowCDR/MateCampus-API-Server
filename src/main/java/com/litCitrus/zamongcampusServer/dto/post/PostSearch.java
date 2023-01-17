@@ -10,6 +10,6 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 public class PostSearch {
-    private User user;
+    private User loggedUser;
     private CollegeCode collegeCode;
 }

@@ -25,7 +25,7 @@ public class PostViewRepositoryImpl implements PostViewRepository {
         List<PostDtoRes.Res> posts = jpaQueryFactory.select(new QPostDtoRes_Res(post, postLike.isNotNull()))
                 .from(post)
                 .leftJoin(postLike)
-                .on(postLike.post.eq(post).and(postLike.user.eq(postSearch.getUser())))
+                .on(postLike.post.eq(post).and(postLike.user.eq(postSearch.getLoggedUser())))
                 .where(
                         isReadable(),
                         postSearch.getCollegeCode() != null ?
