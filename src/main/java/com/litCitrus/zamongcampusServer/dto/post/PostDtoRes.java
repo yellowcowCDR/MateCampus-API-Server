@@ -52,10 +52,10 @@ public class PostDtoRes {
         private final int commentCount;
         private final int viewCount;
         private final List<String> postCategoryCodes;
-        private final boolean liked;
+        private final Boolean liked;
 
         @QueryProjection
-        public Res(Post post, boolean liked){
+        public Res(Post post, Boolean liked){
             this.id = post.getId();
             this.loginId = post.getUser().getLoginId();
             this.userNickname = post.getUser().getNickname();
@@ -75,7 +75,7 @@ public class PostDtoRes {
         }
 
         public Res(Post post){
-            this(post, false);
+            this(post, null);
         }
     }
 }
