@@ -24,6 +24,7 @@ public class PostViewRepositoryImpl implements PostViewRepository {
     public List<PostDtoRes.Res> searchPosts(PostSearch postSearch, Pageable pageable) {
         List<PostDtoRes.Res> posts = jpaQueryFactory.select(new QPostDtoRes_Res(post, postLike.isNotNull()))
                 .from(post)
+                .join(post.user).fetchJoin()
                 .leftJoin(postLike)
                 .on(postLike.post.eq(post).and(postLike.user.eq(postSearch.getLoggedUser())))
                 .where(
