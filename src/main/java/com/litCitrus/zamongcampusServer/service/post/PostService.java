@@ -66,7 +66,7 @@ public class PostService {
         Pageable page = PageRequest.of(Integer.parseInt(nextPageToken), 10); // 0번째부터 10개의 게시글
 
         List<PostDtoRes.Res> postList;
-        PostSearch postSearch = new PostSearch(user, null, null);
+        PostSearch postSearch = new PostSearch(null, null);
 
         if (onlyOurCollege) {
             postSearch.setCollegeCode(user.getCollegeCode());
@@ -100,7 +100,7 @@ public class PostService {
     public List<PostDtoRes.Res> getMyPostOrderByRecent(String nextPageToken){
         User user = SecurityUtil.getUser();
         Pageable page = PageRequest.of(Integer.parseInt(nextPageToken), 10); // 0번째부터 10개의 게시글
-        PostSearch postSearch = new PostSearch(user, user, null);
+        PostSearch postSearch = new PostSearch(user, null);
         return   postViewRepository.searchPosts(postSearch, page);
     }
 
