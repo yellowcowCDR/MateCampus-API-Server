@@ -5,9 +5,11 @@ import com.litCitrus.zamongcampusServer.domain.user.User;
 import com.litCitrus.zamongcampusServer.dto.post.PostDtoReq;
 import com.litCitrus.zamongcampusServer.dto.post.PostDtoRes;
 import com.litCitrus.zamongcampusServer.dto.post.PostIdDto;
+import com.litCitrus.zamongcampusServer.dto.post.PostSearch;
 import com.litCitrus.zamongcampusServer.exception.post.PostNotFoundException;
 import com.litCitrus.zamongcampusServer.exception.user.UserNotFoundException;
 import com.litCitrus.zamongcampusServer.repository.post.*;
+import com.litCitrus.zamongcampusServer.repository.post.view.PostViewRepository;
 import com.litCitrus.zamongcampusServer.repository.user.UserRepository;
 import com.litCitrus.zamongcampusServer.service.image.S3Uploader;
 import com.litCitrus.zamongcampusServer.util.SecurityUtil;
@@ -34,6 +36,7 @@ public class PostService {
     private final PostPictureRepository postPictureRepository;
     private final PostLikeRepository postLikeRepository;
     private final PostBookMarkRepository postBookMarkRepository;
+    private final PostViewRepository postViewRepository;
     private final PostParticipantRepository postParticipantRepository;
     private final PostCategoryRepository postCategoryRepository;
     private final S3Uploader s3Uploader;
@@ -63,18 +66,13 @@ public class PostService {
         Pageable page = PageRequest.of(Integer.parseInt(nextPageToken), 10); // 0번째부터 10개의 게시글
 
         List<PostDtoRes.Res> postList;
-        if(onlyOurCollege) {
-            postList = postRepository.findAllByDeletedFalseOrderByCreatedAtDesc(page).stream()
-                    .filter(post -> post.isExposed())
-                    .filter(post -> post.getUser().getCollegeCode().equals(user.getCollegeCode()))
-                    .map(PostDtoRes.Res::new)
-                    .collect(Collectors.toList());
-        }else{
-            postList = postRepository.findAllByDeletedFalseOrderByCreatedAtDesc(page).stream()
-                    .filter(post -> post.isExposed())
-                    .map(PostDtoRes.Res::new)
-                    .collect(Collectors.toList());
+        PostSearch postSearch = new PostSearch(user, null);
+
+        if (onlyOurCollege) {
+            postSearch.setCollegeCode(user.getCollegeCode());
         }
+
+        postList = postViewRepository.searchPosts(postSearch, page);
         return postList;
     }
 

@@ -7,6 +7,7 @@ import com.litCitrus.zamongcampusServer.domain.post.Post;
 import com.litCitrus.zamongcampusServer.domain.post.PostParticipant;
 import com.litCitrus.zamongcampusServer.domain.user.CollegeCode;
 import com.litCitrus.zamongcampusServer.domain.user.UserPicture;
+import com.querydsl.core.annotations.QueryProjection;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
@@ -48,11 +49,13 @@ public class PostDtoRes {
         private final LocalDateTime createdAt;
         private final List<String> imageUrls;
         private final int likedCount;
-        private int commentCount;
+        private final int commentCount;
         private final int viewCount;
         private final List<String> postCategoryCodes;
+        private final boolean liked;
 
-        public Res(Post post){
+        @QueryProjection
+        public Res(Post post, boolean liked){
             this.id = post.getId();
             this.loginId = post.getUser().getLoginId();
             this.userNickname = post.getUser().getNickname();
@@ -68,6 +71,11 @@ public class PostDtoRes {
             this.commentCount = post.getCommentCount();
             this.viewCount = post.getViewCount();
             this.postCategoryCodes = post.getPostCategories().stream().map(postCategory -> postCategory.getPostCategoryCode().name()).collect(Collectors.toList());
+            this.liked = liked;
+        }
+
+        public Res(Post post){
+            this(post, false);
         }
     }
 }
