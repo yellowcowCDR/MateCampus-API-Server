@@ -40,7 +40,7 @@ public class PostLikeService {
     public PostLikeDtoRes likePost(Long postId){
         User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
         Post post = postRepository.findById(postId).orElseThrow(PostNotFoundException::new);
-        PostLike postLike = postLikeRepository.findByUserAndPost(user, post);
+        PostLike postLike = postLikeRepository.findByUserAndPost(user, post).orElse(null);
         if (ObjectUtils.isEmpty(postLike)){
             post.plusLikeCnt(); // 여기는 transactinal를 넣어야할 것 같은데, 왜 안 넣고도 적용될까?
             postLikeRepository.save(new PostLike(user, post));
