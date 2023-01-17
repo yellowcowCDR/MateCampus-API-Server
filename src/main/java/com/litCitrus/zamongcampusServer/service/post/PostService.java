@@ -98,10 +98,10 @@ public class PostService {
 
     // READ : 자신이 쓴 게시글 최신순
     public List<PostDtoRes.Res> getMyPostOrderByRecent(String nextPageToken){
-        User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
+        User user = SecurityUtil.getUser();
         Pageable page = PageRequest.of(Integer.parseInt(nextPageToken), 10); // 0번째부터 10개의 게시글
-        List<Post> posts =  postRepository.findAllByUserAndDeletedFalseOrderByCreatedAtDesc(user, page);
-        return posts.stream().map(PostDtoRes.Res::new).collect(Collectors.toList());
+        PostSearch postSearch = new PostSearch(user, user, null);
+        return   postViewRepository.searchPosts(postSearch, page);
     }
 
     // READ : 타인이 쓴 게시글 최신순
