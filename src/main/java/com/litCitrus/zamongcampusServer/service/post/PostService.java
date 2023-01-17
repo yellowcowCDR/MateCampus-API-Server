@@ -66,7 +66,7 @@ public class PostService {
         Pageable page = PageRequest.of(Integer.parseInt(nextPageToken), 10); // 0번째부터 10개의 게시글
 
         List<PostDtoRes.Res> postList;
-        PostSearch postSearch = new PostSearch(user, null);
+        PostSearch postSearch = new PostSearch(user, null, null);
 
         if (onlyOurCollege) {
             postSearch.setCollegeCode(user.getCollegeCode());

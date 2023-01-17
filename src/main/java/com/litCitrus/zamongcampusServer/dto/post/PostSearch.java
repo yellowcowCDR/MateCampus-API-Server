@@ -11,5 +11,6 @@ import lombok.Setter;
 @AllArgsConstructor
 public class PostSearch {
     private User loggedUser;
+    private User writer;
     private CollegeCode collegeCode;
 }

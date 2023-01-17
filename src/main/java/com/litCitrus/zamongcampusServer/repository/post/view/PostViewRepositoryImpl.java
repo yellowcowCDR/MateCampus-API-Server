@@ -30,7 +30,9 @@ public class PostViewRepositoryImpl implements PostViewRepository {
                 .where(
                         isReadable(),
                         postSearch.getCollegeCode() != null ?
-                                post.user.collegeCode.eq(postSearch.getCollegeCode()) : null
+                                post.user.collegeCode.eq(postSearch.getCollegeCode()) : null,
+                        postSearch.getWriter() != null ?
+                                post.user.eq(postSearch.getWriter()) : null
                 )
                 .orderBy(post.createdAt.desc())
                 .offset(pageable.getOffset())
