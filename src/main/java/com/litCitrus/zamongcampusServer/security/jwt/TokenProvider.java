@@ -194,7 +194,7 @@ public class TokenProvider implements InitializingBean {
     private HttpHeaders getHeaderForRefreshToken(String refreshToken) {
         HttpHeaders httpHeaders = new HttpHeaders();
         //HttpOnly: XSS 공격방지, 31536000 sec = 1 year
-        httpHeaders.add("Set-Cookie", CookieAndHeaderUtil.REFRESH_TOKEN_KEY + "=" + refreshToken + "; HttpOnly; Max-Age=31536000; Path=/");
+        httpHeaders.add("Set-Cookie", CookieAndHeaderUtil.REFRESH_TOKEN_KEY + "=" + refreshToken + "; HttpOnly; Max-Age=31536000; Path=/; SameSite=None; Secure;");
         return httpHeaders;
     }
 }
