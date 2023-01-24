@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -61,7 +62,7 @@ public class PostService {
     }
 
     // READ : 전체 게시글 최신순
-    public List<PostDtoRes.Res> getAllPostOrderByRecent(String nextPageToken, Boolean onlyOurCollege){
+    public List<PostDtoRes.Res> getAllPostOrderByRecent(String nextPageToken, Boolean onlyOurCollege, LocalDateTime createdBefore){
         User user = SecurityUtil.getUser();
         Pageable page = PageRequest.of(Integer.parseInt(nextPageToken), 10); // 0번째부터 10개의 게시글
 
@@ -70,6 +71,10 @@ public class PostService {
 
         if (onlyOurCollege) {
             postSearch.setCollegeCode(user.getCollegeCode());
+        }
+
+        if(createdBefore!=null){
+            postSearch.setCreatedBefore(createdBefore);
         }
 
         postList = postViewRepository.searchPosts(postSearch, page);
@@ -97,18 +102,24 @@ public class PostService {
     }
 
     // READ : 자신이 쓴 게시글 최신순
-    public List<PostDtoRes.Res> getMyPostOrderByRecent(String nextPageToken){
+    public List<PostDtoRes.Res> getMyPostOrderByRecent(String nextPageToken, LocalDateTime createdBefore){
         User user = SecurityUtil.getUser();
         Pageable page = PageRequest.of(Integer.parseInt(nextPageToken), 10); // 0번째부터 10개의 게시글
         PostSearch postSearch = new PostSearch(user, null);
+        if(createdBefore!=null){
+            postSearch.setCreatedBefore(createdBefore);
+        }
         return   postViewRepository.searchPosts(postSearch, page);
     }
 
     // READ : 타인이 쓴 게시글 최신순
-    public List<PostDtoRes.Res> getPostOrderByAndUserAndRecent(String userId, String nextPageToken){
+    public List<PostDtoRes.Res> getPostOrderByAndUserAndRecent(String userId, String nextPageToken, LocalDateTime createdBefore){
         User user = userRepository.findByLoginId(userId).orElseThrow(UserNotFoundException::new);
         Pageable page = PageRequest.of(Integer.parseInt(nextPageToken), 10); // 0번째부터 10개의 게시글
         PostSearch postSearch = new PostSearch(user, null);
+        if(createdBefore!=null) {
+            postSearch.setCreatedBefore(createdBefore);
+        }
         return postViewRepository.searchPosts(postSearch, page);
     }
 
