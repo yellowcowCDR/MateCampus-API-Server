@@ -1,13 +1,11 @@
 package com.litCitrus.zamongcampusServer.api.post;
 
 import com.litCitrus.zamongcampusServer.domain.post.Post;
-import com.litCitrus.zamongcampusServer.dto.post.PostDtoRes;
 import com.litCitrus.zamongcampusServer.dto.post.PostDtoReq;
+import com.litCitrus.zamongcampusServer.dto.post.PostDtoRes;
 import com.litCitrus.zamongcampusServer.dto.post.PostIdDto;
-import com.litCitrus.zamongcampusServer.security.jwt.TokenProvider;
 import com.litCitrus.zamongcampusServer.service.post.PostService;
 import lombok.RequiredArgsConstructor;
-import lombok.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -16,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -38,9 +35,9 @@ public class PostApiController {
     // READ : 전체 게시글 최신순
     @GetMapping("/recent")
     @ResponseStatus(HttpStatus.OK)
-    public List<PostDtoRes.Res> getAllPostOrderByRecent(@RequestParam("nextPageToken") String nextPageToken, @RequestParam("onlyOurCollege")Boolean onlyOurCollege){
+    public List<PostDtoRes.Res> getAllPostOrderByRecent(@RequestParam(required = false) Long oldestPost, @RequestParam("onlyOurCollege")Boolean onlyOurCollege){
         logger.debug("onlyOurCollege: "+onlyOurCollege);
-        return postService.getAllPostOrderByRecent(nextPageToken, onlyOurCollege);
+        return postService.getAllPostOrderByRecent(oldestPost, onlyOurCollege);
     }
 
     // READ : 전체 게시글 인기순
@@ -60,15 +57,15 @@ public class PostApiController {
 
     // READ : 자신이 쓴 게시글 최신순
     @GetMapping("/my")
-    public ResponseEntity<?> getMyPostOrderByRecent(@RequestParam("nextPageToken") String nextPageToken){
-        ResponseEntity<?> response = new ResponseEntity<>(postService.getMyPostOrderByRecent(nextPageToken), HttpStatus.OK);
+    public ResponseEntity<?> getMyPostOrderByRecent(@RequestParam(required = false) Long oldestPost){
+        ResponseEntity<?> response = new ResponseEntity<>(postService.getMyPostOrderByRecent(oldestPost), HttpStatus.OK);
         return response;
     }
 
     // READ : 타인이 쓴 게시글 최신순
     @GetMapping("/")
-    public ResponseEntity<?> getPostOrderByUserAndRecent(@RequestParam("userId") String userId, @RequestParam("nextPageToken") String nextPageToken){
-        ResponseEntity<?> response = new ResponseEntity<>(postService.getPostOrderByAndUserAndRecent(userId, nextPageToken), HttpStatus.OK);
+    public ResponseEntity<?> getPostOrderByUserAndRecent(@RequestParam("userId") String userId, @RequestParam(required = false) Long oldestPost){
+        ResponseEntity<?> response = new ResponseEntity<>(postService.getPostOrderByAndUserAndRecent(userId, oldestPost), HttpStatus.OK);
         return response;
     }
 

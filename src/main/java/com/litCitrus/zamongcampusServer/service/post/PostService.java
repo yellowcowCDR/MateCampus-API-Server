@@ -61,18 +61,16 @@ public class PostService {
     }
 
     // READ : 전체 게시글 최신순
-    public List<PostDtoRes.Res> getAllPostOrderByRecent(String nextPageToken, Boolean onlyOurCollege){
+    public List<PostDtoRes.Res> getAllPostOrderByRecent(Long oldestPost, Boolean onlyOurCollege){
         User user = SecurityUtil.getUser();
-        Pageable page = PageRequest.of(Integer.parseInt(nextPageToken), 10); // 0번째부터 10개의 게시글
-
         List<PostDtoRes.Res> postList;
-        PostSearch postSearch = new PostSearch(null, null);
+        PostSearch postSearch = new PostSearch(null, null, oldestPost);
 
         if (onlyOurCollege) {
             postSearch.setCollegeCode(user.getCollegeCode());
         }
 
-        postList = postViewRepository.searchPosts(postSearch, page);
+        postList = postViewRepository.searchPosts(postSearch);
         return postList;
     }
 
@@ -97,19 +95,17 @@ public class PostService {
     }
 
     // READ : 자신이 쓴 게시글 최신순
-    public List<PostDtoRes.Res> getMyPostOrderByRecent(String nextPageToken){
+    public List<PostDtoRes.Res> getMyPostOrderByRecent(Long oldestPost){
         User user = SecurityUtil.getUser();
-        Pageable page = PageRequest.of(Integer.parseInt(nextPageToken), 10); // 0번째부터 10개의 게시글
-        PostSearch postSearch = new PostSearch(user, null);
-        return   postViewRepository.searchPosts(postSearch, page);
+        PostSearch postSearch = new PostSearch(user, null, oldestPost);
+        return postViewRepository.searchPosts(postSearch);
     }
 
     // READ : 타인이 쓴 게시글 최신순
-    public List<PostDtoRes.Res> getPostOrderByAndUserAndRecent(String userId, String nextPageToken){
+    public List<PostDtoRes.Res> getPostOrderByAndUserAndRecent(String userId, Long oldestPost){
         User user = userRepository.findByLoginId(userId).orElseThrow(UserNotFoundException::new);
-        Pageable page = PageRequest.of(Integer.parseInt(nextPageToken), 10); // 0번째부터 10개의 게시글
-        PostSearch postSearch = new PostSearch(user, null);
-        return postViewRepository.searchPosts(postSearch, page);
+        PostSearch postSearch = new PostSearch(user, null, oldestPost);
+        return postViewRepository.searchPosts(postSearch);
     }
 
     // READ : 북마크한 게시글
