@@ -94,14 +94,7 @@ public class PostService {
         return postList;
     }
 
-    // READ : 자신이 쓴 게시글 최신순
-    public List<PostDtoRes.Res> getMyPostOrderByRecent(Long oldestPost){
-        User user = SecurityUtil.getUser();
-        PostSearch postSearch = new PostSearch(user, null, oldestPost);
-        return postViewRepository.searchPosts(postSearch);
-    }
-
-    // READ : 타인이 쓴 게시글 최신순
+    // READ : User가 쓴 게시글 최신순
     public List<PostDtoRes.Res> getPostOrderByAndUserAndRecent(String userId, Long oldestPost){
         User user = userRepository.findByLoginId(userId).orElseThrow(UserNotFoundException::new);
         PostSearch postSearch = new PostSearch(user, null, oldestPost);

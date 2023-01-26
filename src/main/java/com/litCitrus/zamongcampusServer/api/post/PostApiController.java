@@ -55,16 +55,9 @@ public class PostApiController {
     }
 
 
-    // READ : 자신이 쓴 게시글 최신순
-    @GetMapping("/my")
-    public ResponseEntity<?> getMyPostOrderByRecent(@RequestParam(required = false) Long oldestPost){
-        ResponseEntity<?> response = new ResponseEntity<>(postService.getMyPostOrderByRecent(oldestPost), HttpStatus.OK);
-        return response;
-    }
-
-    // READ : 타인이 쓴 게시글 최신순
-    @GetMapping("/")
-    public ResponseEntity<?> getPostOrderByUserAndRecent(@RequestParam("userId") String userId, @RequestParam(required = false) Long oldestPost){
+    // READ : User가 쓴 게시글 최신순
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<?> getMyPostOrderByRecent(@RequestParam(required = false) Long oldestPost, @PathVariable String userId){
         ResponseEntity<?> response = new ResponseEntity<>(postService.getPostOrderByAndUserAndRecent(userId, oldestPost), HttpStatus.OK);
         return response;
     }
