@@ -1,6 +1,7 @@
 package com.litCitrus.zamongcampusServer.service.post;
 
 import com.litCitrus.zamongcampusServer.domain.post.*;
+import com.litCitrus.zamongcampusServer.domain.user.CollegeCode;
 import com.litCitrus.zamongcampusServer.domain.user.User;
 import com.litCitrus.zamongcampusServer.dto.post.PostDtoReq;
 import com.litCitrus.zamongcampusServer.dto.post.PostDtoRes;
@@ -20,6 +21,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
@@ -60,18 +62,21 @@ public class PostService {
         return postRepository.save(post);
     }
 
-    // READ : 전체 게시글 최신순
-    public List<PostDtoRes.Res> getAllPostOrderByRecent(Long oldestPost, Boolean onlyOurCollege){
-        User user = SecurityUtil.getUser();
-        List<PostDtoRes.Res> postList;
-        PostSearch postSearch = new PostSearch(null, null, oldestPost);
+    // READ : 게시글 최신순으로 검색
+    public List<PostDtoRes.Res> getPostOrderByRecent(Long oldestPost, Boolean onlyOurCollege, String userId){
+        User user = null;
+        CollegeCode collegeCode = null;
 
-        if (onlyOurCollege) {
-            postSearch.setCollegeCode(user.getCollegeCode());
+        if (StringUtils.hasText(userId)) {
+            user = userRepository.findByLoginId(userId).orElseThrow(UserNotFoundException::new);
         }
 
-        postList = postViewRepository.searchPosts(postSearch);
-        return postList;
+        if (onlyOurCollege) {
+            collegeCode = SecurityUtil.getUser().getCollegeCode();
+        }
+
+        PostSearch postSearch = new PostSearch(user, collegeCode, oldestPost);
+        return postViewRepository.searchPosts(postSearch);
     }
 
     // READ : 전체 게시글 ™인기순 (좋아요순)
@@ -92,13 +97,6 @@ public class PostService {
                     .collect(Collectors.toList());
         }
         return postList;
-    }
-
-    // READ : User가 쓴 게시글 최신순
-    public List<PostDtoRes.Res> getPostOrderByAndUserAndRecent(String userId, Long oldestPost){
-        User user = userRepository.findByLoginId(userId).orElseThrow(UserNotFoundException::new);
-        PostSearch postSearch = new PostSearch(user, null, oldestPost);
-        return postViewRepository.searchPosts(postSearch);
     }
 
     // READ : 북마크한 게시글

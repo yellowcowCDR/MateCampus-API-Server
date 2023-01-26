@@ -37,7 +37,7 @@ public class PostApiController {
     @ResponseStatus(HttpStatus.OK)
     public List<PostDtoRes.Res> getAllPostOrderByRecent(@RequestParam(required = false) Long oldestPost, @RequestParam("onlyOurCollege")Boolean onlyOurCollege){
         logger.debug("onlyOurCollege: "+onlyOurCollege);
-        return postService.getAllPostOrderByRecent(oldestPost, onlyOurCollege);
+        return postService.getPostOrderByRecent(oldestPost, onlyOurCollege, null);
     }
 
     // READ : 전체 게시글 인기순
@@ -57,9 +57,8 @@ public class PostApiController {
 
     // READ : User가 쓴 게시글 최신순
     @GetMapping("/user/{userId}")
-    public ResponseEntity<?> getMyPostOrderByRecent(@RequestParam(required = false) Long oldestPost, @PathVariable String userId){
-        ResponseEntity<?> response = new ResponseEntity<>(postService.getPostOrderByAndUserAndRecent(userId, oldestPost), HttpStatus.OK);
-        return response;
+    public ResponseEntity getMyPostOrderByRecent(@RequestParam(required = false) Long oldestPost, @PathVariable String userId){
+        return new ResponseEntity(postService.getPostOrderByRecent(oldestPost, false, userId), HttpStatus.OK);
     }
 
     // READ : 북마크한 게시글
