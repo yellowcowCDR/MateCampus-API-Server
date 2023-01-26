@@ -33,7 +33,7 @@ public class PostViewRepositoryImpl implements PostViewRepository {
                         postSearch.getWriter() != null ?
                                 post.user.eq(postSearch.getWriter()) : null,
                         postSearch.getOldestPost() != null ?
-                            post.id.lt(postSearch.getOldestPost()) : null
+                                post.id.lt(postSearch.getOldestPost()) : null
                 )
                 .orderBy(post.createdAt.desc())
                 .limit(postSearch.getPageSize())
