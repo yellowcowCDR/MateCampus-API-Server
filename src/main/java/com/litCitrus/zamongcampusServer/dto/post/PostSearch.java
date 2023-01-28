@@ -4,21 +4,19 @@ import com.litCitrus.zamongcampusServer.domain.user.CollegeCode;
 import com.litCitrus.zamongcampusServer.domain.user.User;
 import com.litCitrus.zamongcampusServer.util.SecurityUtil;
 import lombok.Getter;
-import lombok.Setter;
-
-import java.time.LocalDateTime;
 
 @Getter
-@Setter
 public class PostSearch {
-    private User loggedUser = SecurityUtil.getUser();
-    private User writer;
-    private CollegeCode collegeCode;
+    private final User loggedUser = SecurityUtil.getUser();
+    private final User writer;
+    private final CollegeCode collegeCode;
+    //첫 페이지일 경우 null
+    private final Long oldestPost;
+    private int pageSize = 10;
 
-    private LocalDateTime createdBefore;
-
-    public PostSearch(User writer, CollegeCode collegeCode) {
+    public PostSearch(User writer, CollegeCode collegeCode, Long oldestPost) {
         this.writer = writer;
         this.collegeCode = collegeCode;
+        this.oldestPost = oldestPost;
     }
 }

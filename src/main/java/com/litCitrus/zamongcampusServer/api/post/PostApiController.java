@@ -13,8 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @RestController
@@ -37,16 +35,9 @@ public class PostApiController {
     // READ : 전체 게시글 최신순
     @GetMapping("/recent")
     @ResponseStatus(HttpStatus.OK)
-    public List<PostDtoRes.Res> getAllPostOrderByRecent(@RequestParam("nextPageToken") String nextPageToken,
-                                                        @RequestParam("onlyOurCollege")Boolean onlyOurCollege,
-                                                        @RequestParam(required = false, value= "createdBefore")String createdBefore){
-        logger.debug("createdAfter: "+ createdBefore);
-        if(createdBefore ==null || createdBefore.equals("")){
-            return postService.getAllPostOrderByRecent(nextPageToken, onlyOurCollege, null);
-        }else{
-            LocalDateTime after = convertStr2DateTime(createdBefore);
-            return postService.getAllPostOrderByRecent(nextPageToken, onlyOurCollege, after);
-        }
+    public List<PostDtoRes.Res> getAllPostOrderByRecent(@RequestParam(required = false) Long oldestPost, @RequestParam("onlyOurCollege")Boolean onlyOurCollege){
+        logger.debug("onlyOurCollege: "+onlyOurCollege);
+        return postService.getPostOrderByRecent(oldestPost, onlyOurCollege, null);
     }
 
     // READ : 전체 게시글 인기순
@@ -64,34 +55,10 @@ public class PostApiController {
     }
 
 
-    // READ : 자신이 쓴 게시글 최신순
-    @GetMapping("/my")
-    public ResponseEntity<?> getMyPostOrderByRecent(@RequestParam("nextPageToken") String nextPageToken,
-                                                    @RequestParam(required = false, value= "createdBefore")String createdBefore){
-
-        ResponseEntity<?> response;
-        if(createdBefore ==null || createdBefore.equals("")) {
-            response = new ResponseEntity<>(postService.getMyPostOrderByRecent(nextPageToken, null), HttpStatus.OK);
-        }else{
-            LocalDateTime after = convertStr2DateTime(createdBefore);
-            response = new ResponseEntity<>(postService.getMyPostOrderByRecent(nextPageToken, after), HttpStatus.OK);
-        }
-        return response;
-    }
-
-    // READ : 타인이 쓴 게시글 최신순
-    @GetMapping("/")
-    public ResponseEntity<?> getPostOrderByUserAndRecent(@RequestParam("userId") String userId,
-                                                         @RequestParam("nextPageToken") String nextPageToken,
-                                                         @RequestParam(required = false, value= "createdBefore")String createdBefore){
-        ResponseEntity<?> response;
-        if(createdBefore ==null || createdBefore.equals("")) {
-            response = new ResponseEntity<>(postService.getPostOrderByAndUserAndRecent(userId, nextPageToken, null), HttpStatus.OK);
-        }else {
-            LocalDateTime after = convertStr2DateTime(createdBefore);
-            response = new ResponseEntity<>(postService.getPostOrderByAndUserAndRecent(userId, nextPageToken, after), HttpStatus.OK);
-        }
-        return response;
+    // READ : User가 쓴 게시글 최신순
+    @GetMapping("/user/{userId}")
+    public ResponseEntity getMyPostOrderByRecent(@RequestParam(required = false) Long oldestPost, @PathVariable String userId){
+        return new ResponseEntity(postService.getPostOrderByRecent(oldestPost, false, userId), HttpStatus.OK);
     }
 
     // READ : 북마크한 게시글
@@ -125,12 +92,5 @@ public class PostApiController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deletePost(@Valid @PathVariable("postId") Long postId){
         postService.deletePost(postId);
-    }
-
-    public LocalDateTime convertStr2DateTime(String dateStr){
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSS");
-        LocalDateTime dateTime = LocalDateTime.parse(dateStr, formatter);
-
-        return dateTime;
     }
 }

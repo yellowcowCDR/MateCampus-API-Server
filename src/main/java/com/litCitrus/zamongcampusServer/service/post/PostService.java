@@ -1,6 +1,7 @@
 package com.litCitrus.zamongcampusServer.service.post;
 
 import com.litCitrus.zamongcampusServer.domain.post.*;
+import com.litCitrus.zamongcampusServer.domain.user.CollegeCode;
 import com.litCitrus.zamongcampusServer.domain.user.User;
 import com.litCitrus.zamongcampusServer.dto.post.PostDtoReq;
 import com.litCitrus.zamongcampusServer.dto.post.PostDtoRes;
@@ -20,9 +21,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -61,24 +62,21 @@ public class PostService {
         return postRepository.save(post);
     }
 
-    // READ : 전체 게시글 최신순
-    public List<PostDtoRes.Res> getAllPostOrderByRecent(String nextPageToken, Boolean onlyOurCollege, LocalDateTime createdBefore){
-        User user = SecurityUtil.getUser();
-        Pageable page = PageRequest.of(Integer.parseInt(nextPageToken), 10); // 0번째부터 10개의 게시글
+    // READ : 게시글 최신순으로 검색
+    public List<PostDtoRes.Res> getPostOrderByRecent(Long oldestPost, Boolean onlyOurCollege, String userId){
+        User user = null;
+        CollegeCode collegeCode = null;
 
-        List<PostDtoRes.Res> postList;
-        PostSearch postSearch = new PostSearch(null, null);
+        if (StringUtils.hasText(userId)) {
+            user = userRepository.findByLoginId(userId).orElseThrow(UserNotFoundException::new);
+        }
 
         if (onlyOurCollege) {
-            postSearch.setCollegeCode(user.getCollegeCode());
+            collegeCode = SecurityUtil.getUser().getCollegeCode();
         }
 
-        if(createdBefore!=null){
-            postSearch.setCreatedBefore(createdBefore);
-        }
-
-        postList = postViewRepository.searchPosts(postSearch, page);
-        return postList;
+        PostSearch postSearch = new PostSearch(user, collegeCode, oldestPost);
+        return postViewRepository.searchPosts(postSearch);
     }
 
     // READ : 전체 게시글 ™인기순 (좋아요순)
@@ -99,28 +97,6 @@ public class PostService {
                     .collect(Collectors.toList());
         }
         return postList;
-    }
-
-    // READ : 자신이 쓴 게시글 최신순
-    public List<PostDtoRes.Res> getMyPostOrderByRecent(String nextPageToken, LocalDateTime createdBefore){
-        User user = SecurityUtil.getUser();
-        Pageable page = PageRequest.of(Integer.parseInt(nextPageToken), 10); // 0번째부터 10개의 게시글
-        PostSearch postSearch = new PostSearch(user, null);
-        if(createdBefore!=null){
-            postSearch.setCreatedBefore(createdBefore);
-        }
-        return   postViewRepository.searchPosts(postSearch, page);
-    }
-
-    // READ : 타인이 쓴 게시글 최신순
-    public List<PostDtoRes.Res> getPostOrderByAndUserAndRecent(String userId, String nextPageToken, LocalDateTime createdBefore){
-        User user = userRepository.findByLoginId(userId).orElseThrow(UserNotFoundException::new);
-        Pageable page = PageRequest.of(Integer.parseInt(nextPageToken), 10); // 0번째부터 10개의 게시글
-        PostSearch postSearch = new PostSearch(user, null);
-        if(createdBefore!=null) {
-            postSearch.setCreatedBefore(createdBefore);
-        }
-        return postViewRepository.searchPosts(postSearch, page);
     }
 
     // READ : 북마크한 게시글

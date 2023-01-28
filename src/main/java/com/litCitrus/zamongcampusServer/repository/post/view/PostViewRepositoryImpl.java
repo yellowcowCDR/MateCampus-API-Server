@@ -6,7 +6,6 @@ import com.litCitrus.zamongcampusServer.dto.post.QPostDtoRes_Res;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -21,7 +20,7 @@ public class PostViewRepositoryImpl implements PostViewRepository {
     private final JPAQueryFactory jpaQueryFactory;
 
     @Override
-    public List<PostDtoRes.Res> searchPosts(PostSearch postSearch, Pageable pageable) {
+    public List<PostDtoRes.Res> searchPosts(PostSearch postSearch) {
         List<PostDtoRes.Res> posts = jpaQueryFactory.select(new QPostDtoRes_Res(post, postLike.isNotNull()))
                 .from(post)
                 .join(post.user).fetchJoin()
@@ -33,12 +32,11 @@ public class PostViewRepositoryImpl implements PostViewRepository {
                                 post.user.collegeCode.eq(postSearch.getCollegeCode()) : null,
                         postSearch.getWriter() != null ?
                                 post.user.eq(postSearch.getWriter()) : null,
-                        postSearch.getCreatedBefore() != null ?
-                                post.createdAt.lt(postSearch.getCreatedBefore()) : null
+                        postSearch.getOldestPost() != null ?
+                                post.id.lt(postSearch.getOldestPost()) : null
                 )
                 .orderBy(post.createdAt.desc())
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
+                .limit(postSearch.getPageSize())
                 .fetch();
         return posts;
     }
