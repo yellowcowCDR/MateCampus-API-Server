@@ -91,6 +91,10 @@ INSERT INTO voice_category (ID, VOICE_CATEGORY_CODE) values (7, 6);
 
 -- CREATEAT(필요하면): 2022-05-03 20:40:15.943059
 
+-- college 생성
+INSERT INTO COLLEGE (COLLEGE_NAME, CAMPUS_NAME, ADDRESS, COLLEGE_SEQ) values ('빈값', '빈값', '빈값', -1);
+INSERT INTO COLLEGE (COLLEGE_NAME, CAMPUS_NAME, ADDRESS, COLLEGE_SEQ) values ('한국대학교', '본교', '세종특별자치시 갈매로 408, 14동', 0);
+
 --major 생성
 INSERT INTO MAJOR (MAJOR_SEQ, NAME) values (-1, '빈값');
 INSERT INTO MAJOR (MAJOR_SEQ, NAME) values (174, '물리교육과');
