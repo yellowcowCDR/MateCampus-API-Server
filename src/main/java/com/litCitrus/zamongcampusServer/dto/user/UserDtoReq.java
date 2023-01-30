@@ -29,8 +29,11 @@ public class UserDtoReq {
         @NotBlank(message = "devicetoken(deviceToken)가 비어있습니다.")
         private String deviceToken;
 
-        @NotBlank(message = "학교(collegeCode)가 비어있습니다.")
-        private String collegeCode;
+        @NotBlank(message = "학교(collegeName)이 비어있습니다.")
+        private String collegeName;
+
+        @NotNull(message = "학과번호(collegeSeq)이 비어있습니다.")
+        private Long collegeSeq;
 
         @NotBlank(message = "학과명(mClass)이 비어있습니다.")
         private String mClass;

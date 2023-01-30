@@ -1,10 +1,7 @@
 package com.litCitrus.zamongcampusServer.dto.user;
 
 import com.litCitrus.zamongcampusServer.domain.interest.Interest;
-import com.litCitrus.zamongcampusServer.domain.user.CollegeCode;
-import com.litCitrus.zamongcampusServer.domain.user.Friend;
-import com.litCitrus.zamongcampusServer.domain.user.User;
-import com.litCitrus.zamongcampusServer.domain.user.UserPicture;
+import com.litCitrus.zamongcampusServer.domain.user.*;
 import com.litCitrus.zamongcampusServer.dto.interest.InterestDtoRes;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -60,11 +57,11 @@ public class UserDtoRes {
 
     @Getter
     public static class ResWithMajorCollege extends CommonRes{
-        private final String collegeCode;
+        private final String collegeName;
         private final String majorCode;
         public ResWithMajorCollege(User user){
             super(user);
-            this.collegeCode = user.getCollegeCode().name();
+            this.collegeName = user.getCollege().getCollegeName();
             this.majorCode = user.getMajor().getName();
         }
     }
@@ -99,7 +96,7 @@ public class UserDtoRes {
 
         private String nickname;
 
-        private CollegeCode collegeCode;
+        private String college;
 
 
         private String major;
@@ -107,10 +104,10 @@ public class UserDtoRes {
         //private List<String> imageUrls;
         private String imageUrl;
 
-        public ResForPostLikedUsers(String loginId, String nickname, CollegeCode collegeCode, String major, List<UserPicture> pictures){
+        public ResForPostLikedUsers(String loginId, String nickname, String college, String major, List<UserPicture> pictures){
             this.loginId = loginId;
             this.nickname = nickname;
-            this.collegeCode = collegeCode;
+            this.college = college;
             this.major = major;
 //            this.imageUrls = new ArrayList<String>();
 //            for(UserPicture picture : pictures){

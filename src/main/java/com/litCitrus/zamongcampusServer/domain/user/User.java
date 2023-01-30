@@ -47,7 +47,6 @@ public class User extends BaseEntity {
 //    @Column(unique = true)
     private String deviceToken;
 
-    private CollegeCode collegeCode;
     private String introduction;
     private boolean activated;
     private String studentIdImageUrl;
@@ -61,6 +60,9 @@ public class User extends BaseEntity {
     @Builder.Default
     @NotNull
     private boolean deleted = Boolean.FALSE;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private College college;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Major major;
@@ -103,7 +105,7 @@ public class User extends BaseEntity {
     private List<Notification> notifications;
 
 
-    public static User createUser(UserDtoReq.Create userDto, String encodedPassword, Major major, Authority authority) {
+    public static User createUser(UserDtoReq.Create userDto, String encodedPassword, College college, Major major, Authority authority) {
         //빌더 객체를 사용할 경우
         final User user = User.builder()
                 .loginId(userDto.getLoginId())
@@ -111,7 +113,7 @@ public class User extends BaseEntity {
                 .authorities(Collections.singleton(authority))
                 .deviceToken(userDto.getDeviceToken())
                 .nickname(userDto.getNickname())
-                .collegeCode(CollegeCode.valueOf(userDto.getCollegeCode()))
+                .college(college)
                 .major(major)
                 .introduction(userDto.getIntroduce())
                 .grade(userDto.getGrade())
@@ -122,7 +124,7 @@ public class User extends BaseEntity {
         return user;
     }
 
-    public static User createAdmin(UserDtoReq.Create userDto, String encodedPassword, Major major, List<Authority> authorities) {
+    public static User createAdmin(UserDtoReq.Create userDto, String encodedPassword, College college, Major major, List<Authority> authorities) {
         //빌더 객체를 사용할 경우
         final User user = User.builder()
                 .loginId(userDto.getLoginId())
@@ -130,7 +132,7 @@ public class User extends BaseEntity {
                 .authorities(new HashSet<>(authorities))
                 .deviceToken(userDto.getDeviceToken())
                 .nickname(userDto.getNickname())
-                .collegeCode(CollegeCode.valueOf(userDto.getCollegeCode()))
+                .college(college)
                 .major(major)
                 .introduction(userDto.getIntroduce())
                 .activated(true)  // 이거 활성화시키면 회원가입만 하면 서비스 바로 사용 가능.

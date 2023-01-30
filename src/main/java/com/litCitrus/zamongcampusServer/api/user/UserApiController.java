@@ -3,6 +3,7 @@ package com.litCitrus.zamongcampusServer.api.user;
 import com.litCitrus.zamongcampusServer.domain.user.User;
 import com.litCitrus.zamongcampusServer.dto.user.UserDtoReq;
 import com.litCitrus.zamongcampusServer.dto.user.UserDtoRes;
+import com.litCitrus.zamongcampusServer.service.college.CollegeService;
 import com.litCitrus.zamongcampusServer.service.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -21,6 +22,8 @@ import java.util.stream.Collectors;
 public class UserApiController {
 
     private final UserService userService;
+
+    private final CollegeService collegeService;
 
     @PostMapping("/signup")
     public ResponseEntity<?> signup(@Valid @ModelAttribute UserDtoReq.Create userDto) throws IOException {
@@ -85,7 +88,7 @@ public class UserApiController {
                 .map(u -> new UserDtoRes.ResForCheckMember(u.getId()
                         , u.getLoginId()
                         , u.getNickname()
-                        , u.getCollegeCode().getKorName()
+                        , u.getCollege().getCollegeName()
                         , u.getMajor().getName()
                         , u.isActivated()
                         , u.getStudentIdImageUrl()))

@@ -13,6 +13,7 @@ import com.litCitrus.zamongcampusServer.repository.interest.InterestRepository;
 import com.litCitrus.zamongcampusServer.repository.user.*;
 import com.litCitrus.zamongcampusServer.repository.voiceRoom.ParticipantRepository;
 import com.litCitrus.zamongcampusServer.service.chat.SystemMessageComponent;
+import com.litCitrus.zamongcampusServer.service.college.CollegeService;
 import com.litCitrus.zamongcampusServer.service.image.S3Uploader;
 import com.litCitrus.zamongcampusServer.service.major.MajorService;
 import com.litCitrus.zamongcampusServer.util.SecurityUtil;
@@ -43,6 +44,7 @@ public class UserService {
     private final InterestRepository interestRepository;
     private final FriendRepository friendRepository;
     private final S3Uploader s3Uploader;
+    private final CollegeService collegeService;
     private final MajorService majorService;
 
     /** 회원가입
@@ -58,8 +60,9 @@ public class UserService {
                 .authorityName("ROLE_USER")
                 .build();
 
+        College college = collegeService.searchCollege(userDto.getCollegeSeq(), userDto.getCollegeName());
         Major major = majorService.findByNameAndSeq(userDto.getMajorSeq(), userDto.getMClass());
-        User user = User.createUser(userDto, passwordEncoder.encode(userDto.getPassword()), major, authority);
+        User user = User.createUser(userDto, passwordEncoder.encode(userDto.getPassword()), college, major, authority);
         userRepository.save(user);
         if(userDto.getStudentIdImg() != null){
             String uploadImageUrl = s3Uploader.uploadOne(userDto.getStudentIdImg(), "2022/userIdImage");
