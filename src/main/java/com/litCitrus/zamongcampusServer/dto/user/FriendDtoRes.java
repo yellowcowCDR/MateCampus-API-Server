@@ -20,7 +20,7 @@ public class FriendDtoRes {
 
         public ResWithDetail(User other, Friend friend){
             super(other, friend);
-            this.collegeCode = other.getCollegeCode().name();
+            this.collegeCode = other.getCollege().getCollegeName();
             this.majorCode = other.getMajor().getName();
             this.introduction = other.getIntroduction();
             // TODO: 1:N 관계라서 별도 Query 작성해야 함
