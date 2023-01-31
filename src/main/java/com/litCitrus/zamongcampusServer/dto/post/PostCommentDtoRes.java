@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.litCitrus.zamongcampusServer.domain.post.PostComment;
 import com.litCitrus.zamongcampusServer.domain.post.PostParticipant;
-import com.litCitrus.zamongcampusServer.domain.user.CollegeCode;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
@@ -20,7 +19,7 @@ public class PostCommentDtoRes {
         private final String loginId;
         private String userNickname;
 
-        private CollegeCode writerCollegeCode;
+        private String writerCollegeName;
 
         private String writerProfileImageUrl;
         private final String body;
@@ -42,7 +41,7 @@ public class PostCommentDtoRes {
             this.id = postComment.getId();
             //this.userNickname = anonymityUser.isAuthor() ? "글쓴이" : "익명" + anonymityUser.getParticipantIndex();
             this.userNickname = anonymityUser.getUser().getNickname();
-            this.writerCollegeCode = anonymityUser.getUser().getCollegeCode();
+            this.writerCollegeName = anonymityUser.getUser().getCollege().getCollegeName();
             this.writerProfileImageUrl = anonymityUser.getUser().getPictures().size() == 0? "": anonymityUser.getUser().getPictures().get(0).getStored_file_path();
             this.body = postComment.getBody();
             this.deleted = postComment.isDeleted();

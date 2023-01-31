@@ -1,7 +1,6 @@
 package com.litCitrus.zamongcampusServer.service.post;
 
 import com.litCitrus.zamongcampusServer.domain.post.*;
-import com.litCitrus.zamongcampusServer.domain.user.CollegeCode;
 import com.litCitrus.zamongcampusServer.domain.user.User;
 import com.litCitrus.zamongcampusServer.dto.post.PostDtoReq;
 import com.litCitrus.zamongcampusServer.dto.post.PostDtoRes;
@@ -65,17 +64,17 @@ public class PostService {
     // READ : 게시글 최신순으로 검색
     public List<PostDtoRes.Res> getPostOrderByRecent(Long oldestPost, Boolean onlyOurCollege, String userId){
         User user = null;
-        CollegeCode collegeCode = null;
+        String collegeName = null;
 
         if (StringUtils.hasText(userId)) {
             user = userRepository.findByLoginId(userId).orElseThrow(UserNotFoundException::new);
         }
 
         if (onlyOurCollege) {
-            collegeCode = SecurityUtil.getUser().getCollegeCode();
+            collegeName = SecurityUtil.getUser().getCollege().getCollegeName();
         }
 
-        PostSearch postSearch = new PostSearch(user, collegeCode, oldestPost);
+        PostSearch postSearch = new PostSearch(user, collegeName, oldestPost);
         return postViewRepository.searchPosts(postSearch);
     }
 
@@ -87,7 +86,7 @@ public class PostService {
         if(onlyOurCollege){
             postList = postRepository.findAllByDeletedFalseOrderByLikeCountDescViewCountDescCreatedAtDesc(page).stream()
                     .filter(post -> post.isExposed())
-                    .filter(post -> post.getUser().getCollegeCode().equals(user.getCollegeCode()))
+                    .filter(post -> post.getUser().getCollege().getCollegeName().equals(user.getCollege().getCollegeName()))
                     .map(PostDtoRes.Res::new)
                     .collect(Collectors.toList());
         }else{

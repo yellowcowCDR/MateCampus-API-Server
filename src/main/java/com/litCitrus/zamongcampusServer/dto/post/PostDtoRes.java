@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.litCitrus.zamongcampusServer.domain.post.Post;
 import com.litCitrus.zamongcampusServer.domain.post.PostParticipant;
-import com.litCitrus.zamongcampusServer.domain.user.CollegeCode;
 import com.litCitrus.zamongcampusServer.domain.user.UserPicture;
 import com.querydsl.core.annotations.QueryProjection;
 import lombok.Getter;
@@ -41,7 +40,7 @@ public class PostDtoRes {
         private final long id;
         private final String loginId;
         private final String userNickname;
-        private final CollegeCode writerCollegeCode;
+        private final String writerCollegeName;
         private final String writerProfileImageUrl;
         private final String body;
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern="yyyy-MM-dd'T'HH:mm:ss.SSSSS")
@@ -59,7 +58,7 @@ public class PostDtoRes {
             this.id = post.getId();
             this.loginId = post.getUser().getLoginId();
             this.userNickname = post.getUser().getNickname();
-            this.writerCollegeCode = post.getUser().getCollegeCode();
+            this.writerCollegeName = post.getUser().getCollege().getCollegeName();
             List<UserPicture> userProfileImages = post.getUser().getPictures();
             this.writerProfileImageUrl = (userProfileImages==null || userProfileImages.size()<=0)? "":userProfileImages.get(0).getStored_file_path();
             this.body = post.getBody();

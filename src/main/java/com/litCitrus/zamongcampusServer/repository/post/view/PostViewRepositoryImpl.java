@@ -28,8 +28,8 @@ public class PostViewRepositoryImpl implements PostViewRepository {
                 .on(postLike.post.eq(post).and(postLike.user.eq(postSearch.getLoggedUser())))
                 .where(
                         isReadable(),
-                        postSearch.getCollegeCode() != null ?
-                                post.user.collegeCode.eq(postSearch.getCollegeCode()) : null,
+                        postSearch.getCollegeName() != null ?
+                                post.user.college.collegeName.eq(postSearch.getCollegeName()) : null,
                         postSearch.getWriter() != null ?
                                 post.user.eq(postSearch.getWriter()) : null,
                         postSearch.getOldestPost() != null ?
