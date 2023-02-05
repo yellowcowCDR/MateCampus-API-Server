@@ -61,7 +61,7 @@ public class UserDtoRes {
         private final String majorCode;
         public ResWithMajorCollege(User user){
             super(user);
-            this.collegeName = user.getCollege().getCollegeName();
+            this.collegeName = user.getCampus().getCollege().getCollegeName();
             this.majorCode = user.getMajor().getName();
         }
     }

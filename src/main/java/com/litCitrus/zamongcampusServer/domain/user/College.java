@@ -2,10 +2,8 @@ package com.litCitrus.zamongcampusServer.domain.user;
 
 import lombok.*;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Getter
@@ -17,24 +15,16 @@ public class College {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    /* 학교 Sequence Number */
-    private Long collegeSeq;
-
     /* 학교명 */
     private String collegeName;
 
-    /* 캠퍼스명 */
-    private String campusName;
+    /* 캠퍼스 */
+    @OneToMany(mappedBy = "college", fetch = FetchType.LAZY)
+    private List<Campus> campusList;
 
-    /* 학교주소 */
-    private String address;
-
-    public static College createCollege(Long collegeSeq, String collegeName, String campusName, String address){
+    public static College createCollege(String collegeName) {
         College college = new College();
-        college.collegeSeq = collegeSeq;
         college.collegeName = collegeName;
-        college.campusName = campusName;
-        college.address = address;
 
         return college;
     }

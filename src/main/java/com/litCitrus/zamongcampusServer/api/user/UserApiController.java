@@ -88,7 +88,7 @@ public class UserApiController {
                 .map(u -> new UserDtoRes.ResForCheckMember(u.getId()
                         , u.getLoginId()
                         , u.getNickname()
-                        , u.getCollege().getCollegeName()
+                        , u.getCampus().getCollege().getCollegeName()
                         , u.getMajor().getName()
                         , u.isActivated()
                         , u.getStudentIdImageUrl()))
@@ -100,5 +100,10 @@ public class UserApiController {
     public ResponseEntity<?> updateUserActivation(@PathVariable("id") Long userId, boolean activated) {
         User user = userService.activateUser(userId, activated);
         return ResponseEntity.ok("정상접근: " + user.getLoginId() + " 활성화 상태 "+ activated +"로 설정 완료");
+    }
+
+    @GetMapping("/schoolTest")
+    public ResponseEntity<?> getSchoolList(Long collegeSeq, String collegeName){
+        return ResponseEntity.ok(collegeService.searchCollege(collegeSeq, collegeName).getCollegeName());
     }
 }

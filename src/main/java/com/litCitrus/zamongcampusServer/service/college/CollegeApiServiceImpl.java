@@ -1,7 +1,7 @@
 package com.litCitrus.zamongcampusServer.service.college;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.litCitrus.zamongcampusServer.domain.user.College;
+import com.litCitrus.zamongcampusServer.dto.college.CollegeResDto;
 import com.litCitrus.zamongcampusServer.exception.college.CollegeException;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -30,7 +30,7 @@ public class CollegeApiServiceImpl implements CollegeApiService{
     }
 
     @Override
-    public Optional<College> searchCollege(Long collegeSeq, String collegeName) {
+    public Optional<CollegeResDto> searchCollege(Long collegeSeq, String collegeName) {
         List<Object> searchResultList = null;
         CloseableHttpClient client = HttpClients.createDefault();
         boolean isMatched = false;
@@ -43,11 +43,6 @@ public class CollegeApiServiceImpl implements CollegeApiService{
                 HttpEntity entity = response.getEntity();
                 if (entity != null) {
                     String result = EntityUtils.toString(entity);
-//                    String major = new JSONObject(result).getJSONObject("dataSearch").getJSONArray("content")
-//                            .getJSONObject(0).getString("major");
-//                    if (isMatched = major.equals(collegeName)) {
-//                        return Optional.of(Major.createMajor(collegeSeq, collegeName));
-//                    }
 
                     searchResultList = new JSONObject(result).getJSONObject("dataSearch").getJSONArray("content")
                             .toList();
@@ -56,25 +51,38 @@ public class CollegeApiServiceImpl implements CollegeApiService{
                     for(Object searchResult : searchResultList){
                         HashMap resultMap = (HashMap) searchResult;
 
+                        //캠퍼스명
+                        String campusName = (String)resultMap.get("campusName");
+
                         //학교 Sequence Number
                         double searchedCollegeSeqDouble = Double.parseDouble((String)resultMap.get("seq"));
                         Long searchedCollegeSeq = (long) searchedCollegeSeqDouble;
 
                         //학교명
                         String searchedCollegeName = (String)resultMap.get("schoolName");
-
+                        //searchedCollegeName = searchedCollegeName.replace(" "+campusName,"");
+                        String campusNameFilterStr = "";
+                        int searchedCollegeNameIndex = 0;
+                        int collegeNameLastIndex = 0;
+                        if(searchedCollegeName.contains("대학교")){
+                            campusNameFilterStr="대학교";
+                            searchedCollegeNameIndex = searchedCollegeName.indexOf(campusNameFilterStr);
+                        }else if(searchedCollegeName.contains("대학")){
+                            campusNameFilterStr="대학";
+                            searchedCollegeNameIndex = searchedCollegeName.indexOf(campusNameFilterStr);
+                        }
+                        collegeNameLastIndex = searchedCollegeNameIndex+campusNameFilterStr.length();
+                        searchedCollegeName =searchedCollegeName.substring(0, collegeNameLastIndex);
 
                         if(searchedCollegeSeq.equals(collegeSeq) && searchedCollegeName.equals(collegeName)){
                             isMatched = true;
 
-                            //캠퍼스명
-                            String campusName = (String)resultMap.get("campusName");
                             //학교주소
                             String address = (String)resultMap.get("adres");
                             //ex) 서울특별시 관악구 관악로 1 (신림동, 서울대학교) -> 괄호로 감싸진 상세주소 제거
                             address = address.replaceAll("\\s\\(([\\w|\\W]+[\\,\\s+[\\w|\\W]+]+)","");
 
-                            Optional<College> college = Optional.of(College.createCollege(searchedCollegeSeq, collegeName, campusName, address));
+                            Optional<CollegeResDto> college = Optional.of(CollegeResDto.createCollegeDto(searchedCollegeSeq, collegeName, campusName, address));
                             return college;
                         }
                     }

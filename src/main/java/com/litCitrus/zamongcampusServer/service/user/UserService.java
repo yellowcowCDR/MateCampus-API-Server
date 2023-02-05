@@ -6,13 +6,16 @@ import com.litCitrus.zamongcampusServer.domain.interest.Interest;
 import com.litCitrus.zamongcampusServer.domain.interest.InterestCode;
 import com.litCitrus.zamongcampusServer.domain.major.Major;
 import com.litCitrus.zamongcampusServer.domain.user.*;
+import com.litCitrus.zamongcampusServer.dto.college.CollegeResDto;
 import com.litCitrus.zamongcampusServer.dto.user.UserDtoReq;
 import com.litCitrus.zamongcampusServer.dto.user.UserDtoRes;
 import com.litCitrus.zamongcampusServer.exception.user.UserNotFoundException;
+import com.litCitrus.zamongcampusServer.repository.college.UserCollegeRepository;
 import com.litCitrus.zamongcampusServer.repository.interest.InterestRepository;
 import com.litCitrus.zamongcampusServer.repository.user.*;
 import com.litCitrus.zamongcampusServer.repository.voiceRoom.ParticipantRepository;
 import com.litCitrus.zamongcampusServer.service.chat.SystemMessageComponent;
+import com.litCitrus.zamongcampusServer.service.college.CampusService;
 import com.litCitrus.zamongcampusServer.service.college.CollegeService;
 import com.litCitrus.zamongcampusServer.service.image.S3Uploader;
 import com.litCitrus.zamongcampusServer.service.major.MajorService;
@@ -45,6 +48,8 @@ public class UserService {
     private final FriendRepository friendRepository;
     private final S3Uploader s3Uploader;
     private final CollegeService collegeService;
+    private final CampusService campusService;
+    private final UserCollegeRepository userCollegeRepository;
     private final MajorService majorService;
 
     /** 회원가입
@@ -60,9 +65,10 @@ public class UserService {
                 .authorityName("ROLE_USER")
                 .build();
 
-        College college = collegeService.searchCollege(userDto.getCollegeSeq(), userDto.getCollegeName());
+        CollegeResDto searchedCollegeInfo = collegeService.searchCollege(userDto.getCollegeSeq(), userDto.getCollegeName());
+        Campus campus = campusService.getCampus(searchedCollegeInfo.getCollegeSeq());
         Major major = majorService.findByNameAndSeq(userDto.getMajorSeq(), userDto.getMClass());
-        User user = User.createUser(userDto, passwordEncoder.encode(userDto.getPassword()), college, major, authority);
+        User user = User.createUser(userDto, passwordEncoder.encode(userDto.getPassword()), campus, major, authority);
         userRepository.save(user);
         if(userDto.getStudentIdImg() != null){
             String uploadImageUrl = s3Uploader.uploadOne(userDto.getStudentIdImg(), "2022/userIdImage");

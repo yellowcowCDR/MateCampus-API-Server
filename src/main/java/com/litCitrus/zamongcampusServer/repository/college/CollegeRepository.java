@@ -10,5 +10,5 @@ import java.util.Optional;
 public interface CollegeRepository extends JpaRepository<College, Long> {
     @Override
     Optional<College> findById(Long id);
-    Optional<College> findByCollegeSeqAndCollegeName(Long collegeSeq, String collegeName);
+    Optional<College> findByCollegeName(String collegeName);
 }
