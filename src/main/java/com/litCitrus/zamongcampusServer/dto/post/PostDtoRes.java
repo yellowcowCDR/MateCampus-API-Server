@@ -58,7 +58,7 @@ public class PostDtoRes {
             this.id = post.getId();
             this.loginId = post.getUser().getLoginId();
             this.userNickname = post.getUser().getNickname();
-            this.writerCollegeName = post.getUser().getCollege().getCollegeName();
+            this.writerCollegeName = post.getUser().getCampus().getCollege().getCollegeName();
             List<UserPicture> userProfileImages = post.getUser().getPictures();
             this.writerProfileImageUrl = (userProfileImages==null || userProfileImages.size()<=0)? "":userProfileImages.get(0).getStored_file_path();
             this.body = post.getBody();

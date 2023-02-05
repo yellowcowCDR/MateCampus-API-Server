@@ -1,6 +1,7 @@
 package com.litCitrus.zamongcampusServer.service.post;
 
 import com.litCitrus.zamongcampusServer.domain.post.*;
+import com.litCitrus.zamongcampusServer.domain.user.College;
 import com.litCitrus.zamongcampusServer.domain.user.User;
 import com.litCitrus.zamongcampusServer.dto.post.PostDtoReq;
 import com.litCitrus.zamongcampusServer.dto.post.PostDtoRes;
@@ -62,19 +63,22 @@ public class PostService {
     }
 
     // READ : 게시글 최신순으로 검색
+    @Transactional
     public List<PostDtoRes.Res> getPostOrderByRecent(Long oldestPost, Boolean onlyOurCollege, String userId){
-        User user = null;
-        String collegeName = null;
+        User writer = null;
+        College college = null;
 
         if (StringUtils.hasText(userId)) {
-            user = userRepository.findByLoginId(userId).orElseThrow(UserNotFoundException::new);
+            writer = userRepository.findByLoginId(userId).orElseThrow(UserNotFoundException::new);
         }
 
         if (onlyOurCollege) {
-            collegeName = SecurityUtil.getUser().getCollege().getCollegeName();
+            User user = userRepository.findById(SecurityUtil.getUser().getId())
+                    .orElseThrow(UserNotFoundException::new);
+            college = user.getCampus().getCollege();
         }
 
-        PostSearch postSearch = new PostSearch(user, collegeName, oldestPost);
+        PostSearch postSearch = new PostSearch(writer, college, oldestPost);
         return postViewRepository.searchPosts(postSearch);
     }
 
@@ -86,7 +90,7 @@ public class PostService {
         if(onlyOurCollege){
             postList = postRepository.findAllByDeletedFalseOrderByLikeCountDescViewCountDescCreatedAtDesc(page).stream()
                     .filter(post -> post.isExposed())
-                    .filter(post -> post.getUser().getCollege().getCollegeName().equals(user.getCollege().getCollegeName()))
+                    .filter(post -> post.getUser().getCampus().getCollege().getCollegeName().equals(user.getCampus().getCollege().getCollegeName()))
                     .map(PostDtoRes.Res::new)
                     .collect(Collectors.toList());
         }else{

@@ -12,6 +12,8 @@ import java.util.List;
 
 import static com.litCitrus.zamongcampusServer.domain.post.QPost.post;
 import static com.litCitrus.zamongcampusServer.domain.post.QPostLike.postLike;
+import static com.litCitrus.zamongcampusServer.domain.user.QCampus.campus;
+//import static com.litCitrus.zamongcampusServer.domain.user.QUserCollege.userCollege;
 
 @Repository
 @RequiredArgsConstructor
@@ -26,10 +28,12 @@ public class PostViewRepositoryImpl implements PostViewRepository {
                 .join(post.user).fetchJoin()
                 .leftJoin(postLike)
                 .on(postLike.post.eq(post).and(postLike.user.eq(postSearch.getLoggedUser())))
+                .join(campus)
+                .on(post.user.campus.eq(campus))
                 .where(
                         isReadable(),
-                        postSearch.getCollegeName() != null ?
-                                post.user.college.collegeName.eq(postSearch.getCollegeName()) : null,
+                        postSearch.getCollege() != null ?
+                                campus.college.eq(postSearch.getCollege()) : null,
                         postSearch.getWriter() != null ?
                                 post.user.eq(postSearch.getWriter()) : null,
                         postSearch.getOldestPost() != null ?
