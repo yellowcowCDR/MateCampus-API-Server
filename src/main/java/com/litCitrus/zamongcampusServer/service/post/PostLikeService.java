@@ -87,7 +87,7 @@ public class PostLikeService {
             UserDtoRes.ResForPostLikedUsers likedUser= new UserDtoRes.ResForPostLikedUsers(
                     user.getLoginId(),
                     user.getNickname(),
-                    user.getCollege().getCollegeName(),
+                    user.getCampus().getCollege().getCollegeName(),
                     user.getMajor().getName(),
                     user.getPictures()
             );
