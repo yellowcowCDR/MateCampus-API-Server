@@ -45,7 +45,7 @@ public class BlockedUserService {
             Long userId = blockedUser.getId ();
             String loginId = blockedUserInfo.getLoginId();
             String nickname = blockedUserInfo.getNickname();
-            String college = blockedUserInfo.getCollege().getCollegeName();
+            String college = blockedUserInfo.getCampus().getCollege().getCollegeName();
             String major = blockedUserInfo.getMajor().getName();
             List<UserPicture> userPictures  = blockedUserInfo.getPictures();
             String requestUserLoginId = requestedUser.getLoginId();
