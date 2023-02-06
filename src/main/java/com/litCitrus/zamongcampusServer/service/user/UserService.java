@@ -10,7 +10,6 @@ import com.litCitrus.zamongcampusServer.dto.college.CollegeResDto;
 import com.litCitrus.zamongcampusServer.dto.user.UserDtoReq;
 import com.litCitrus.zamongcampusServer.dto.user.UserDtoRes;
 import com.litCitrus.zamongcampusServer.exception.user.UserNotFoundException;
-import com.litCitrus.zamongcampusServer.repository.college.UserCollegeRepository;
 import com.litCitrus.zamongcampusServer.repository.interest.InterestRepository;
 import com.litCitrus.zamongcampusServer.repository.user.*;
 import com.litCitrus.zamongcampusServer.repository.voiceRoom.ParticipantRepository;
@@ -49,7 +48,6 @@ public class UserService {
     private final S3Uploader s3Uploader;
     private final CollegeService collegeService;
     private final CampusService campusService;
-    private final UserCollegeRepository userCollegeRepository;
     private final MajorService majorService;
 
     /** 회원가입
