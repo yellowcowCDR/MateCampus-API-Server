@@ -33,7 +33,7 @@ public class CollegeServiceImpl implements CollegeService{
                 College newCollege = College.createCollege(collegeName);
                 collegeRepository.save(newCollege);
 
-                return collegeRepository.findByCollegeName(collegeName).get();
+                return newCollege;
             });
 
             //캠퍼스 정보저장
@@ -43,7 +43,7 @@ public class CollegeServiceImpl implements CollegeService{
             return newCampus;
         });
 
-        //캠퍼스 있을 경우
+        //조회한 campus의 college 조회
         College college = campus.getCollege();
         //조회된 캠퍼스의 대학교와 요청된 대학교 이름 일치여부 확인
         //일치할 경우
