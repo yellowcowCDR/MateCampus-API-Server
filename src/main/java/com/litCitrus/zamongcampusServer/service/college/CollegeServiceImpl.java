@@ -9,9 +9,6 @@ import com.litCitrus.zamongcampusServer.repository.college.CollegeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Service
 @RequiredArgsConstructor
 public class CollegeServiceImpl implements CollegeService{
@@ -38,17 +35,10 @@ public class CollegeServiceImpl implements CollegeService{
 
                 return collegeRepository.findByCollegeName(collegeName).get();
             });
-            //기존 학교 정보에 캠퍼스 정보 추가
+
             //캠퍼스 정보저장
             Campus newCampus = Campus.createCampus(collegeResDto.getCollegeSeq(), collegeResDto.getCampusName(), collegeResDto.getAddress(), college);
             campusRepository.save(newCampus);
-            newCampus = campusRepository.findByCollegeSeq(collegeResDto.getCollegeSeq()).get();
-            List<Campus> campusList = college.getCampusList();
-            if(campusList==null){
-                campusList = new ArrayList<Campus>();
-            }
-            campusList.add(newCampus);
-            collegeRepository.save(college);
 
             return newCampus;
         });
