@@ -1,9 +1,14 @@
 package com.litCitrus.zamongcampusServer.domain.user;
 
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
-import java.util.List;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 
 @Entity
 @Getter
@@ -17,10 +22,6 @@ public class College {
 
     /* 학교명 */
     private String collegeName;
-
-    /* 캠퍼스 */
-    @OneToMany(mappedBy = "college", fetch = FetchType.LAZY)
-    private List<Campus> campusList;
 
     public static College createCollege(String collegeName) {
         College college = new College();
