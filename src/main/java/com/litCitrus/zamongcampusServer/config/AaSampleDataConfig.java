@@ -9,7 +9,6 @@ import com.litCitrus.zamongcampusServer.repository.major.MajorRepository;
 import com.litCitrus.zamongcampusServer.repository.user.FriendRepository;
 import com.litCitrus.zamongcampusServer.repository.user.UserPictureRepository;
 import com.litCitrus.zamongcampusServer.repository.user.UserRepository;
-import com.litCitrus.zamongcampusServer.service.college.UserCollegeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
@@ -34,14 +33,11 @@ class AaSampleDataConfig {
     @Value("${dummy.user.general.key}")
     private String generalKey;
 
-    private Long userCollegeId = 1L;
-
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserPictureRepository userPictureRepository;
     private final CollegeRepository collegeRepository;
     private final CampusRepository campusRepository;
-    private final UserCollegeService userCollegeService;
     private final MajorRepository majorRepository;
     private final FriendRepository friendRepository;
 
