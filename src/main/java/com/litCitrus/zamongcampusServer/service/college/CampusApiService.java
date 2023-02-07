@@ -4,6 +4,6 @@ import com.litCitrus.zamongcampusServer.dto.college.CollegeResDto;
 
 import java.util.Optional;
 
-public interface CollegeApiService {
-    Optional<CollegeResDto> searchCollege(Long collegeSeq, String collegeName);
+public interface CampusApiService {
+    Optional<CollegeResDto> searchCampus(Long collegeSeq, String collegeName);
 }

@@ -18,19 +18,19 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class CollegeApiServiceImpl implements CollegeApiService{
+public class CampusApiServiceImpl implements CampusApiService {
     private final String url;
     private final String collegeSearchUrl;
     private final ObjectMapper objectMapper;
 
-    public CollegeApiServiceImpl(@Value("${open-api.key}") String apiKey, ObjectMapper objectMapper) {
+    public CampusApiServiceImpl(@Value("${open-api.key}") String apiKey, ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
         url = "https://www.career.go.kr/cnet/openapi/getOpenApi?apiKey=" + apiKey;
         collegeSearchUrl = url + "&svcType=api&svcCode=SCHOOL&contentType=json&gubun=univ_list&searchSchulNm=";
     }
 
     @Override
-    public Optional<CollegeResDto> searchCollege(Long collegeSeq, String collegeName) {
+    public Optional<CollegeResDto> searchCampus(Long collegeSeq, String collegeName) {
         List<Object> searchResultList = null;
         CloseableHttpClient client = HttpClients.createDefault();
         boolean isMatched = false;
@@ -81,9 +81,9 @@ public class CollegeApiServiceImpl implements CollegeApiService{
                             String address = (String)resultMap.get("adres");
                             //ex) 서울특별시 관악구 관악로 1 (신림동, 서울대학교) -> 괄호로 감싸진 상세주소 제거
                             address = address.replaceAll("\\s\\(([\\w|\\W]+[\\,\\s+[\\w|\\W]+]+)","");
-
-                            Optional<CollegeResDto> college = Optional.of(CollegeResDto.createCollegeDto(searchedCollegeSeq, collegeName, campusName, address));
-                            return college;
+//                            College college = College.createCollege(collegeName);
+                            Optional<CollegeResDto> campus = Optional.of(CollegeResDto.createCollegeDto(collegeSeq, collegeName, campusName, address));
+                            return campus;
                         }
                     }
                 }

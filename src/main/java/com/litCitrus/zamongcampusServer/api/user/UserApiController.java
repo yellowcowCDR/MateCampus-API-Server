@@ -3,7 +3,7 @@ package com.litCitrus.zamongcampusServer.api.user;
 import com.litCitrus.zamongcampusServer.domain.user.User;
 import com.litCitrus.zamongcampusServer.dto.user.UserDtoReq;
 import com.litCitrus.zamongcampusServer.dto.user.UserDtoRes;
-import com.litCitrus.zamongcampusServer.service.college.CollegeService;
+import com.litCitrus.zamongcampusServer.service.college.CampusService;
 import com.litCitrus.zamongcampusServer.service.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -23,7 +23,7 @@ public class UserApiController {
 
     private final UserService userService;
 
-    private final CollegeService collegeService;
+    private final CampusService campusService;
 
     @PostMapping("/signup")
     public ResponseEntity<?> signup(@Valid @ModelAttribute UserDtoReq.Create userDto) throws IOException {
@@ -100,10 +100,5 @@ public class UserApiController {
     public ResponseEntity<?> updateUserActivation(@PathVariable("id") Long userId, boolean activated) {
         User user = userService.activateUser(userId, activated);
         return ResponseEntity.ok("정상접근: " + user.getLoginId() + " 활성화 상태 "+ activated +"로 설정 완료");
-    }
-
-    @GetMapping("/schoolTest")
-    public ResponseEntity<?> getSchoolList(Long collegeSeq, String collegeName){
-        return ResponseEntity.ok(collegeService.searchCollege(collegeSeq, collegeName).getCollegeName());
     }
 }

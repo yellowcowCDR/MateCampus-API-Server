@@ -6,7 +6,6 @@ import com.litCitrus.zamongcampusServer.domain.interest.Interest;
 import com.litCitrus.zamongcampusServer.domain.interest.InterestCode;
 import com.litCitrus.zamongcampusServer.domain.major.Major;
 import com.litCitrus.zamongcampusServer.domain.user.*;
-import com.litCitrus.zamongcampusServer.dto.college.CollegeResDto;
 import com.litCitrus.zamongcampusServer.dto.user.UserDtoReq;
 import com.litCitrus.zamongcampusServer.dto.user.UserDtoRes;
 import com.litCitrus.zamongcampusServer.exception.user.UserNotFoundException;
@@ -15,7 +14,6 @@ import com.litCitrus.zamongcampusServer.repository.user.*;
 import com.litCitrus.zamongcampusServer.repository.voiceRoom.ParticipantRepository;
 import com.litCitrus.zamongcampusServer.service.chat.SystemMessageComponent;
 import com.litCitrus.zamongcampusServer.service.college.CampusService;
-import com.litCitrus.zamongcampusServer.service.college.CollegeService;
 import com.litCitrus.zamongcampusServer.service.image.S3Uploader;
 import com.litCitrus.zamongcampusServer.service.major.MajorService;
 import com.litCitrus.zamongcampusServer.util.SecurityUtil;
@@ -46,7 +44,6 @@ public class UserService {
     private final InterestRepository interestRepository;
     private final FriendRepository friendRepository;
     private final S3Uploader s3Uploader;
-    private final CollegeService collegeService;
     private final CampusService campusService;
     private final MajorService majorService;
 
@@ -63,8 +60,7 @@ public class UserService {
                 .authorityName("ROLE_USER")
                 .build();
 
-        CollegeResDto searchedCollegeInfo = collegeService.searchCollege(userDto.getCollegeSeq(), userDto.getCollegeName());
-        Campus campus = campusService.getCampus(searchedCollegeInfo.getCollegeSeq());
+        Campus campus = campusService.searchCampus(userDto.getCollegeSeq(), userDto.getCollegeName());
         Major major = majorService.findByNameAndSeq(userDto.getMajorSeq(), userDto.getMClass());
         User user = User.createUser(userDto, passwordEncoder.encode(userDto.getPassword()), campus, major, authority);
         userRepository.save(user);

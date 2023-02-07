@@ -5,4 +5,5 @@ import com.litCitrus.zamongcampusServer.domain.user.Campus;
 
 public interface CampusService {
     Campus getCampus(Long collegeSeq);
+    Campus searchCampus(Long collegeSeq, String collegeName);
 }

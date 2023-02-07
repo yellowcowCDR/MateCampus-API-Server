@@ -9,7 +9,10 @@ import java.util.Optional;
 
 @Repository
 public interface CampusRepository extends JpaRepository<Campus, Long> {
+
+    Optional<Campus> findByCollegeSeq(Long collegeSeq);
+
     @Query("SELECT c FROM Campus c join fetch c.college" +
             " WHERE c.collegeSeq = :collegeSeq")
-    Optional<Campus> findByCollegeSeq(Long collegeSeq);
+    Optional<Campus> fetchCampusByCollegeSeq(Long collegeSeq);
 }

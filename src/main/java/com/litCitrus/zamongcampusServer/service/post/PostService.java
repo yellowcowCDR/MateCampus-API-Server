@@ -90,7 +90,7 @@ public class PostService {
         if(onlyOurCollege){
             postList = postRepository.findAllByDeletedFalseOrderByLikeCountDescViewCountDescCreatedAtDesc(page).stream()
                     .filter(post -> post.isExposed())
-                    .filter(post -> post.getUser().getCampus().getCollege().getCollegeName().equals(user.getCampus().getCollege().getCollegeName()))
+                    .filter(post -> post.getUser().getCampus().getCollege().equals(user.getCampus().getCollege()))
                     .map(PostDtoRes.Res::new)
                     .collect(Collectors.toList());
         }else{
