@@ -96,19 +96,19 @@ public class UserDtoRes {
 
         private String nickname;
 
-        private String college;
+        private String collegeName;
 
 
-        private String major;
+        private String majorCode;
 
         //private List<String> imageUrls;
         private String imageUrl;
 
-        public ResForPostLikedUsers(String loginId, String nickname, String college, String major, List<UserPicture> pictures){
+        public ResForPostLikedUsers(String loginId, String nickname, String collegeName, String majorCode, List<UserPicture> pictures){
             this.loginId = loginId;
             this.nickname = nickname;
-            this.college = college;
-            this.major = major;
+            this.collegeName = collegeName;
+            this.majorCode = majorCode;
 //            this.imageUrls = new ArrayList<String>();
 //            for(UserPicture picture : pictures){
 //                this.imageUrls.add(picture.getStored_file_path());
