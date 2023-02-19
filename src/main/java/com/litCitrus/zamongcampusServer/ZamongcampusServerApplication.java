@@ -22,12 +22,12 @@ public class ZamongcampusServerApplication {
 	@Bean
 	FirebaseMessaging firebaseMessaging() throws IOException {
 		GoogleCredentials googleCredentials = GoogleCredentials
-				.fromStream(new FileInputStream("/app/config/zamongcampus-server/litcitrus-2fc7a-firebase-adminsdk-durlz-60a1cb431c.json"));
+				.fromStream(new FileInputStream("/app/config/zamongcampus-server/mate-campus-firebase-adminsdk-fjhtq-2d31a08d5e.json"));
 		FirebaseOptions firebaseOptions = FirebaseOptions
 				.builder()
 				.setCredentials(googleCredentials)
 				.build();
-		FirebaseApp app = FirebaseApp.initializeApp(firebaseOptions, "zamongcampus");
+		FirebaseApp app = FirebaseApp.initializeApp(firebaseOptions, "mate-campus");
 		return FirebaseMessaging.getInstance(app);
 	}
 
