@@ -78,7 +78,7 @@ public class ChatMessageService {
                         put("navigate","/chatDetail");
                         put("roomId", chatRoom.getRoomId());
                         put("title", user.getNickname());
-                        put("imageUrl", user.getPictures().isEmpty() ? null : user.getPictures().get(0).getStored_file_path());
+                        put("imageUrl", user.getPictures().isEmpty() ? "" : user.getPictures().get(0).getStored_file_path());
                         put("type", chatRoom.getType());
 
                     }});
