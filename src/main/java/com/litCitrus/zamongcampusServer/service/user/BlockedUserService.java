@@ -1,13 +1,15 @@
 package com.litCitrus.zamongcampusServer.service.user;
 
-import com.litCitrus.zamongcampusServer.domain.user.*;
+import com.litCitrus.zamongcampusServer.domain.user.BlockedUser;
+import com.litCitrus.zamongcampusServer.domain.user.User;
+import com.litCitrus.zamongcampusServer.domain.user.UserPicture;
 import com.litCitrus.zamongcampusServer.dto.user.BlockedUserDtoRes;
 import com.litCitrus.zamongcampusServer.exception.user.BlockedUserNotFoundException;
 import com.litCitrus.zamongcampusServer.exception.user.UserNotFoundException;
 import com.litCitrus.zamongcampusServer.repository.user.BlockedUserRepository;
 import com.litCitrus.zamongcampusServer.repository.user.UserRepository;
 import com.litCitrus.zamongcampusServer.util.SecurityUtil;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -16,14 +18,13 @@ import java.util.List;
 
 import static com.litCitrus.zamongcampusServer.domain.user.BlockedUser.createBlockedUser;
 
+@RequiredArgsConstructor
 @Transactional
 @Service
 public class BlockedUserService {
-    @Autowired
-    UserRepository userRepository;
+    final private UserRepository userRepository;
 
-    @Autowired
-    BlockedUserRepository blockedUserRepository;
+    final private BlockedUserRepository blockedUserRepository;
 
     public void addBlockedUser(String blockedUserLoginId){
         User requestedUser = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
@@ -68,9 +69,9 @@ public class BlockedUserService {
 
     }*/
 
-    public Boolean isBlockedUser(String blockedUserLoginId){
-        User blockedUser = userRepository.findByLoginId(blockedUserLoginId).orElseThrow(UserNotFoundException::new);
-        User requestedUser = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
+    public Boolean isBlockedUser(User requestedUser, User blockedUser){
+//        User requestedUser = userRepository.findByLoginId(blockedUserLoginId).orElseThrow(UserNotFoundException::new);
+//        User blockedUser = userRepository.findByLoginId(blockedUserLoginId).orElseThrow(UserNotFoundException::new);
 
         Boolean isBlockedUser=blockedUserRepository.existsByRequestedUserAndBlockedUser(requestedUser, blockedUser);
         return isBlockedUser;

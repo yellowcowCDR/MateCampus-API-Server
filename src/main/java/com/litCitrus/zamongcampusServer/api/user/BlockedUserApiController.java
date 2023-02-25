@@ -1,8 +1,12 @@
 package com.litCitrus.zamongcampusServer.api.user;
 
+import com.litCitrus.zamongcampusServer.domain.user.User;
 import com.litCitrus.zamongcampusServer.dto.user.BlockedUserDtoRes;
+import com.litCitrus.zamongcampusServer.exception.user.UserNotFoundException;
+import com.litCitrus.zamongcampusServer.repository.user.UserRepository;
 import com.litCitrus.zamongcampusServer.service.user.BlockedUserService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.litCitrus.zamongcampusServer.util.SecurityUtil;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,14 +15,19 @@ import java.util.List;
 
 @RequestMapping("/api/blockedUser")
 @RestController
+@RequiredArgsConstructor
 public class BlockedUserApiController {
 
-    @Autowired
-    BlockedUserService blockedUserService;
+    final private UserRepository userRepository;
+
+    final private BlockedUserService blockedUserService;
 
     @PostMapping
     public ResponseEntity addBlockedUser(String blockedUserLoginId){
-        if(blockedUserService.isBlockedUser(blockedUserLoginId)){
+        User requestedUser = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
+        User blockedUser = userRepository.findByLoginId(blockedUserLoginId).orElseThrow(UserNotFoundException::new);
+
+        if(blockedUserService.isBlockedUser(requestedUser, blockedUser)){
             return new ResponseEntity<>("user blocked already.", HttpStatus.ACCEPTED);
         }else{
             blockedUserService.addBlockedUser(blockedUserLoginId);
@@ -34,7 +43,10 @@ public class BlockedUserApiController {
 
     @GetMapping("/checkIfBlocked/{blockedUserLoginId}")
     public ResponseEntity<Boolean> checkIfBlocked(@PathVariable String blockedUserLoginId){
-        Boolean isBlockedUser = blockedUserService.isBlockedUser(blockedUserLoginId);
+        User requestedUser = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
+        User blockedUser = userRepository.findByLoginId(blockedUserLoginId).orElseThrow(UserNotFoundException::new);
+
+        Boolean isBlockedUser = blockedUserService.isBlockedUser(requestedUser, blockedUser);
         return ResponseEntity.ok(isBlockedUser);
     }
     @DeleteMapping("/{blockedUserLoginId}")
