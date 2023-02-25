@@ -13,6 +13,7 @@ import com.litCitrus.zamongcampusServer.io.fcm.FCMHandler;
 import com.litCitrus.zamongcampusServer.repository.notification.NotificationRepository;
 import com.litCitrus.zamongcampusServer.repository.post.PostLikeRepository;
 import com.litCitrus.zamongcampusServer.repository.post.PostRepository;
+import com.litCitrus.zamongcampusServer.repository.user.BlockedUserRepository;
 import com.litCitrus.zamongcampusServer.repository.user.UserRepository;
 import com.litCitrus.zamongcampusServer.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
@@ -35,18 +36,22 @@ public class PostLikeService {
     private final FCMHandler fcmHandler;
     private final NotificationRepository notificationRepository;
 
+    private final BlockedUserRepository blockedUserRepository;
+
 
     @Transactional
     public PostLikeDtoRes likePost(Long postId){
         User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
         Post post = postRepository.findById(postId).orElseThrow(PostNotFoundException::new);
         PostLike postLike = postLikeRepository.findByUserAndPost(user, post).orElse(null);
+        Boolean isBlockedUser = blockedUserRepository.existsByRequestedUserAndBlockedUser(post.getUser(), user);
+
         if (ObjectUtils.isEmpty(postLike)){
             post.plusLikeCnt(); // 여기는 transactinal를 넣어야할 것 같은데, 왜 안 넣고도 적용될까?
             postLikeRepository.save(new PostLike(user, post));
 
             //좋아요 알림 보내기
-            if(!post.getUser().getLoginId().equals(user.getLoginId())){
+            if(!post.getUser().getLoginId().equals(user.getLoginId()) && !isBlockedUser){
                 // 4-1. Notication에 저장
                 Notification newNotification = notificationRepository.save(Notification.CreatePostLikeNotification(user, post));
                 // 4-2. fcm 알림
