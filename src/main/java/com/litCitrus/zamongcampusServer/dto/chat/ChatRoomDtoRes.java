@@ -37,7 +37,7 @@ public class ChatRoomDtoRes {
                 .type(ModifiedChatInfo.MemberStatus.CREATE)
                 .roomInfo(roomInfo)
                 .requestedMember(requestedMember)
-                .otherMembers(otherMembers)
+                .otherMember(otherMembers.get(0))
                 .memberInfos(memberInfos)
                 .build();
     }
