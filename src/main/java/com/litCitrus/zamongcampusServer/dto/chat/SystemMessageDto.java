@@ -72,6 +72,8 @@ public class SystemMessageDto {
     @SuperBuilder
     public static class CreateDto extends SystemMessage{
         final private RoomInfo roomInfo;
+        final private MemberInfo requestedMember;
+        final private List<MemberInfo> otherMembers;
         final private List<MemberInfo> memberInfos;
     }
 

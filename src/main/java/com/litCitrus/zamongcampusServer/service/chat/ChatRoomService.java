@@ -36,7 +36,7 @@ public class ChatRoomService {
         // user와 other 두 명만 가지고 있는 채팅방을 찾아야한다. => TODO: 테스트 필요(2명+1명 있는 방도 가져오는지 등)
         /// case 1) 이미 존재하면 get
         if(participant != null){
-            return new ChatRoomDtoRes(chatRoomRepository.findByParticipant(participant), members, other);
+            return new ChatRoomDtoRes(chatRoomRepository.findByParticipant(participant), members, user);
         }
 
         /// case 2) 존재하지 않으면 create

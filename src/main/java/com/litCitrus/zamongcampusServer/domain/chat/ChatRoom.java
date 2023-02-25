@@ -53,12 +53,12 @@ public class ChatRoom extends BaseEntity {
         return participant.getUsers();
     }
 
-    public List<String> getCounterpartChatRoomTitleAndImage(String requesterUserLoginId){
+    public List<String> getCounterpartChatRoomTitleAndImage(String requestedUserLoginId){
         String imageUrl = "";
         String title = "";
         User counterpart;
         // 채팅방이 매칭인 경우 대표 이미지 가져오기
-        if(this.getUsers().get(0).getLoginId().equals(requesterUserLoginId)){
+        if(this.getUsers().get(0).getLoginId().equals(requestedUserLoginId)){
             // 로그인한 사용자와 ChatRoom DB에 첫번째 사용자가 동일하면
             // ChatRoom DB의 두번째 사용자 사진과 닉네임(채팅방 타이틀) 가져오기
             counterpart = this.getUsers().get(1);
