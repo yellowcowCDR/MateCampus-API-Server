@@ -1,11 +1,14 @@
 package com.litCitrus.zamongcampusServer.api.chat;
 
+import com.litCitrus.zamongcampusServer.domain.user.User;
 import com.litCitrus.zamongcampusServer.dto.chat.ChatRoomDtoReq;
 import com.litCitrus.zamongcampusServer.dto.chat.ChatRoomDtoRes;
+import com.litCitrus.zamongcampusServer.exception.user.UserNotFoundException;
+import com.litCitrus.zamongcampusServer.repository.user.UserRepository;
 import com.litCitrus.zamongcampusServer.service.chat.ChatRoomService;
 import com.litCitrus.zamongcampusServer.service.user.BlockedUserService;
+import com.litCitrus.zamongcampusServer.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,17 +20,19 @@ import javax.validation.Valid;
 @RequiredArgsConstructor
 public class ChatRoomController {
 
+    final private UserRepository userRepository;
+
     final private ChatRoomService chatRoomService;
 
-    @Autowired
     final private BlockedUserService blockedUserService;
 
     @PostMapping
     //@ResponseStatus(HttpStatus.CREATED)
     // ChatRoomDtoRes createOrGetChatRoom(@Valid @RequestBody ChatRoomDtoReq.Create chatRoomDto){
     ResponseEntity<ChatRoomDtoRes> createOrGetChatRoom(@Valid @RequestBody ChatRoomDtoReq.Create chatRoomDto){
-        String otherLoginUser = chatRoomDto.getOtherLoginId();
-        if(blockedUserService.isBlockedUser(otherLoginUser)){
+        User requestedUser = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
+        User otherLoginUser = userRepository.findByLoginId(chatRoomDto.getOtherLoginId()).orElseThrow(UserNotFoundException::new);
+        if(blockedUserService.isBlockedUser(otherLoginUser, requestedUser)){
             return new ResponseEntity<ChatRoomDtoRes>(new ChatRoomDtoRes(), HttpStatus.FORBIDDEN);
         }else{
             ChatRoomDtoRes ChatRoomInfo = chatRoomService.createOrGetChatRoom(chatRoomDto);
