@@ -116,12 +116,17 @@ public class SystemMessageComponent {
         List<String> chatRoomTitleAndImage = chatRoom.getCounterpartChatRoomTitleAndImage(other.getLoginId()); // 채팅방 만든이의 사진,닉네임
         SystemMessageDto.RoomInfo roomInfo = new SystemMessageDto.RoomInfo(
                 chatRoom.getRoomId(), chatRoom.getType(), chatRoomTitleAndImage.get(0), chatRoomTitleAndImage.get(1));
+
+        /* 모든 참여자 */
         List<SystemMessageDto.MemberInfo> memberInfos = recipients.stream()
                 .map(member -> new SystemMessageDto.MemberInfo(member.getId(),
                         member.getLoginId(), member.getNickname(), member.getPictures().isEmpty() ? null : member.getPictures().get(0).getStored_file_path())).collect(Collectors.toList());
+
         SystemMessageDto.CreateDto createDto = SystemMessageDto.CreateDto.builder()
                 .type(ModifiedChatInfo.MemberStatus.CREATE)
                 .roomInfo(roomInfo)
+                .requestedMember(new SystemMessageDto.MemberInfo(actor))
+                .otherMember(new SystemMessageDto.MemberInfo(other))
                 .memberInfos(memberInfos)
                 .build();
 
