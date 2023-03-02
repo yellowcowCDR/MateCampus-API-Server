@@ -30,9 +30,10 @@ public class ChatRoomController {
     //@ResponseStatus(HttpStatus.CREATED)
     // ChatRoomDtoRes createOrGetChatRoom(@Valid @RequestBody ChatRoomDtoReq.Create chatRoomDto){
     ResponseEntity<ChatRoomDtoRes> createOrGetChatRoom(@Valid @RequestBody ChatRoomDtoReq.Create chatRoomDto){
-        User requestedUser = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
+        //ToDo 로그인된 유저 정보 가져오는 방법 수정
+        User requestedUser = SecurityUtil.getUser();
         User otherLoginUser = userRepository.findByLoginId(chatRoomDto.getOtherLoginId()).orElseThrow(UserNotFoundException::new);
-        if(blockedUserService.isBlockedUser(otherLoginUser, requestedUser)){
+        if(blockedUserService.isBlockedUser(otherLoginUser.getLoginId(), requestedUser.getLoginId())){
             return new ResponseEntity<ChatRoomDtoRes>(new ChatRoomDtoRes(), HttpStatus.FORBIDDEN);
         }else{
             ChatRoomDtoRes ChatRoomInfo = chatRoomService.createOrGetChatRoom(chatRoomDto);

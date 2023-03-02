@@ -2,7 +2,6 @@ package com.litCitrus.zamongcampusServer.service.post;
 
 import com.litCitrus.zamongcampusServer.domain.post.Post;
 import com.litCitrus.zamongcampusServer.domain.post.PostBookMark;
-import com.litCitrus.zamongcampusServer.domain.post.PostLike;
 import com.litCitrus.zamongcampusServer.domain.user.User;
 import com.litCitrus.zamongcampusServer.exception.post.PostNotFoundException;
 import com.litCitrus.zamongcampusServer.exception.user.UserNotFoundException;
@@ -25,7 +24,8 @@ public class PostBookMarkService {
 
     @Transactional
     public Long bookMarkPost(Long postId){
-        User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
+        //ToDo 로그인된 유저 정보 가져오는 방법 수정
+        User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findByLoginId).orElseThrow(UserNotFoundException::new);
         Post post = postRepository.findById(postId).orElseThrow(PostNotFoundException::new);
         PostBookMark postBookMark = postBookMarkRepository.findByUserAndPost(user, post);
         if (ObjectUtils.isEmpty(postBookMark)){

@@ -28,7 +28,8 @@ public class ChatRoomService {
     private final SystemMessageComponent systemMessageComponent;
 
     public ChatRoomDtoRes createOrGetChatRoom(ChatRoomDtoReq.Create chatRoomDto){
-        User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
+        //ToDo 로그인된 유저 정보 가져오는 방법 수정
+        User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findByLoginId).orElseThrow(UserNotFoundException::new);
         User other = userRepository.findByLoginId(chatRoomDto.getOtherLoginId()).orElseThrow(UserNotFoundException::new);
         List<User> members = Arrays.asList(user, other); // user와 other를 하나의 리스트로 만들어 줌
         Participant newParticipant = Participant.CreateParticipant(members, "chat");
@@ -54,7 +55,8 @@ public class ChatRoomService {
     @Transactional
     public void enterChatRoom(Long chatRoomId){
         /* 1. 멤버 추가 */
-        User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
+        //ToDo 로그인된 유저 정보 가져오는 방법 수정
+        User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findByLoginId).orElseThrow(UserNotFoundException::new);
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId).orElseThrow(ChatRoomNotFoundException::new);
         chatRoom.addUser(user);
 
@@ -75,7 +77,8 @@ public class ChatRoomService {
 
     @Transactional
     public void exitChatRoom(String roomId){
-        User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
+        //ToDo 로그인된 유저 정보 가져오는 방법 수정
+        User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findByLoginId).orElseThrow(UserNotFoundException::new);
         //참석자 삭제
         ChatRoom chatRoom = chatRoomRepository.findByRoomId(roomId).orElseThrow(ChatRoomNotFoundException::new);
         chatRoom.deleteUser(user);

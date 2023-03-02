@@ -24,10 +24,11 @@ public class BlockedUserApiController {
 
     @PostMapping
     public ResponseEntity addBlockedUser(String blockedUserLoginId){
-        User requestedUser = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
+        //ToDo 로그인된 유저 정보 가져오는 방법 수정
+        User requestedUser = SecurityUtil.getUser();
         User blockedUser = userRepository.findByLoginId(blockedUserLoginId).orElseThrow(UserNotFoundException::new);
 
-        if(blockedUserService.isBlockedUser(requestedUser, blockedUser)){
+        if(blockedUserService.isBlockedUser(requestedUser.getLoginId(), blockedUser.getLoginId())){
             return new ResponseEntity<>("user blocked already.", HttpStatus.ACCEPTED);
         }else{
             blockedUserService.addBlockedUser(blockedUserLoginId);
@@ -37,16 +38,17 @@ public class BlockedUserApiController {
 
     @GetMapping("/list")
     public ResponseEntity<List<BlockedUserDtoRes.Res>> getBlockedUserList(){
-        List<BlockedUserDtoRes.Res> blockedUserList = blockedUserService.getBlockedUserList();
+        List<BlockedUserDtoRes.Res> blockedUserList = blockedUserService.getBlockedUserListForRes();
         return ResponseEntity.ok(blockedUserList);
     }
 
     @GetMapping("/checkIfBlocked/{blockedUserLoginId}")
     public ResponseEntity<Boolean> checkIfBlocked(@PathVariable String blockedUserLoginId){
-        User requestedUser = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
+        //ToDo 로그인된 유저 정보 가져오는 방법 수정
+        User requestedUser = SecurityUtil.getUser();
         User blockedUser = userRepository.findByLoginId(blockedUserLoginId).orElseThrow(UserNotFoundException::new);
 
-        Boolean isBlockedUser = blockedUserService.isBlockedUser(requestedUser, blockedUser);
+        Boolean isBlockedUser = blockedUserService.isBlockedUser(requestedUser.getLoginId(), blockedUser.getLoginId());
         return ResponseEntity.ok(isBlockedUser);
     }
     @DeleteMapping("/{blockedUserLoginId}")

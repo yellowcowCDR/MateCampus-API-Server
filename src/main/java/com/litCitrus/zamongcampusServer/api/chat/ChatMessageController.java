@@ -37,7 +37,8 @@ public class ChatMessageController {
     @GetMapping("/api/chat/message")
     public ChatMessageDtoRes.ChatBundle getChatMessageDynamo(@Valid @RequestParam("totalLastMsgCreatedAt") String createdAt){
         // 메시지 가져오는 부분
-        User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
+        //ToDo 로그인된 유저 정보 가져오는 방법 수정
+        User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findByLoginId).orElseThrow(UserNotFoundException::new);
         return chatMessageService.getChatMessageDynamo(createdAt, user);
     }
 }

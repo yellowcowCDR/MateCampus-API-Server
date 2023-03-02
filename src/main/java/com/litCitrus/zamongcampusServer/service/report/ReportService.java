@@ -30,7 +30,8 @@ public class ReportService {
     UserRepository userRepository;
 
     public void createReport(ReportReq.Create reportCreateReq){
-        User reportedUser = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
+        //User reportedUser = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
+        User reportedUser = SecurityUtil.getUser();
         User targetUser = userRepository.findByLoginId(reportCreateReq.getTargetUserId()).orElseThrow(UserNotFoundException::new);
 
         Report report = Report.builder()

@@ -14,11 +14,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,11 +29,12 @@ public class UserInterestService {
 
     @Transactional
     public List<InterestDtoRes> updateMyInterests(List<InterestDtoReq> interestDtoReqList){
-        User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
+        //ToDo 로그인된 유저 정보 가져오는 방법 수정
+        User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findByLoginId).orElseThrow(UserNotFoundException::new);
         Set<UserInterest> newUserInterestList = new HashSet<>();
         for(InterestDtoReq interestDtoReq : interestDtoReqList){
             newUserInterestList.add(UserInterest.createUserInterest(user, interestRepository.findByInterestCode(InterestCode.valueOf(interestDtoReq.getInterestCode()))));
-        };
+        }
         List<UserInterest> existUserInterests = userInterestRepository.findByUser(user);
         userInterestRepository.deleteAll(existUserInterests);
         List<UserInterest> userInterests = userInterestRepository.saveAll(newUserInterestList);

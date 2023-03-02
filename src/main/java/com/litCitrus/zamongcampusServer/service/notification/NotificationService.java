@@ -22,13 +22,15 @@ public class NotificationService {
     private final UserRepository userRepository;
 
     public List<NotificationDtoRes> getMyNotification(){
-        User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
+        //ToDo 로그인된 유저 정보 가져오는 방법 수정
+        User user = SecurityUtil.getUser();
         return notificationRepository.findAllByUserOrderByCreatedAtDesc(user).stream()
                 .map(NotificationDtoRes::new).collect(Collectors.toList());
     }
 
     public List<NotificationDtoRes> getMyUnreadNoti(){
-        User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
+        //ToDo 로그인된 유저 정보 가져오는 방법 수정
+        User user = SecurityUtil.getUser();
         return notificationRepository.findAllByUserAndUnReadIsTrue(user).stream()
                 .map(NotificationDtoRes::new).collect(Collectors.toList());
     }
@@ -36,7 +38,8 @@ public class NotificationService {
     @Transactional
     public long updateMyNotiRead(Long notificationId){
         // 반환을 남은 안읽은 알림 수로 한다.
-        User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
+        //ToDo 로그인된 유저 정보 가져오는 방법 수정
+        User user = SecurityUtil.getUser();
         Notification notification = notificationRepository.findById(notificationId).get();
         notification.changeRead();
         return notificationRepository.findAllByUserAndUnReadIsTrue(user).size();
@@ -44,7 +47,8 @@ public class NotificationService {
 
     @Transactional
     public void updateAllMyNotiRead(){
-        User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
+        //ToDo 로그인된 유저 정보 가져오는 방법 수정
+        User user = SecurityUtil.getUser();
         List<Notification> unreadNotifications = notificationRepository.findAllByUserAndUnReadIsTrue(user);
         for(Notification notification: unreadNotifications){
             notification.changeRead();
@@ -52,9 +56,10 @@ public class NotificationService {
     }
 
     public void deleteMyNotification(Long notificationId){
-        User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
+        //ToDo 로그인된 유저 정보 가져오는 방법 수정
+        User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findByLoginId).orElseThrow(UserNotFoundException::new);
         Notification notification = notificationRepository.findById(notificationId).get();
-        if(notification.getUser().getLoginId() == user.getLoginId()){
+        if(notification.getUser() == user){
             notificationRepository.delete(notification);
         }
     }

@@ -17,8 +17,8 @@ import com.litCitrus.zamongcampusServer.repository.notification.NotificationRepo
 import com.litCitrus.zamongcampusServer.repository.post.PostCommentRepository;
 import com.litCitrus.zamongcampusServer.repository.post.PostParticipantRepository;
 import com.litCitrus.zamongcampusServer.repository.post.PostRepository;
-import com.litCitrus.zamongcampusServer.repository.user.BlockedUserRepository;
 import com.litCitrus.zamongcampusServer.repository.user.UserRepository;
+import com.litCitrus.zamongcampusServer.service.user.BlockedUserService;
 import com.litCitrus.zamongcampusServer.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -42,14 +42,15 @@ public class PostCommentService {
     private final FCMHandler fcmHandler;
     private final NotificationRepository notificationRepository;
 
-    final private BlockedUserRepository blockedUserRepository;
+    final private BlockedUserService blockedUserService;
 
     @Transactional
     public PostComment createPostComment(Long postId, PostCommentDtoReq.CreateRequest postCommentDto){
         Post post = postRepository.findById(postId).orElseThrow(PostNotFoundException::new);
-        User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
+        //ToDo 로그인된 유저 정보 가져오는 방법 수정
+        User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findByLoginId).orElseThrow(UserNotFoundException::new);
         PostComment parent = null;
-        Boolean isBlockedUser = blockedUserRepository.existsByRequestedUserAndBlockedUser(post.getUser(), user);
+        Boolean isBlockedUser = blockedUserService.isBlockedUser(post.getUser().getLoginId(), user.getLoginId());
         // 1. parent가 없는 경우(댓글) 2. parent가 존재(대댓글)
         if(postCommentDto.getParentId() != null)
             parent = postCommentRepository.findById(postCommentDto.getParentId()).orElseThrow(PostCommentNotFoundException::new);
@@ -68,9 +69,8 @@ public class PostCommentService {
         if(postCommentDto.getParentId()!=null){
             Long parentId = postCommentDto.getParentId();
             PostComment parentComment = postCommentRepository.findById(parentId).orElseThrow(PostCommentNotFoundException::new);
-            String parentCommentWriterId = parentComment.getUser().getLoginId();
-            isBlockedUser = blockedUserRepository.existsByRequestedUserAndBlockedUser(parentComment.getUser(), user);
-            if(user.getLoginId()!=parentCommentWriterId && !isBlockedUser){
+            isBlockedUser = blockedUserService.isBlockedUser(parentComment.getUser().getLoginId(), user.getLoginId());
+            if(user!=parentComment.getUser() && !isBlockedUser){
                 // 4-1. Notication에 저장
                 Notification newNotification = notificationRepository.save(Notification.CreatePostSubCommentNotification(parentComment.getUser(), postComment, postComment.getUser()));
                 // 4-2. fcm 알림
@@ -92,7 +92,7 @@ public class PostCommentService {
                 fcmHandler.sendNotification(fcmDto, "fcm_default_channel", postCommentOwner, null);
             }
 
-        }else if(user.getLoginId() != post.getUser().getLoginId() && !isBlockedUser){
+        }else if(user!=post.getUser() && !isBlockedUser){
             // 4-1. Notication에 저장
             Notification newNotification = notificationRepository.save(Notification.CreatePostCommentNotification(post.getUser(), postComment, user));
             // 4-2. fcm 알림
@@ -127,7 +127,8 @@ public class PostCommentService {
     }
 
     public List<PostCommentDtoRes.Res> getMyComments(){
-        User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
+        //ToDo 로그인된 유저 정보 가져오는 방법 수정
+        User user = SecurityUtil.getUser();
         return postCommentRepository.findAllByUserAndDeletedFalse(user).stream()
                 .map(PostCommentDtoRes.Res::new).collect(Collectors.toList());
     }
@@ -135,7 +136,8 @@ public class PostCommentService {
     @Transactional
     public void deletePostComment(Long postCommentId) {
         PostComment postComment = postCommentRepository.findById(postCommentId).orElseThrow(PostCommentNotFoundException::new);
-        User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
+        //ToDo 로그인된 유저 정보 가져오는 방법 수정
+        User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findByLoginId).orElseThrow(UserNotFoundException::new);
 
         if (postComment.getUser() != user)
             throw new PostCommentOwnerNotMatchException();

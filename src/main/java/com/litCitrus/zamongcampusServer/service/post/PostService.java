@@ -44,7 +44,7 @@ public class PostService {
     private final S3Uploader s3Uploader;
 
     public Post createPost(PostDtoReq.Create postDto) throws Exception{
-        User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
+        User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findByLoginId).orElseThrow(UserNotFoundException::new);
         List<PostCategory> postCategories = postCategoryRepository.findByPostCategoryCodeIsIn
                 (postDto.getCategoryCodeList().stream().map(categoryCode -> PostCategoryCode.valueOf(categoryCode.toUpperCase())).collect(Collectors.toList()));
         Post post = Post.createPost(user, postDto, postCategories);
@@ -84,7 +84,8 @@ public class PostService {
 
     // READ : 전체 게시글 ™인기순 (좋아요순)
     public List<PostDtoRes.Res> getAllPostOrderByMostLike(String nextPageToken, Boolean onlyOurCollege){
-        User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
+        //ToDo 로그인된 유저 정보 가져오는 방법 수정
+        User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findByLoginId).orElseThrow(UserNotFoundException::new);
         Pageable page = PageRequest.of(Integer.parseInt(nextPageToken), 10); // 0번째부터 10개의 게시글
         List<PostDtoRes.Res> postList;
         if(onlyOurCollege){
@@ -104,14 +105,16 @@ public class PostService {
 
     // READ : 북마크한 게시글
     public List<PostDtoRes.Res> getBookmarkPosts(String nextPageToken){
-        User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
+        //ToDo 로그인된 유저 정보 가져오는 방법 수정
+        User user = SecurityUtil.getUser();
         Pageable page = PageRequest.of(Integer.parseInt(nextPageToken), 10); // 0번째부터 10개의 게시글
         List<Post> posts =  postRepository.findAllByBookMarkUsers_UserAndDeletedFalse(user, page);
         return posts.stream().map(PostDtoRes.Res::new).collect(Collectors.toList());
     }
 
     public PostIdDto getMyLikeBookMarkPostIds(){
-        User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
+        //ToDo 로그인된 유저 정보 가져오는 방법 수정
+        User user = SecurityUtil.getUser();
         List<Long> likePostIds = postRepository.findAllByLikedUsers_UserAndDeletedFalse(user).stream().map(post -> post.getId()).collect(Collectors.toList());
         List<Long> bookMarkPostIds = postRepository.findAllByBookMarkUsers_UserAndDeletedFalse(user).stream().map(post -> post.getId()).collect(Collectors.toList());
         return new PostIdDto(likePostIds, bookMarkPostIds);
@@ -128,7 +131,8 @@ public class PostService {
     // UPDATE
     @Transactional
     public void updatePost(Long postId, PostDtoReq.Update postDto){
-        User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
+        //ToDo 로그인된 유저 정보 가져오는 방법 수정
+        User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findByLoginId).orElseThrow(UserNotFoundException::new);
         Post post = postRepository.findById(postId).orElseThrow(PostNotFoundException::new);
 
         String postDtoBody = postDto.getBody();
@@ -143,7 +147,8 @@ public class PostService {
 
     // DELETE
     public void deletePost(Long postId){
-        User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
+        //ToDo 로그인된 유저 정보 가져오는 방법 수정
+        User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findByLoginId).orElseThrow(UserNotFoundException::new);
         Post post = postRepository.findById(postId).orElseThrow(PostNotFoundException::new);
 
         if(post.getUser() != user){

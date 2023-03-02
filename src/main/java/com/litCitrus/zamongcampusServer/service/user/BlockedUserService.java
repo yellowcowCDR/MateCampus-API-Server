@@ -27,7 +27,8 @@ public class BlockedUserService {
     final private BlockedUserRepository blockedUserRepository;
 
     public void addBlockedUser(String blockedUserLoginId){
-        User requestedUser = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
+        //ToDo 로그인된 유저 정보 가져오는 방법 수정
+        User requestedUser = SecurityUtil.getUser();
         User blockedUser = userRepository.findByLoginId(blockedUserLoginId).orElseThrow(UserNotFoundException::new);
 
         BlockedUser blockedUserEntity = createBlockedUser(requestedUser, blockedUser);
@@ -35,8 +36,9 @@ public class BlockedUserService {
         blockedUserRepository.save(blockedUserEntity);
     }
 
-    public List<BlockedUserDtoRes.Res> getBlockedUserList(){
-        User requestedUser = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
+    public List<BlockedUserDtoRes.Res> getBlockedUserListForRes(){
+        //ToDo 로그인된 유저 정보 가져오는 방법 수정
+        User requestedUser = SecurityUtil.getUser();
         List<BlockedUser> blockedUserList =  blockedUserRepository.findByRequestedUser(requestedUser);
 
         List<BlockedUserDtoRes.Res> blockedUserResList = new ArrayList<>();
@@ -58,6 +60,14 @@ public class BlockedUserService {
         return blockedUserResList;
     }
 
+    public List<BlockedUser> getBlockedUserList(){
+        //ToDo 로그인된 유저 정보 가져오는 방법 수정
+        User requestedUser = SecurityUtil.getUser();
+        List<BlockedUser> blockedUserList =  blockedUserRepository.findByRequestedUser(requestedUser);
+
+        return blockedUserList;
+    }
+
     /*public void getBlockedUser(String blockedUserLoginId){
         User requestedUser = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
         User blockedUser = userRepository.findByLoginId(blockedUserLoginId).orElseThrow(UserNotFoundException::new);
@@ -69,16 +79,17 @@ public class BlockedUserService {
 
     }*/
 
-    public Boolean isBlockedUser(User requestedUser, User blockedUser){
-//        User requestedUser = userRepository.findByLoginId(blockedUserLoginId).orElseThrow(UserNotFoundException::new);
-//        User blockedUser = userRepository.findByLoginId(blockedUserLoginId).orElseThrow(UserNotFoundException::new);
+    public Boolean isBlockedUser(String requestedUserId, String blockedUserId){
+        User requestedUser = userRepository.findByLoginId(requestedUserId).orElseThrow(UserNotFoundException::new);
+        User blockedUser = userRepository.findByLoginId(blockedUserId).orElseThrow(UserNotFoundException::new);
 
         Boolean isBlockedUser=blockedUserRepository.existsByRequestedUserAndBlockedUser(requestedUser, blockedUser);
         return isBlockedUser;
     }
 
     public void deleteBlockedUser(String blockedUserLoginId){
-        User requestedUser = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
+        //ToDo 로그인된 유저 정보 가져오는 방법 수정
+        User requestedUser = SecurityUtil.getUser();
         User blockedUser = userRepository.findByLoginId(blockedUserLoginId).orElseThrow(UserNotFoundException::new);
 
         BlockedUser blockedUserInfo= blockedUserRepository.findByRequestedUserAndBlockedUser(requestedUser, blockedUser).orElseThrow(BlockedUserNotFoundException::new);

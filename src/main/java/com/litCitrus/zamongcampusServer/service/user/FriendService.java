@@ -36,7 +36,8 @@ public class FriendService {
 
     // ** 친구신청
     public void requestFriend(FriendDtoReq.Create dto){
-        User actor = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
+        //ToDo 로그인된 유저 정보 가져오는 방법 수정
+        User actor = SecurityUtil.getCurrentUsername().flatMap(userRepository::findByLoginId).orElseThrow(UserNotFoundException::new);
         User target = userRepository.findByLoginId(dto.getTargetLoginId()).orElseThrow(UserNotFoundException::new);
         Friend friend = friendRepository.save(Friend.createFriend(actor, target));
         // 2. 해당 상황을 실시간 알림과 NotificationList에 저장.
@@ -57,7 +58,8 @@ public class FriendService {
     }
     // ** 친구목록 불러오기
     public List<FriendDtoRes.Res> getFriends(){
-        User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
+        //ToDo 로그인된 유저 정보 가져오는 방법 수정
+        User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findByLoginId).orElseThrow(UserNotFoundException::new);
         // TODO: querydsl 필요 (accepted 된 것들만 가져오는..?)
         // user.getFriends를 안한 이유는 user.getFriends가 2개이기 때문이다. (Requestor, Recipient)
         // 따라서 각각 내가 신청자일때도, 받은이일때도 있어서 아래처럼 하는 것이 좋다. (user모델에 각각 List로 안 둔 것도 그 이유)
@@ -68,7 +70,8 @@ public class FriendService {
     }
 
     public List<FriendDtoRes.Res> getApproveFriends(){
-        User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
+        //ToDo 로그인된 유저 정보 가져오는 방법 수정
+        User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findByLoginId).orElseThrow(UserNotFoundException::new);
         return friendRepository.findByRequestorOrRecipient(user, user).stream()
                 .filter(friend -> friend.getStatus().equals(Friend.Status.ACCEPTED))
                 .map(friend -> new FriendDtoRes.Res(friend.getRequestor().equals(user) ? friend.getRecipient() : friend.getRequestor(), friend))
@@ -96,7 +99,8 @@ public class FriendService {
     // ** 친구수락
     @Transactional
     public Friend approveFriend(FriendDtoReq.Update dto){
-        User actor = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
+        //ToDo 로그인된 유저 정보 가져오는 방법 수정
+        User actor = SecurityUtil.getUser();
         User target = userRepository.findByLoginId(dto.getTargetLoginId()).orElseThrow(UserNotFoundException::new);
         return friendRepository.findByRequestorAndRecipient(target, actor).updateFriendStatus("accepted");
     }
@@ -104,21 +108,23 @@ public class FriendService {
     // *** 거절했을 때 삭제를 해버릴까. 아니면 거절하면 거절했던 유저입니다 라는 것이 떠야할까..? => 그게 아니라면 삭제 로직과 비슷
     @Transactional
     public Friend refuseFriend(FriendDtoReq.Update dto){
-        User actor = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
+        //ToDo 로그인된 유저 정보 가져오는 방법 수정
+        User actor = SecurityUtil.getUser();
         User target = userRepository.findByLoginId(dto.getTargetLoginId()).orElseThrow(UserNotFoundException::new);
         return friendRepository.findByRequestorAndRecipient(target, actor).updateFriendStatus("refused");
     }
     // ** 친구삭제
     @Transactional
     public void deleteFriend(Long friendId) {
-        User actor = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
+        //ToDo 로그인된 유저 정보 가져오는 방법 수정
+        User actor = SecurityUtil.getCurrentUsername().flatMap(userRepository::findByLoginId).orElseThrow(UserNotFoundException::new);
         Friend friend = friendRepository.findById(friendId).get();
         // ** friend 객체 찾아서 requestor의 loginId를 삭제해주자.
         if (friend.getRecipient() == null || friend.getRequestor() == null) {
             // ** 상대방이 이미 삭제했다면 객체 삭제
             friendRepository.delete(friend);
         } else {
-            if(friend.getRequestor().equals(actor)){
+            if(friend.getRequestor() == actor){
                 friend.deleteRequestor();
             }else{
                 friend.deleteRecipient();

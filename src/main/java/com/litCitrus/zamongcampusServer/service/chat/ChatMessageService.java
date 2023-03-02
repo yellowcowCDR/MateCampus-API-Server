@@ -1,6 +1,7 @@
 package com.litCitrus.zamongcampusServer.service.chat;
 
 import com.litCitrus.zamongcampusServer.domain.chat.ChatRoom;
+import com.litCitrus.zamongcampusServer.domain.user.BlockedUser;
 import com.litCitrus.zamongcampusServer.domain.user.ModifiedChatInfo;
 import com.litCitrus.zamongcampusServer.domain.user.User;
 import com.litCitrus.zamongcampusServer.dto.chat.ChatMessageDtoReq;
@@ -12,7 +13,6 @@ import com.litCitrus.zamongcampusServer.io.dynamodb.service.DynamoDBHandler;
 import com.litCitrus.zamongcampusServer.io.fcm.FCMDto;
 import com.litCitrus.zamongcampusServer.io.fcm.FCMHandler;
 import com.litCitrus.zamongcampusServer.repository.chat.ChatRoomRepository;
-import com.litCitrus.zamongcampusServer.repository.user.BlockedUserRepository;
 import com.litCitrus.zamongcampusServer.repository.user.ModifiedChatInfoRepository;
 import com.litCitrus.zamongcampusServer.repository.user.UserRepository;
 import com.litCitrus.zamongcampusServer.security.jwt.TokenProvider;
@@ -41,8 +41,6 @@ public class ChatMessageService {
     private final ModifiedChatInfoRepository modifiedChatInfoRepository;
     private final TokenProvider tokenProvider;
     private final FCMHandler fcmHandler;
-
-    private final BlockedUserRepository blockedUserRepository;
 
     private final BlockedUserService blockedUserService;
 
@@ -84,7 +82,7 @@ public class ChatMessageService {
                     }});
             List<User> recipientsExceptMe  = chatRoomRepository.findByRoomId(messageDto.getRoomId()).orElseThrow(ChatRoomNotFoundException::new)
                     .getUsers().stream().filter(recipient -> !recipient.getLoginId().equals(user.getLoginId())).collect(Collectors.toList());
-            recipientsExceptMe = recipientsExceptMe.stream().filter((recipientExceptMe)->!blockedUserRepository.existsByRequestedUserAndBlockedUser(recipientExceptMe, user)).collect(Collectors.toList());
+            recipientsExceptMe = recipientsExceptMe.stream().filter((recipientExceptMe)->!blockedUserService.isBlockedUser(recipientExceptMe.getLoginId(), user.getLoginId())).collect(Collectors.toList());
             if(recipientsExceptMe!=null && recipientsExceptMe.size()>0) {
                 fcmHandler.sendNotification(fcmDto, "fcm_message_channel", recipientsExceptMe, user.getNickname());
             }
@@ -98,6 +96,19 @@ public class ChatMessageService {
         /* 1. 참여한 모든 방 찾기 */
         //User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
         List<ChatRoom> chatRooms = chatRoomRepository.findAllByParticipant_Users(user);
+
+        List<User> blockedUserList = blockedUserService.getBlockedUserList().stream().map(BlockedUser::getBlockedUser).collect(Collectors.toList());
+
+        chatRooms = chatRooms.stream().filter(chatRoom ->{
+            List<User> chatMemberList = chatRoom.getUsers();
+
+            for(User member : chatMemberList){
+                if(blockedUserList.contains(member))
+                    return false;
+            }
+
+            return true;
+        }).collect(Collectors.toList());
 
         /* 2. 각 채팅 roomId 기준으로 DynamoDB에서 메시지 가져오고 dto로 변환 */
         List<ChatMessageDtoRes.RoomMessageBundle> roomMessages
