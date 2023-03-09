@@ -16,6 +16,7 @@ import com.litCitrus.zamongcampusServer.service.chat.SystemMessageComponent;
 import com.litCitrus.zamongcampusServer.service.college.CampusService;
 import com.litCitrus.zamongcampusServer.service.image.S3Uploader;
 import com.litCitrus.zamongcampusServer.service.major.MajorService;
+import com.litCitrus.zamongcampusServer.util.CollegeUtil;
 import com.litCitrus.zamongcampusServer.util.SecurityUtil;
 import com.litCitrus.zamongcampusServer.util.UserComparatorForSort;
 import lombok.RequiredArgsConstructor;
@@ -60,7 +61,10 @@ public class UserService {
                 .authorityName("ROLE_USER")
                 .build();
 
-        Campus campus = campusService.searchCampus(userDto.getCollegeSeq(), userDto.getCollegeName());
+        //대학명과 캠퍼스명이 합쳐져 있을 경우 대학명만 추출해냄
+        String extractedCollegeName = CollegeUtil.extractCollegeName(userDto.getCollegeName());
+
+        Campus campus = campusService.searchCampus(userDto.getCollegeSeq(), extractedCollegeName);
         Major major = majorService.findByNameAndSeq(userDto.getMajorSeq(), userDto.getMClass());
         User user = User.createUser(userDto, passwordEncoder.encode(userDto.getPassword()), campus, major, authority);
         userRepository.save(user);

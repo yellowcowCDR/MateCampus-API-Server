@@ -3,6 +3,7 @@ package com.litCitrus.zamongcampusServer.service.college;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.litCitrus.zamongcampusServer.dto.college.CollegeResDto;
 import com.litCitrus.zamongcampusServer.exception.college.CollegeException;
+import com.litCitrus.zamongcampusServer.util.CollegeUtil;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -13,6 +14,7 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
@@ -36,7 +38,8 @@ public class CampusApiServiceImpl implements CampusApiService {
         boolean isMatched = false;
 
         try(client) {
-            HttpGet httpGet = new HttpGet(collegeSearchUrl + collegeName);
+            String encodedURL = URLEncoder.encode(collegeName, "UTF-8");
+            HttpGet httpGet = new HttpGet(collegeSearchUrl+encodedURL);
             CloseableHttpResponse response = client.execute(httpGet);
 
             try(response) {
@@ -60,19 +63,8 @@ public class CampusApiServiceImpl implements CampusApiService {
 
                         //학교명
                         String searchedCollegeName = (String)resultMap.get("schoolName");
-                        //searchedCollegeName = searchedCollegeName.replace(" "+campusName,"");
-                        String campusNameFilterStr = "";
-                        int searchedCollegeNameIndex = 0;
-                        int collegeNameLastIndex = 0;
-                        if(searchedCollegeName.contains("대학교")){
-                            campusNameFilterStr="대학교";
-                            searchedCollegeNameIndex = searchedCollegeName.indexOf(campusNameFilterStr);
-                        }else if(searchedCollegeName.contains("대학")){
-                            campusNameFilterStr="대학";
-                            searchedCollegeNameIndex = searchedCollegeName.indexOf(campusNameFilterStr);
-                        }
-                        collegeNameLastIndex = searchedCollegeNameIndex+campusNameFilterStr.length();
-                        searchedCollegeName =searchedCollegeName.substring(0, collegeNameLastIndex);
+
+                        searchedCollegeName = CollegeUtil.extractCollegeName(searchedCollegeName);
 
                         if(searchedCollegeSeq.equals(collegeSeq) && searchedCollegeName.equals(collegeName)){
                             isMatched = true;
