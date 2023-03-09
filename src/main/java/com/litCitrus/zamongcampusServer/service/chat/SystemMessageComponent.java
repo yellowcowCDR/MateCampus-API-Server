@@ -125,8 +125,6 @@ public class SystemMessageComponent {
         SystemMessageDto.CreateDto createDto = SystemMessageDto.CreateDto.builder()
                 .type(ModifiedChatInfo.MemberStatus.CREATE)
                 .roomInfo(roomInfo)
-                .requestedMember(new SystemMessageDto.MemberInfo(actor))
-                .otherMember(new SystemMessageDto.MemberInfo(other))
                 .memberInfos(memberInfos)
                 .build();
 
