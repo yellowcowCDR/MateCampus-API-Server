@@ -18,16 +18,6 @@ public class ChatRoomDtoRes {
         SystemMessageDto.RoomInfo roomInfo = new SystemMessageDto.RoomInfo(
                 chatRoom.getRoomId(), chatRoom.getType(), chatRoomTitleAndImage.get(0), chatRoomTitleAndImage.get(1));
 
-        /* 채팅방을 요청한 사용자 */
-        SystemMessageDto.MemberInfo requestedMember = new SystemMessageDto.MemberInfo(actor);
-        String actorId = actor.getLoginId();
-
-        /* 상대 참여자 목록 */
-        List<SystemMessageDto.MemberInfo> otherMembers = members.stream()
-                .filter(member-> !member.getLoginId().equals(actorId))
-                .map(member -> new SystemMessageDto.MemberInfo(member.getId(),
-                        member.getLoginId(), member.getNickname(), member.getPictures().isEmpty() ? null : member.getPictures().get(0).getStored_file_path())).collect(Collectors.toList());
-
         /* 모든 참여자 목록 */
         List<SystemMessageDto.MemberInfo> memberInfos = members.stream()
                 .map(member -> new SystemMessageDto.MemberInfo(member.getId(),
@@ -36,8 +26,6 @@ public class ChatRoomDtoRes {
         this.createDto = SystemMessageDto.CreateDto.builder()
                 .type(ModifiedChatInfo.MemberStatus.CREATE)
                 .roomInfo(roomInfo)
-                .requestedMember(requestedMember)
-                .otherMember(otherMembers.get(0))
                 .memberInfos(memberInfos)
                 .build();
     }
