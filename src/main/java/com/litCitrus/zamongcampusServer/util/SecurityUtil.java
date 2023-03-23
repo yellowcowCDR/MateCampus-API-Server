@@ -2,6 +2,7 @@ package com.litCitrus.zamongcampusServer.util;
 
 import com.litCitrus.zamongcampusServer.domain.user.User;
 import com.litCitrus.zamongcampusServer.exception.user.UserNotFoundException;
+import com.litCitrus.zamongcampusServer.repository.user.UserRepository;
 import com.litCitrus.zamongcampusServer.security.CustomUserDetails;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -70,5 +71,11 @@ public class SecurityUtil {
         } catch (Exception e) {
             throw new UserNotFoundException();
         }
+    }
+
+    //비회원 접근 시 401 에러 발생해도 상관없는 경우에만 해당 메서드 사용할 것
+    public static User getUser(UserRepository repository) throws UserNotFoundException {
+        CustomUserDetails principal = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return repository.findById(principal.getUser().getId()).orElseThrow(() -> new UserNotFoundException());
     }
 }
