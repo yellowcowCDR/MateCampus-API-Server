@@ -27,6 +27,7 @@ public class Participant {
     @ManyToOne(fetch = FetchType.LAZY)
     private ChatRoom chatRoom;
 
+    @Enumerated
     private ParticipantType type;
 
     public static Participant CreateParticipant(User user, ParticipantType type){
