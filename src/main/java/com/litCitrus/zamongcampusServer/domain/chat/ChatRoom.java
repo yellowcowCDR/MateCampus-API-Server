@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Entity
 @Getter
@@ -26,23 +27,23 @@ public class ChatRoom extends BaseEntity {
     private String roomId;
 
     @NonNull
-    @OneToOne(cascade = CascadeType.ALL)
-    private Participant participant;
+    @OneToMany(mappedBy = "chatRoom")
+    private List<Participant> participants;
 
     private String type;
 
-    public static ChatRoom createSingleChatRoom(Participant participant) {
+    public static ChatRoom createSingleChatRoom() {
         final ChatRoom chatRoom = ChatRoom.builder()
-                .participant(participant)
                 .roomId(UUID.randomUUID().toString())
+                .participants(new ArrayList<>())
                 .type("single")
                 .build();
         return chatRoom;
     }
 
-    public static ChatRoom createMultiChatRoom(Participant participant) {
+    public static ChatRoom createMultiChatRoom(List<Participant> participants) {
         final ChatRoom chatRoom = ChatRoom.builder()
-                .participant(participant)
+                .participants(participants)
                 .roomId(UUID.randomUUID().toString())
                 .type("multi")
                 .build();
@@ -50,7 +51,7 @@ public class ChatRoom extends BaseEntity {
     }
 
     public List<User> getUsers() {
-        return participant.getUsers();
+        return participants.stream().map(p -> p.getUser()).collect(Collectors.toList());
     }
 
     public List<String> getCounterpartChatRoomTitleAndImage(String requestedUserLoginId){
@@ -78,6 +79,11 @@ public class ChatRoom extends BaseEntity {
 
     public void addUser(User user){
         this.getUsers().add(user);
+    }
+
+    //DB와는 관계없음
+    public void addParticipant(Participant p) {
+        this.participants.add(p);
     }
 
 }
