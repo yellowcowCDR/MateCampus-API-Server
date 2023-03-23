@@ -1,13 +1,13 @@
 package com.litCitrus.zamongcampusServer.service.voiceRoom;
 
 import com.litCitrus.zamongcampusServer.domain.chat.ChatRoom;
+import com.litCitrus.zamongcampusServer.domain.chat.Participant;
+import com.litCitrus.zamongcampusServer.domain.chat.ParticipantType;
 import com.litCitrus.zamongcampusServer.domain.notification.Notification;
 import com.litCitrus.zamongcampusServer.domain.user.User;
-import com.litCitrus.zamongcampusServer.domain.chat.Participant;
 import com.litCitrus.zamongcampusServer.domain.voiceRoom.VoiceCategory;
 import com.litCitrus.zamongcampusServer.domain.voiceRoom.VoiceCategoryCode;
 import com.litCitrus.zamongcampusServer.domain.voiceRoom.VoiceRoom;
-import com.litCitrus.zamongcampusServer.dto.chat.SystemMessageDto;
 import com.litCitrus.zamongcampusServer.dto.voiceRoom.VoiceRoomDtoReq;
 import com.litCitrus.zamongcampusServer.dto.voiceRoom.VoiceRoomDtoRes;
 import com.litCitrus.zamongcampusServer.exception.user.UserNotFoundException;
@@ -51,9 +51,9 @@ public class VoiceRoomService {
              VoiceRoomDtoReq.Create dto) {
         User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
         // 1. participant, chatroom, voiceroom 생성
-        Participant participant = Participant.CreateParticipant(Arrays.asList(user), "voice");
+        Participant participant = Participant.CreateParticipant(user, ParticipantType.VOICE);
         participantRepository.save(participant);
-        ChatRoom chatRoom = ChatRoom.createMultiChatRoom(participant);
+        ChatRoom chatRoom = ChatRoom.createMultiChatRoom(Arrays.asList(participant));
         chatRoomRepository.save(chatRoom);
         List<VoiceCategory> voiceCategories = voiceCategoryRepository.findByVoiceCategoryCodeIsIn(
                 dto.getCategoryCodeList().stream().map(categoryCode -> VoiceCategoryCode.valueOf(categoryCode.toUpperCase())).collect(Collectors.toList()));
@@ -81,7 +81,8 @@ public class VoiceRoomService {
             return new VoiceRoomDtoRes.DetailRes(voiceRoom);
         }
         // 1. participant에 추가
-        voiceRoom.getChatRoom().getParticipant().addUser(user);
+        Participant participant = Participant.CreateParticipant(user, ParticipantType.VOICE);
+        participantRepository.save(participant);
         // 2. stomp으로 이미 참여자들에게 내 정보 실시간 전송
         VoiceRoomDtoRes.UpdateMemberInfo updateMemberInfo = new VoiceRoomDtoRes.UpdateMemberInfo(user, "enter");
         messagingTemplate.convertAndSend("/sub/chat/room/" + voiceRoom.getChatRoom().getRoomId(), updateMemberInfo);
@@ -97,7 +98,7 @@ public class VoiceRoomService {
         VoiceRoom voiceRoom = voiceRoomRepository.findById(voiceRoomId).orElseThrow(VoiceRoomNotFoundException::new);
         User owner = voiceRoom.getOwner();
 
-        voiceRoom.getChatRoom().getParticipant().removeUser(user);
+        participantRepository.deleteVcePctByUserAndChatRoom(user, voiceRoom.getChatRoom());
         // 1. 만약 마지막사람이면 방을 아예 삭제
         if(voiceRoom.getChatRoom().getUsers().isEmpty()){
             voiceRoomRepository.delete(voiceRoom);

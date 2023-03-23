@@ -97,7 +97,7 @@ public class ChatMessageService {
     public ChatMessageDtoRes.ChatBundle getChatMessageDynamo(String createdAfter, User user){
         /* 1. 참여한 모든 방 찾기 */
         //User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
-        List<ChatRoom> chatRooms = chatRoomRepository.findAllByParticipant_Users(user);
+        List<ChatRoom> chatRooms = chatRoomRepository.findAllByParticipants_User(user);
 
         /* 2. 각 채팅 roomId 기준으로 DynamoDB에서 메시지 가져오고 dto로 변환 */
         List<ChatMessageDtoRes.RoomMessageBundle> roomMessages
