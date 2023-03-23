@@ -225,10 +225,11 @@ public class UserService {
         /* 2. 변경 정보를 같은 채팅방 친구들에게 보낸다. (nickname, imageUrl이 변경된 경우에) */
         /* 2-1. 유저와 같은 방에 있는 멤버 찾기 */
         if(userUpdateDto.getProfileImage() != null || userUpdateDto.getNickname() != null){
-            List<Participant> participants = participantRepository.findByUsers_loginId(user.getLoginId());
+            //TODO: 나랑 같은 채팅방에 있는 유저들 찾기
+            List<Participant> participants = participantRepository.findByUser(user);
             Set<User> recipients =
                     participants.stream()
-                            .flatMap(participant -> participant.getUsers().stream())
+                            .map(p -> p.getUser())
                             .collect(Collectors.toSet());
             /* 2-2. 멤버들에게 실시간 전송 및 ModifiedInfo에 저장 */
             systemMessageComponent.sendSaveUpdateSystemMessage(user, recipients, imageUrl);

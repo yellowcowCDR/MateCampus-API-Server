@@ -2,6 +2,7 @@ package com.litCitrus.zamongcampusServer.service.chat;
 
 import com.litCitrus.zamongcampusServer.domain.chat.ChatRoom;
 import com.litCitrus.zamongcampusServer.domain.chat.Participant;
+import com.litCitrus.zamongcampusServer.domain.chat.ParticipantType;
 import com.litCitrus.zamongcampusServer.domain.user.User;
 import com.litCitrus.zamongcampusServer.dto.chat.ChatRoomDtoReq;
 import com.litCitrus.zamongcampusServer.dto.chat.ChatRoomDtoRes;
@@ -17,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -28,23 +30,25 @@ public class ChatRoomService {
     private final SystemMessageComponent systemMessageComponent;
 
     public ChatRoomDtoRes createOrGetChatRoom(ChatRoomDtoReq.Create chatRoomDto){
-        //ToDo 로그인된 유저 정보 가져오는 방법 수정
-        User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findByLoginId).orElseThrow(UserNotFoundException::new);
+        User user = SecurityUtil.getUser(userRepository);
         User other = userRepository.findByLoginId(chatRoomDto.getOtherLoginId()).orElseThrow(UserNotFoundException::new);
-        List<User> members = Arrays.asList(user, other); // user와 other를 하나의 리스트로 만들어 줌
-        Participant newParticipant = Participant.CreateParticipant(members, "chat");
-        Participant participant = participantRepository.findByHashCode(newParticipant.getHashCode());
-        // user와 other 두 명만 가지고 있는 채팅방을 찾아야한다. => TODO: 테스트 필요(2명+1명 있는 방도 가져오는지 등)
+        List<User> members = Arrays.asList(user, other);
+
+        List<Participant> newParticipants = Arrays.asList(Participant.CreateParticipant(user, ParticipantType.CHAT), Participant.CreateParticipant(other, ParticipantType.CHAT));
+        chatRoomRepository.fetchUserByParticipants(members);
+        List<ChatRoom> chatRooms = chatRoomRepository.fetchUserByParticipants(members).stream().filter(c -> c.getParticipants().size() == 2).collect(Collectors.toList());
+
         /// case 1) 이미 존재하면 get
-        if(participant != null){
-            return new ChatRoomDtoRes(chatRoomRepository.findByParticipant(participant), members, user);
+        if(!chatRooms.isEmpty()){
+            return new ChatRoomDtoRes(chatRooms.get(0), members, user);
         }
 
         /// case 2) 존재하지 않으면 create
         /* 1. 채팅방 만들기 */
-        participantRepository.save(newParticipant);
-        ChatRoom chatRoom = ChatRoom.createSingleChatRoom(newParticipant);
+        ChatRoom chatRoom = ChatRoom.createSingleChatRoom();
         chatRoomRepository.save(chatRoom);
+        newParticipants.stream().forEach(p -> p.configChatRoom(chatRoom));
+        participantRepository.saveAll(newParticipants);
 
         /* 2. 채팅방, 채팅방 멤버 정보 전달 */
         /* (CREATE message 실시간 전송 + 본인 제외!! 참여한 user들의 modifiedChatInfo db 저장) */
@@ -83,8 +87,6 @@ public class ChatRoomService {
         ChatRoom chatRoom = chatRoomRepository.findByRoomId(roomId).orElseThrow(ChatRoomNotFoundException::new);
         chatRoom.deleteUser(user);
 
-        //참석자 해시코드 수정
-        chatRoom.getParticipant().removeUserFromHashcode(user);
 
         systemMessageComponent.sendSaveExitSystemMessage(user, chatRoom);
     }

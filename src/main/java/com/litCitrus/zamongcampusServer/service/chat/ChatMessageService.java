@@ -95,7 +95,7 @@ public class ChatMessageService {
     public ChatMessageDtoRes.ChatBundle getChatMessageDynamo(String createdAfter, User user){
         /* 1. 참여한 모든 방 찾기 */
         //User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByLoginId).orElseThrow(UserNotFoundException::new);
-        List<ChatRoom> chatRooms = chatRoomRepository.findAllByParticipant_Users(user);
+        List<ChatRoom> chatRooms = chatRoomRepository.findAllByParticipants_User(user);
 
         List<User> blockedUserList = blockedUserService.getBlockedUserList().stream().map(BlockedUser::getBlockedUser).collect(Collectors.toList());
 
