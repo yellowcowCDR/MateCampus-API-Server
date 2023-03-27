@@ -117,7 +117,7 @@ class AaSampleDataConfig {
                 user.updateActivated(true);
                 userRepository.save(user);
 
-                UserPicture userPicture = UserPicture.createUserPicture(user, "https://d1cy8kjxuu1lsp.cloudfront.net/2022/user/20220504/a43e5a59-3b08-4fac-9c36-27468edc11da83851993430251user"+Integer.toString(i)+".jpg");
+                UserPicture userPicture = UserPicture.createUserPicture(user, "https://d3t7ysbm2jbdm8.cloudfront.net/2022/user/20220504/a43e5a59-3b08-4fac-9c36-27468edc11da83851993430251user"+Integer.toString(i)+".jpg");
                 userPictureRepository.save(userPicture);
             }
         };
