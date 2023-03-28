@@ -15,11 +15,11 @@ public class WorkHistory {
     @Id
     private Long id;
 
-    @Column(name="FUNCTION_CODE")
+    @Column(name="FUNCTION_TYPE")
     @Enumerated(EnumType.STRING)
     private WorkHistoryType.FunctionType functionType;
 
-    @Column(name="WORK_CODE")
+    @Column(name="WORK_TYPE")
     @Enumerated(EnumType.STRING)
     private WorkHistoryType.WorkType workType;
 
