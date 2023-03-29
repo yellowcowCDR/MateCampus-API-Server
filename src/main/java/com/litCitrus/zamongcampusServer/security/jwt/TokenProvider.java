@@ -48,16 +48,19 @@ public class TokenProvider implements InitializingBean {
 
     private final RefreshTokenRepository refreshTokenRepository;
     private final UserRepository userRepository;
+    private final String cookieVal;
 
     public TokenProvider(
             @Value("${jwt.secret}") String secret,
             @Value("${jwt.token-validity-in-seconds}") long tokenValidityInSeconds,
+            @Value("${server.cookie-val}") String cookieVal,
             UserRepository userRepository,
             RefreshTokenRepository refreshTokenRepository) {
         this.secret = secret;
         this.tokenValidityInMilliseconds = tokenValidityInSeconds * 1000;
         this.userRepository = userRepository;
         this.refreshTokenRepository = refreshTokenRepository;
+        this.cookieVal = cookieVal;
     }
 
     @Override
@@ -193,8 +196,9 @@ public class TokenProvider implements InitializingBean {
 
     private HttpHeaders getHeaderForRefreshToken(String refreshToken) {
         HttpHeaders httpHeaders = new HttpHeaders();
-        //HttpOnly: XSS 공격방지, 31536000 sec = 1 year
-        httpHeaders.add("Set-Cookie", CookieAndHeaderUtil.REFRESH_TOKEN_KEY + "=" + refreshToken + "; HttpOnly; Max-Age=31536000; Path=/; SameSite=None; Secure;");
+        //cookieVal 옵션 설명 > HttpOnly: XSS 공격방지, 31536000 sec = 1 year, Secure: HTTPS만 쿠키 허용
+        String cookieValue = CookieAndHeaderUtil.REFRESH_TOKEN_KEY + "=" + refreshToken + ";" + cookieVal;
+        httpHeaders.add("Set-Cookie", cookieValue);
         return httpHeaders;
     }
 }
