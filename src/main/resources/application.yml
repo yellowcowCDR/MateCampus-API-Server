@@ -4,7 +4,7 @@ spring:
       "dev": "dev-db,sample-data, dev-admin"
       "dev-no-db-initialization": "dev-db, no-db-initialization, dev-admin"
       "prod": "prod-db, no-db-initialization"
-    active: "dev"
+    active: "dev-no-db-initialization"
   jpa:
     # 서버 작동 시, table 계속 create 하도록 설정
     database: mysql
