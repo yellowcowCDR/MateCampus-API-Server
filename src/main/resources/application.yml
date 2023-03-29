@@ -4,7 +4,7 @@ spring:
       "dev": "dev-db,sample-data, dev-admin"
       "dev-no-db-initialization": "dev-db, no-db-initialization, dev-admin"
       "prod": "prod-db, no-db-initialization"
-    active: "dev-no-db-initialization"
+    active: "dev"
   jpa:
     # 서버 작동 시, table 계속 create 하도록 설정
     database: mysql
@@ -36,6 +36,8 @@ jwt:
   token-validity-in-seconds: '86400'
   secret: emFtb25nLWFuZC1vcmFuZ2UtY29sbGFib3JhdGlvbi1ieS1vdXItbmV3LXVuaXZlcnNpdHktYXBwbGljYXRpb24tem1jYW1wdXMtYnktc2VpbHBhcmstUy15dW4tcHJvamVjdC1ieS1saXRjaXRydXMK
 
+server:
+  cookie-val: HttpOnly; Max-Age=31536000; Path=/; SameSite=None;
 
 logging:
   level:
