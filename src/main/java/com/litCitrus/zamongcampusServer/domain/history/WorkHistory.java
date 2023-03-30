@@ -2,6 +2,7 @@ package com.litCitrus.zamongcampusServer.domain.history;
 
 import com.litCitrus.zamongcampusServer.domain.user.User;
 import lombok.AccessLevel;
+import lombok.Generated;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
@@ -10,8 +11,9 @@ import java.time.LocalDateTime;
 @Entity @Table(name="WORK_HISTORY")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class WorkHistory {
-    @Column(name="ID")
-    @Id
+
+    @Id @Column(name="ID")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name="FUNCTION_TYPE")

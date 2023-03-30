@@ -6,6 +6,9 @@ public class WorkHistoryType {
         ,FEED_LIKE
         ,FEED_REPLY
         ,FEED_REPLY_LIKE
+        ,FEED_WRITE
+        ,FEED_LIKE_LIST_TO_PROFILE
+        ,FEED_TO_PROFILE
         ,LOGIN
         ,LOGOUT
         ,PROFILE_PHOTO
