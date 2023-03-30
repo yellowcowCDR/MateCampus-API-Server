@@ -1,5 +1,6 @@
 package com.litCitrus.zamongcampusServer.service.post;
 
+import com.litCitrus.zamongcampusServer.domain.history.WorkHistoryType;
 import com.litCitrus.zamongcampusServer.domain.notification.Notification;
 import com.litCitrus.zamongcampusServer.domain.post.Post;
 import com.litCitrus.zamongcampusServer.domain.post.PostLike;
@@ -14,6 +15,7 @@ import com.litCitrus.zamongcampusServer.repository.notification.NotificationRepo
 import com.litCitrus.zamongcampusServer.repository.post.PostLikeRepository;
 import com.litCitrus.zamongcampusServer.repository.post.PostRepository;
 import com.litCitrus.zamongcampusServer.repository.user.UserRepository;
+import com.litCitrus.zamongcampusServer.service.history.WorkHistoryService;
 import com.litCitrus.zamongcampusServer.service.user.BlockedUserService;
 import com.litCitrus.zamongcampusServer.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
@@ -38,6 +40,7 @@ public class PostLikeService {
 
     private final BlockedUserService blockedUserService;
 
+    private final WorkHistoryService workHistoryService;
 
     @Transactional
     public PostLikeDtoRes likePost(Long postId){
@@ -77,6 +80,10 @@ public class PostLikeService {
             post.minusLikeCnt();
             postLikeRepository.deleteById(postLike.getId());
         }
+
+        //이력 저장
+        workHistoryService.saveWorkHistory(WorkHistoryType.WorkType.WRITE, WorkHistoryType.FunctionType.FEED_LIKE);
+
         return new PostLikeDtoRes(post);
     }
 
