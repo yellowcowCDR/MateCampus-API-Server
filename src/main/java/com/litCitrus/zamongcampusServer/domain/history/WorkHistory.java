@@ -7,11 +7,10 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
+@Entity @Table(name="WORK_HISTORY")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name="WORK_HISTORY")
-@Entity
 public class WorkHistory {
-    @Column(name="HISTORY_ID")
+    @Column(name="ID")
     @Id
     private Long id;
 
@@ -24,7 +23,7 @@ public class WorkHistory {
     private WorkHistoryType.WorkType workType;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="id")
+    @JoinColumn(name="USER_ID")
     private User workUser;
 
     @Column(name="WORK_IP")
@@ -32,4 +31,14 @@ public class WorkHistory {
 
     @Column(name="WORK_DATE")
     private LocalDateTime workDate;
+
+    public static WorkHistory createWorkHistory(WorkHistoryType.WorkType workType, WorkHistoryType.FunctionType functionType, User user, String workIp) {
+        WorkHistory w = new WorkHistory();
+        w.functionType = functionType;
+        w.workType  = workType;
+        w.workUser = user;
+        w.workIp = workIp;
+        w.workDate = LocalDateTime.now();
+        return w;
+    }
 }
