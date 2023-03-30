@@ -2,14 +2,12 @@ package com.litCitrus.zamongcampusServer.dto.history;
 
 import com.litCitrus.zamongcampusServer.domain.history.WorkHistoryType;
 import com.litCitrus.zamongcampusServer.domain.user.User;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
+@Getter
 public class WorkHistoryResDto {
     private String workDate;
     private User workUser;
