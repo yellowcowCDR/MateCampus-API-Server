@@ -1,6 +1,7 @@
 package com.litCitrus.zamongcampusServer.service.chat;
 
 import com.litCitrus.zamongcampusServer.domain.chat.ChatRoom;
+import com.litCitrus.zamongcampusServer.domain.history.WorkHistoryType;
 import com.litCitrus.zamongcampusServer.domain.user.BlockedUser;
 import com.litCitrus.zamongcampusServer.domain.user.ModifiedChatInfo;
 import com.litCitrus.zamongcampusServer.domain.user.User;
@@ -16,6 +17,7 @@ import com.litCitrus.zamongcampusServer.repository.chat.ChatRoomRepository;
 import com.litCitrus.zamongcampusServer.repository.user.ModifiedChatInfoRepository;
 import com.litCitrus.zamongcampusServer.repository.user.UserRepository;
 import com.litCitrus.zamongcampusServer.security.jwt.TokenProvider;
+import com.litCitrus.zamongcampusServer.service.history.WorkHistoryService;
 import com.litCitrus.zamongcampusServer.service.user.BlockedUserService;
 import com.litCitrus.zamongcampusServer.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
@@ -43,6 +45,8 @@ public class ChatMessageService {
     private final FCMHandler fcmHandler;
 
     private final BlockedUserService blockedUserService;
+
+    private final WorkHistoryService workHistoryService;
 
     @Transactional
     public void sendMessage(ChatMessageDtoReq messageDto, String token){
@@ -87,7 +91,8 @@ public class ChatMessageService {
                 fcmHandler.sendNotification(fcmDto, "fcm_message_channel", recipientsExceptMe, user.getNickname());
             }
         }
-
+        //이력 저장
+        workHistoryService.saveWorkHistory(WorkHistoryType.WorkType.WRITE, WorkHistoryType.FunctionType.MESSAGE);
     }
 
     // READ: GET MESSAGE
