@@ -1,5 +1,6 @@
 package com.litCitrus.zamongcampusServer.service.post;
 
+import com.litCitrus.zamongcampusServer.domain.history.WorkHistoryType;
 import com.litCitrus.zamongcampusServer.domain.post.*;
 import com.litCitrus.zamongcampusServer.domain.user.College;
 import com.litCitrus.zamongcampusServer.domain.user.User;
@@ -12,6 +13,7 @@ import com.litCitrus.zamongcampusServer.exception.user.UserNotFoundException;
 import com.litCitrus.zamongcampusServer.repository.post.*;
 import com.litCitrus.zamongcampusServer.repository.post.view.PostViewRepository;
 import com.litCitrus.zamongcampusServer.repository.user.UserRepository;
+import com.litCitrus.zamongcampusServer.service.history.WorkHistoryService;
 import com.litCitrus.zamongcampusServer.service.image.S3Uploader;
 import com.litCitrus.zamongcampusServer.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
@@ -43,6 +45,8 @@ public class PostService {
     private final PostCategoryRepository postCategoryRepository;
     private final S3Uploader s3Uploader;
 
+    private final WorkHistoryService workHistoryService;
+
     public Post createPost(PostDtoReq.Create postDto) throws Exception{
         User user = SecurityUtil.getCurrentUsername().flatMap(userRepository::findByLoginId).orElseThrow(UserNotFoundException::new);
         List<PostCategory> postCategories = postCategoryRepository.findByPostCategoryCodeIsIn
@@ -59,6 +63,10 @@ public class PostService {
             postPictureRepository.saveAll(postPictures);
         }
         postParticipantRepository.save(PostParticipant.createPostPartcipant(user, post, ""));
+
+        //이력 저장
+        workHistoryService.saveWorkHistory(WorkHistoryType.WorkType.WRITE, WorkHistoryType.FunctionType.FEED);
+
         return postRepository.save(post);
     }
 
