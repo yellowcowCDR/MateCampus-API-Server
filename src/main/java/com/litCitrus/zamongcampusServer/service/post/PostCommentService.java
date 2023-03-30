@@ -1,5 +1,6 @@
 package com.litCitrus.zamongcampusServer.service.post;
 
+import com.litCitrus.zamongcampusServer.domain.history.WorkHistoryType;
 import com.litCitrus.zamongcampusServer.domain.notification.Notification;
 import com.litCitrus.zamongcampusServer.domain.post.Post;
 import com.litCitrus.zamongcampusServer.domain.post.PostComment;
@@ -18,6 +19,7 @@ import com.litCitrus.zamongcampusServer.repository.post.PostCommentRepository;
 import com.litCitrus.zamongcampusServer.repository.post.PostParticipantRepository;
 import com.litCitrus.zamongcampusServer.repository.post.PostRepository;
 import com.litCitrus.zamongcampusServer.repository.user.UserRepository;
+import com.litCitrus.zamongcampusServer.service.history.WorkHistoryService;
 import com.litCitrus.zamongcampusServer.service.user.BlockedUserService;
 import com.litCitrus.zamongcampusServer.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
@@ -42,7 +44,9 @@ public class PostCommentService {
     private final FCMHandler fcmHandler;
     private final NotificationRepository notificationRepository;
 
-    final private BlockedUserService blockedUserService;
+    private final BlockedUserService blockedUserService;
+
+    private final WorkHistoryService workHistoryService;
 
     @Transactional
     public PostComment createPostComment(Long postId, PostCommentDtoReq.CreateRequest postCommentDto){
@@ -114,6 +118,10 @@ public class PostCommentService {
             fcmHandler.sendNotification(fcmDto, "fcm_default_channel", postOwner, null);
 
         }
+
+        //이력 저장
+        workHistoryService.saveWorkHistory(WorkHistoryType.WorkType.WRITE, WorkHistoryType.FunctionType.FEED_REPLY);
+
         return postComment;
     }
 
