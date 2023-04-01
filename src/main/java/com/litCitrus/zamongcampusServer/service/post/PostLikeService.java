@@ -94,7 +94,6 @@ public class PostLikeService {
 
 
         List<UserDtoRes.ResForPostLikedUsers> postLikedUserList = new ArrayList<UserDtoRes.ResForPostLikedUsers>();
-
         for(PostLike postLike : postLikeList){
             User user = postLike.getUser();
             UserDtoRes.ResForPostLikedUsers likedUser= new UserDtoRes.ResForPostLikedUsers(
@@ -106,6 +105,9 @@ public class PostLikeService {
             );
             postLikedUserList.add(likedUser);
         }
+
+        //이력 저장
+        workHistoryService.saveWorkHistory(WorkHistoryType.WorkType.VISIT, WorkHistoryType.FunctionType.FEED_LIKE);
 
 
         return postLikedUserList;
