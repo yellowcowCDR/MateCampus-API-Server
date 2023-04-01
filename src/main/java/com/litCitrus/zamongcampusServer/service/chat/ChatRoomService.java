@@ -3,6 +3,7 @@ package com.litCitrus.zamongcampusServer.service.chat;
 import com.litCitrus.zamongcampusServer.domain.chat.ChatRoom;
 import com.litCitrus.zamongcampusServer.domain.chat.Participant;
 import com.litCitrus.zamongcampusServer.domain.chat.ParticipantType;
+import com.litCitrus.zamongcampusServer.domain.history.WorkHistoryType;
 import com.litCitrus.zamongcampusServer.domain.user.User;
 import com.litCitrus.zamongcampusServer.dto.chat.ChatRoomDtoReq;
 import com.litCitrus.zamongcampusServer.dto.chat.ChatRoomDtoRes;
@@ -11,6 +12,7 @@ import com.litCitrus.zamongcampusServer.exception.user.UserNotFoundException;
 import com.litCitrus.zamongcampusServer.repository.chat.ChatRoomRepository;
 import com.litCitrus.zamongcampusServer.repository.user.UserRepository;
 import com.litCitrus.zamongcampusServer.repository.voiceRoom.ParticipantRepository;
+import com.litCitrus.zamongcampusServer.service.history.WorkHistoryService;
 import com.litCitrus.zamongcampusServer.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,6 +22,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.litCitrus.zamongcampusServer.domain.history.WorkHistoryType.*;
+
 @Service
 @RequiredArgsConstructor
 public class ChatRoomService {
@@ -28,6 +32,7 @@ public class ChatRoomService {
     final private ParticipantRepository participantRepository;
     final private ChatRoomRepository chatRoomRepository;
     private final SystemMessageComponent systemMessageComponent;
+    private final WorkHistoryService workHistoryService;
 
     public ChatRoomDtoRes createOrGetChatRoom(ChatRoomDtoReq.Create chatRoomDto){
         User user = SecurityUtil.getUser(userRepository);
@@ -53,6 +58,9 @@ public class ChatRoomService {
         /* 2. 채팅방, 채팅방 멤버 정보 전달 */
         /* (CREATE message 실시간 전송 + 본인 제외!! 참여한 user들의 modifiedChatInfo db 저장) */
         systemMessageComponent.sendSaveCreateSystemMessage(chatRoom, members, user, other);
+
+        //작업 이력 저장
+        workHistoryService.saveWorkHistory(WorkType.WRITE, FunctionType.CHAT_ROOM);
         return new ChatRoomDtoRes(chatRoom, members, user);
     }
 
