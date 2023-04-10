@@ -53,6 +53,7 @@ public class User extends BaseEntity {
     private Integer grade;
     private boolean gender;
     private LocalDate birth;
+    private String studentNo;
 
     @Builder.Default
     private boolean emailAuthentication = Boolean.FALSE;
@@ -118,7 +119,8 @@ public class User extends BaseEntity {
                 .introduction(userDto.getIntroduce())
                 .grade(userDto.getGrade())
                 .gender(userDto.getGender())
-                .birth(userDto.getBirth())
+                //.birth(userDto.getBirth())
+                .studentNo(userDto.getStudentNo())
                 .activated(true)  // 이거 활성화시키면 회원가입만 하면 우리 서비스 바로 사용 가능.
                 .build();
         return user;
