@@ -13,9 +13,13 @@ import java.util.stream.Collectors;
 public class FCMHandler {
 
     private final FirebaseMessaging firebaseMessaging;
-    String title = "\uD83C\uDF4A자몽캠퍼스";
+    private final String appTitle = "\uD83C\uDF4A자몽캠퍼스";
     public void sendNotification(FCMDto fcmDto, String channelId, List<User> recipients, String newTitle) {
-        if(newTitle != null) title = newTitle;
+        String title;
+
+        if(newTitle == null) title = appTitle;
+        else title = newTitle;
+
         List<String> recipientTokens = recipients.stream().map(user -> user.getDeviceToken()).collect(Collectors.toList());
         Notification notification = Notification
                 .builder()
@@ -47,7 +51,11 @@ public class FCMHandler {
     }
 
     public void sendNotificationOne(FCMDto fcmDto, String channelId, User recipient, String newTitle) {
-        if(newTitle != null) title = newTitle;
+        String title;
+
+        if(newTitle == null) title = appTitle;
+        else title = newTitle;
+
         String recipientToken = recipient.getDeviceToken();
         Notification notification = Notification
                 .builder()
